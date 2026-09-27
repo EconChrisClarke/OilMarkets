@@ -11,7 +11,7 @@ Charts and data on global crude oil markets.
 | 1 | The US exports 1.2 million barrels of diesel a day, mostly from the Gulf | [diesel-exports-2024.html](https://econchrisclarke.github.io/OilMarkets/diesel-exports-2024.html) |
 | 2 | Most US diesel imports are Canadian fuel landing in New England | [diesel-imports-2024.html](https://econchrisclarke.github.io/OilMarkets/diesel-imports-2024.html) |
 | 3 | The Gulf Coast sends more diesel abroad than to the rest of the US | [gulf-diesel-2024.html](https://econchrisclarke.github.io/OilMarkets/gulf-diesel-2024.html) |
-| 4 | Diesel's margin over crude hit a record in 2026, pulling far ahead of gasoline's | [diesel-gasoline-margins.html](https://econchrisclarke.github.io/OilMarkets/diesel-gasoline-margins.html) |
+| 4 | In 2008 expensive crude drove fuel prices; now it's the margin on diesel | [diesel-gasoline-margins.html](https://econchrisclarke.github.io/OilMarkets/diesel-gasoline-margins.html) |
 
 ### US diesel exports by port region and destination, 2024
 
@@ -31,13 +31,15 @@ Arrow width is barrels per day.
 **Source:** US Census Bureau, International Trade API, exports by customs
 district at the HS10 level (Schedule B 2710.19.1106/1109/1112 and 2710.20).
 
-### Diesel vs. gasoline refining margins, 2006-2026
+### Crude oil vs. diesel and gasoline refining margins, 2006-2026
 
-What a barrel of diesel and a barrel of gasoline fetch over the Brent crude
+Brent crude, and what a barrel of diesel and a barrel of gasoline fetch over the Brent crude
 they are made from, at US Gulf Coast spot prices, monthly. In 2010-19 the
 margins averaged $14 (diesel) and $8 (gasoline) a barrel. Diesel's hit $73
 in October 2022 and a record $86 in August 2026; gasoline's reached a record
-$54 in July 2026.
+$54 in July 2026. The contrast with 2008 is the point: Brent peaked at $133 in
+July 2008 with a diesel margin of $28, while in August 2026 Brent was $91 and
+the diesel margin $86. Prices are nominal.
 
 - **View the chart:** [diesel-gasoline-margins.html](https://econchrisclarke.github.io/OilMarkets/diesel-gasoline-margins.html)
 - **Data:** [`data/eia/gulf_crack_spreads_monthly.csv`](data/eia/gulf_crack_spreads_monthly.csv)

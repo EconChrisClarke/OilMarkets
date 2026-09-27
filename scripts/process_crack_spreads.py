@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Diesel and gasoline refining margins over crude, US Gulf Coast, monthly.
+"""Brent crude and diesel and gasoline refining margins over it, US Gulf Coast, monthly.
 
 Margin = product spot price x 42 gallons - Brent, in dollars per barrel: the
 simple "crack spread", what a barrel of each product fetches over the crude
@@ -68,6 +68,7 @@ gm = {r[0]: r[5] for r in rows}
 pre = [dm[m] for m in months if "2010" <= m < "2020"]
 gpre = [gm[m] for m in months if "2010" <= m < "2020"]
 peak22 = max((m for m in months if m.startswith("2022")), key=dm.get)
+peak08 = max((m for m in months if m < "2009"), key=p["brent"].get)
 peak26 = max((m for m in months if m >= "2026"), key=dm.get)
 last = months[-1]
 print(f"2010-19 average: diesel {sum(pre)/len(pre):.0f}, gasoline {sum(gpre)/len(gpre):.0f} $/bbl")
@@ -77,8 +78,8 @@ print(f"latest {last}: diesel {dm[last]:.0f}, gasoline {gm[last]:.0f}")
 date = lambda m: m + "-15"
 cfg = {
     "type": "line",
-    "headline": "Diesel's margin over crude hit a record in 2026, pulling far ahead of gasoline's",
-    "subhead": "Refining margin over Brent crude, US Gulf Coast spot prices, dollars per barrel, monthly",
+    "headline": "In 2008 expensive crude drove fuel prices; now it's the margin on diesel",
+    "subhead": "Brent crude and refining margins over it, US Gulf Coast, dollars per barrel (nominal), monthly",
     "note": ("Margin is the product's spot price per barrel minus the Brent spot price. "
              f"Diesel is ultra-low-sulfur No. 2; gasoline is conventional regular. "
              f"2010-19 averages: diesel ${sum(pre)/len(pre):.0f}, gasoline ${sum(gpre)/len(gpre):.0f}."),
@@ -89,10 +90,12 @@ cfg = {
     "format": {"prefix": "$", "decimals": 0},
     "rules": [{"axis": "y", "at": 0}],
     "series": [
-        {"name": "Diesel", "color": "#C71E1D", "data": [[date(m), dm[m]] for m in months]},
-        {"name": "Gasoline", "color": "#1B3A5C", "data": [[date(m), gm[m]] for m in months]},
+        {"name": "Brent crude", "color": "#9CA3AF", "data": [[date(m), p["brent"][m]] for m in months]},
+        {"name": "Diesel margin", "color": "#C71E1D", "data": [[date(m), dm[m]] for m in months]},
+        {"name": "Gasoline margin", "color": "#1B3A5C", "data": [[date(m), gm[m]] for m in months]},
     ],
     "annotations": [
+        {"x": date(peak08), "y": p["brent"][peak08], "text": "2008: crude peaks", "dx": 20, "dy": -6},
         {"x": date(peak22), "y": dm[peak22], "text": "2022: Russia's war", "dx": -20, "dy": -6},
         {"x": date(peak26), "y": dm[peak26], "text": "2026: Iran war", "dx": -60, "dy": -10},
     ],
