@@ -11,7 +11,7 @@ Charts and data on global crude oil markets.
 | 1 | The US exports 1.2 million barrels of diesel a day, mostly from the Gulf | [diesel-exports-2024.html](https://econchrisclarke.github.io/OilMarkets/diesel-exports-2024.html) |
 | 2 | Most US diesel imports are Canadian fuel landing in New England | [diesel-imports-2024.html](https://econchrisclarke.github.io/OilMarkets/diesel-imports-2024.html) |
 | 3 | The Gulf Coast sends more diesel abroad than to the rest of the US | [gulf-diesel-2024.html](https://econchrisclarke.github.io/OilMarkets/gulf-diesel-2024.html) |
-| 4 | Post-Covid fuel price shocks are due to refining limits more than crude oil, unlike 2008 | [diesel-gasoline-margins.html](https://econchrisclarke.github.io/OilMarkets/diesel-gasoline-margins.html) |
+| 4 | Post-Covid fuel price shocks come from refining limits more than crude, unlike 2008 | [diesel-gasoline-margins.html](https://econchrisclarke.github.io/OilMarkets/diesel-gasoline-margins.html) |
 
 ### US diesel exports by port region and destination, 2024
 

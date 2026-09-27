@@ -81,7 +81,7 @@ print(f"latest {last}: diesel {dm[last]:.0f}, gasoline {gm[last]:.0f}")
 date = lambda m: m + "-15"
 cfg = {
     "type": "line",
-    "headline": "Post-Covid fuel price shocks are due to refining limits more than crude oil, unlike 2008",
+    "headline": "Post-Covid fuel price shocks come from refining limits more than crude, unlike 2008",
     "subhead": "Brent crude and refining margins over it, US Gulf Coast, dollars per barrel (nominal), monthly",
     "note": ("Margin is the product's spot price per barrel minus the Brent spot price. "
              f"Diesel is ultra-low-sulfur No. 2; gasoline is conventional regular. "
