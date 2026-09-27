@@ -1,0 +1,14 @@
+benchmark,country,api_gravity,sulfur_pct
+Maya,Mexico,22,3.3
+Basrah Light,Iraq,29,3.05
+Arab Heavy,Saudi Arabia,28,2.65
+Kuwait,Kuwait,29,2.5
+Iran Heavy,Iran,29,2.2
+Mars,USA,29,2.0
+Arab Light,Saudi Arabia,33,1.8
+Urals,Russia,30,1.35
+West Texas Sour,USA,33,1.25
+Murban,UAE,39,0.85
+West Texas Intermediate,USA,39.5,0.35
+Brent Blend,UK,39.5,0.28
+Tight Oil,USA,40.5,0.2
