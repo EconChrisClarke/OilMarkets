@@ -110,7 +110,6 @@ GATEWAYS = {
     "pnw":    {"label": "Puget Sound", "districts": ["30"], "lonlat": [-123.2, 48.2]},
     "calif":  {"label": "California", "districts": ["27", "28"], "lonlat": [-120.9, 35.2]},
     "nyh":    {"label": "New York Harbor", "districts": ["10", "11"], "lonlat": [-74.1, 40.6]},
-    "usvi":   {"label": "St. Croix", "districts": ["51"], "lonlat": [-64.75, 17.7], "sides": ["nw", "left", "above", "sw"]},
 }
 # Latin America merges Central, South America and the Caribbean: most of it
 # heads for Panama (Chile, Peru and Ecuador are Pacific-coast buyers).
@@ -153,7 +152,8 @@ cfg = {
     "frames": {
         "substack": {"bounds": [[-126, 14], [-62, 50]]},
         "vertical": {"bounds": [[-125, 14], [-63, 49]], "labelMin": 30000, "shortLabels": True,
-                     # on 9:16 the St. Croix arrow crowds the Caribbean: label over Panama
+                     # on 9:16 the default spot pushes 'To Latin America' onto 'To Mexico':
+                     # put it over Panama, beneath its own arrows
                      "nodes": {"latam": {"labelAt": [-80, 10], "sides": ["below", "se", "right"]}}},
         "square": {"bounds": [[-124, 14], [-66, 50]]},
     },
