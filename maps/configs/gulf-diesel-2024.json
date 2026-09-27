@@ -1,0 +1,221 @@
+{
+  "headline": "The Gulf Coast sends more diesel abroad than to the rest of the US",
+  "subhead": "Distillate fuel oil leaving the Gulf Coast (PADD 3) by destination, 2024, barrels per day",
+  "note": "85% of East Coast deliveries go by pipeline. None went to the West Coast by ship; the Arizona flow is by pipeline.",
+  "source": "EIA, Movements by Pipeline, Tanker, Barge and Rail between PAD Districts; US Census Bureau, International Trade API (HS10)",
+  "sourceUrl": "https://www.eia.gov/dnav/pet/pet_move_ptb_a_EPD0_TNR_mbbl_a.htm",
+  "units": "b/d",
+  "draft": false,
+  "style": "fan",
+  "arrowStyle": "swoosh",
+  "swooshBend": 0.05,
+  "arrowLength": 170,
+  "maxArrowWidth": 32,
+  "widthMaxValue": 320000,
+  "legendTitle": "Arrow width",
+  "legend": [
+    50000,
+    200000
+  ],
+  "geoBBox": [
+    -170,
+    -25,
+    -20,
+    75
+  ],
+  "nodes": {
+    "gulf": {
+      "label": "Gulf Coast",
+      "lonlat": [
+        -93.0,
+        29.9
+      ],
+      "labelAt": [
+        -97.2,
+        28.6
+      ],
+      "sides": [
+        "left",
+        "above",
+        "below"
+      ]
+    },
+    "east": {
+      "label": "East Coast",
+      "arrowLabel": "To the East Coast",
+      "color": "#1B3A5C",
+      "lonlat": [
+        -74.2,
+        40.6
+      ],
+      "labelAt": [
+        -71.5,
+        37.5
+      ],
+      "sides": [
+        "right",
+        "above",
+        "below"
+      ]
+    },
+    "midwest": {
+      "label": "Midwest",
+      "arrowLabel": "To the Midwest",
+      "color": "#1B3A5C",
+      "lonlat": [
+        -90,
+        40
+      ]
+    },
+    "west": {
+      "label": "West",
+      "arrowLabel": "To Arizona",
+      "color": "#1B3A5C",
+      "lonlat": [
+        -112,
+        33.4
+      ]
+    },
+    "latam": {
+      "label": "Latin America",
+      "color": "#C71E1D",
+      "lonlat": [
+        -80,
+        11
+      ]
+    },
+    "mexico": {
+      "label": "Mexico",
+      "color": "#7A1712",
+      "lonlat": [
+        -101.5,
+        21.5
+      ]
+    },
+    "europe": {
+      "label": "Europe",
+      "color": "#E8A33D",
+      "textColor": "#9A5B0C",
+      "lonlat": [
+        -40,
+        38
+      ]
+    }
+  },
+  "flows": [
+    {
+      "from": "gulf",
+      "to": "east",
+      "value": 868000,
+      "toward": [
+        -76,
+        39
+      ],
+      "length": 330
+    },
+    {
+      "from": "gulf",
+      "to": "midwest",
+      "value": 62000,
+      "toward": [
+        -91,
+        40
+      ]
+    },
+    {
+      "from": "gulf",
+      "to": "west",
+      "value": 34000,
+      "toward": [
+        -112,
+        33.4
+      ]
+    },
+    {
+      "from": "gulf",
+      "to": "latam",
+      "value": 538000.0
+    },
+    {
+      "from": "gulf",
+      "to": "europe",
+      "value": 289000.0,
+      "toward": [
+        -60,
+        24.5
+      ]
+    },
+    {
+      "from": "gulf",
+      "to": "mexico",
+      "value": 193000.0,
+      "toward": [
+        -99,
+        22
+      ]
+    }
+  ],
+  "frames": {
+    "substack": {
+      "bounds": [
+        [
+          -126,
+          14
+        ],
+        [
+          -62,
+          50
+        ]
+      ]
+    },
+    "vertical": {
+      "bounds": [
+        [
+          -125,
+          14
+        ],
+        [
+          -63,
+          49
+        ]
+      ],
+      "shortLabels": true,
+      "nodes": {
+        "east": {
+          "labelAt": [
+            -69.5,
+            45
+          ],
+          "sides": [
+            "above",
+            "left"
+          ]
+        }
+      }
+    },
+    "square": {
+      "bounds": [
+        [
+          -124,
+          14
+        ],
+        [
+          -66,
+          50
+        ]
+      ],
+      "nodes": {
+        "east": {
+          "labelAt": [
+            -69.5,
+            45
+          ],
+          "sides": [
+            "above",
+            "left"
+          ]
+        }
+      }
+    }
+  }
+}

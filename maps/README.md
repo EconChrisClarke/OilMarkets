@@ -34,6 +34,9 @@ stay in `charts/`.
 - `widthMaxValue`: the value drawn at `maxArrowWidth`. Without it the map's
   largest flow gets the full width; set it (with the same `maxArrowWidth` and
   `legend`) on maps meant to be compared, so equal widths mean equal flows.
+- `length` on a flow overrides its fan arrow's length (a node's `length` sets
+  all of that origin's arrows). A very wide arrow needs a longer one to read
+  as an arrow rather than a wedge.
 - `legend`: reference values drawn as sample arrows. `draft: true` stamps a
   PLACEHOLDER watermark on the map.
 

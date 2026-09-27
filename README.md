@@ -10,6 +10,8 @@ Charts and data on global crude oil markets.
 |---|---|---|
 | 1 | The US exports 1.2 million barrels of diesel a day, mostly from the Gulf | [diesel-exports-2024.html](https://econchrisclarke.github.io/OilMarkets/diesel-exports-2024.html) |
 | 2 | Most US diesel imports are Canadian fuel landing in New England | [diesel-imports-2024.html](https://econchrisclarke.github.io/OilMarkets/diesel-imports-2024.html) |
+| 3 | The Gulf Coast sends more diesel abroad than to the rest of the US | [gulf-diesel-2024.html](https://econchrisclarke.github.io/OilMarkets/gulf-diesel-2024.html) |
+| 4 | Post-Covid fuel price shocks come from refining limits more than crude, unlike 2008 | [diesel-gasoline-margins.html](https://econchrisclarke.github.io/OilMarkets/diesel-gasoline-margins.html) |
 
 ### US diesel exports by port region and destination, 2024
 
@@ -28,6 +30,45 @@ Arrow width is barrels per day.
 
 **Source:** US Census Bureau, International Trade API, exports by customs
 district at the HS10 level (Schedule B 2710.19.1106/1109/1112 and 2710.20).
+
+### Crude oil vs. diesel and gasoline refining margins, 2006-2026
+
+Brent crude, and what a barrel of diesel and a barrel of gasoline fetch over the Brent crude
+they are made from, at US Gulf Coast spot prices, monthly. In 2010-19 the
+margins averaged $14 (diesel) and $8 (gasoline) a barrel. Diesel's hit $73
+in October 2022 and a record $86 in August 2026; gasoline's reached a record
+$54 in July 2026. The contrast with 2008 is the point: Brent peaked at $133 in
+July 2008 with a diesel margin of $28, while in August 2026 Brent was $91 and
+the diesel margin $86. Prices are nominal.
+
+- **View the chart:** [diesel-gasoline-margins.html](https://econchrisclarke.github.io/OilMarkets/diesel-gasoline-margins.html)
+- **Data:** [`data/eia/gulf_crack_spreads_monthly.csv`](data/eia/gulf_crack_spreads_monthly.csv)
+- **Chart config:** [`charts/diesel-gasoline-margins.json`](charts/diesel-gasoline-margins.json),
+  built by [`scripts/process_crack_spreads.py`](scripts/process_crack_spreads.py)
+
+**Source:** EIA spot prices: Brent; US Gulf Coast ultra-low-sulfur No. 2 diesel;
+US Gulf Coast conventional regular gasoline (monthly averages of daily closes).
+
+### Where Gulf Coast diesel goes, 2024
+
+The Gulf Coast (PADD 3) sent 1.04 million barrels a day of distillate fuel
+oil abroad in 2024, against 0.97 million to the rest of the US. Almost all of
+the domestic flow went to the East Coast (868k b/d, 85% by pipeline). The
+Midwest took 62k b/d, and the West 34k b/d, all of it by pipeline to Arizona:
+no Gulf diesel went to the West Coast by ship. Same arrow scale as the export
+and import maps.
+
+- **View the map:** [gulf-diesel-2024.html](https://econchrisclarke.github.io/OilMarkets/gulf-diesel-2024.html)
+- **Data:** [`data/eia/distillate_padd3_outflows_2020_2025.csv`](data/eia/distillate_padd3_outflows_2020_2025.csv)
+  (movements to other regions by mode, 2020-2025),
+  [`data/census_trade/distillate_exports_padd3_by_region_2024.csv`](data/census_trade/distillate_exports_padd3_by_region_2024.csv) (exports)
+- **Map config:** [`maps/configs/gulf-diesel-2024.json`](maps/configs/gulf-diesel-2024.json),
+  built by [`scripts/process_gulf_diesel_2024.py`](scripts/process_gulf_diesel_2024.py)
+
+**Source:** EIA, Movements by Pipeline, Tanker, Barge and Rail between PAD
+Districts (annual); US Census Bureau, International Trade API, exports by
+customs district (HS10) from the Houston-Galveston, Port Arthur, New Orleans,
+Mobile, Laredo and El Paso districts.
 
 ### US diesel imports by state of entry and origin, 2024
 
