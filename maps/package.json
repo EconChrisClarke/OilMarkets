@@ -1,0 +1,13 @@
+{
+  "name": "oilmarkets-maps",
+  "private": true,
+  "description": "Builds self-contained house-style HTML maps (see maps/README.md)",
+  "scripts": { "build": "node build_map.js" },
+  "dependencies": {
+    "d3-array": "^3.2.4",
+    "d3-geo": "^3.1.1",
+    "topojson-client": "^3.1.0",
+    "us-atlas": "^3.0.1",
+    "world-atlas": "^2.0.2"
+  }
+}

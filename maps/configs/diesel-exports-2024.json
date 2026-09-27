@@ -1,0 +1,320 @@
+{
+  "headline": "The US exports 1.2 million barrels of diesel a day, mostly from the Gulf",
+  "subhead": "Distillate fuel oil exports by exporting region and destination, 2024, barrels per day",
+  "note": "Map covers 98% of exports.",
+  "source": "US Census Bureau, International Trade API (exports by customs district, HS10)",
+  "sourceUrl": "https://api.census.gov/data/timeseries/intltrade/exports/hs",
+  "units": "b/d",
+  "draft": false,
+  "style": "fan",
+  "arrowStyle": "swoosh",
+  "arrowLength": 150,
+  "maxArrowWidth": 32,
+  "legendTitle": "Arrow width",
+  "legend": [
+    50000,
+    200000
+  ],
+  "geoBBox": [
+    -170,
+    -25,
+    -20,
+    75
+  ],
+  "nodes": {
+    "txgulf": {
+      "label": "Texas Gulf Coast",
+      "short": "Texas Gulf",
+      "lonlat": [
+        -94.9,
+        29.4
+      ],
+      "sides": [
+        "left",
+        "above"
+      ]
+    },
+    "la": {
+      "label": "Louisiana & Mississippi",
+      "short": "LA & MS",
+      "lonlat": [
+        -90.2,
+        29.8
+      ],
+      "sides": [
+        "above",
+        "nw",
+        "ne",
+        "right"
+      ]
+    },
+    "laredo": {
+      "label": "Laredo",
+      "lonlat": [
+        -99.5,
+        27.5
+      ],
+      "sides": [
+        "nw",
+        "above",
+        "left",
+        "sw",
+        "below"
+      ]
+    },
+    "elpaso": {
+      "label": "El Paso",
+      "lonlat": [
+        -106.45,
+        31.75
+      ],
+      "sides": [
+        "ne",
+        "above",
+        "nw"
+      ]
+    },
+    "nogales": {
+      "label": "Nogales",
+      "lonlat": [
+        -110.94,
+        31.34
+      ],
+      "sides": [
+        "sw",
+        "ne",
+        "nw",
+        "left",
+        "below"
+      ]
+    },
+    "pnw": {
+      "label": "Puget Sound",
+      "lonlat": [
+        -123.2,
+        48.2
+      ]
+    },
+    "calif": {
+      "label": "California",
+      "lonlat": [
+        -120.9,
+        35.2
+      ]
+    },
+    "nyh": {
+      "label": "New York Harbor",
+      "lonlat": [
+        -74.1,
+        40.6
+      ]
+    },
+    "usvi": {
+      "label": "St. Croix",
+      "lonlat": [
+        -64.75,
+        17.7
+      ],
+      "sides": [
+        "nw",
+        "left",
+        "above",
+        "sw"
+      ]
+    },
+    "mexico": {
+      "label": "Mexico",
+      "color": "#7A1712",
+      "lonlat": [
+        -101.5,
+        21.5
+      ],
+      "labelAt": [
+        -102,
+        20.2
+      ],
+      "sides": [
+        "below",
+        "se",
+        "right",
+        "left"
+      ]
+    },
+    "latam": {
+      "label": "Latin America",
+      "color": "#C71E1D",
+      "lonlat": [
+        -80,
+        11
+      ],
+      "labelAt": [
+        -86,
+        16.5
+      ],
+      "sides": [
+        "below",
+        "right",
+        "left"
+      ]
+    },
+    "europe": {
+      "label": "Europe",
+      "color": "#E8A33D",
+      "textColor": "#9A5B0C",
+      "lonlat": [
+        -40,
+        38
+      ]
+    }
+  },
+  "flows": [
+    {
+      "from": "txgulf",
+      "to": "latam",
+      "value": 320000.0
+    },
+    {
+      "from": "la",
+      "to": "latam",
+      "value": 218000.0
+    },
+    {
+      "from": "la",
+      "to": "europe",
+      "value": 177000.0,
+      "toward": [
+        -60,
+        24.5
+      ]
+    },
+    {
+      "from": "txgulf",
+      "to": "europe",
+      "value": 113000.0,
+      "toward": [
+        -60,
+        24.5
+      ]
+    },
+    {
+      "from": "txgulf",
+      "to": "mexico",
+      "value": 93000.0,
+      "toward": [
+        -96.5,
+        20.5
+      ]
+    },
+    {
+      "from": "laredo",
+      "to": "mexico",
+      "value": 58000.0
+    },
+    {
+      "from": "pnw",
+      "to": "mexico",
+      "value": 34000.0,
+      "toward": [
+        -125.5,
+        30
+      ]
+    },
+    {
+      "from": "calif",
+      "to": "latam",
+      "value": 32000.0,
+      "toward": [
+        -112,
+        14
+      ]
+    },
+    {
+      "from": "nyh",
+      "to": "europe",
+      "value": 30000.0,
+      "toward": [
+        -40,
+        41
+      ]
+    },
+    {
+      "from": "elpaso",
+      "to": "mexico",
+      "value": 23000.0
+    },
+    {
+      "from": "la",
+      "to": "mexico",
+      "value": 19000.0
+    },
+    {
+      "from": "pnw",
+      "to": "latam",
+      "value": 18000.0,
+      "toward": [
+        -124.5,
+        28
+      ]
+    },
+    {
+      "from": "usvi",
+      "to": "latam",
+      "value": 16000.0
+    },
+    {
+      "from": "calif",
+      "to": "mexico",
+      "value": 9000.0,
+      "toward": [
+        -116,
+        24
+      ]
+    },
+    {
+      "from": "nogales",
+      "to": "mexico",
+      "value": 5000.0
+    }
+  ],
+  "frames": {
+    "substack": {
+      "bounds": [
+        [
+          -126,
+          14
+        ],
+        [
+          -62,
+          50
+        ]
+      ]
+    },
+    "vertical": {
+      "bounds": [
+        [
+          -125,
+          14
+        ],
+        [
+          -63,
+          49
+        ]
+      ],
+      "labelMin": 30000,
+      "shortLabels": true
+    },
+    "square": {
+      "bounds": [
+        [
+          -124,
+          14
+        ],
+        [
+          -66,
+          50
+        ]
+      ],
+      "keyPos": "tr"
+    }
+  }
+}

@@ -1,0 +1,192 @@
+{
+  "headline": "Most US diesel exports leave from the Gulf Coast, headed south",
+  "subhead": "Distillate fuel oil exports by exporting region and destination, 2024, barrels per day",
+  "note": "PLACEHOLDER VALUES for layout only. Real figures will come from Census port-level trade data (HS 2710.19 distillate lines), converted to barrels with national unit values.",
+  "source": "US Census Bureau, USA Trade Online, port-level exports",
+  "sourceUrl": "https://usatrade.census.gov",
+  "units": "b/d",
+  "draft": true,
+  "maxArrowWidth": 34,
+  "legendTitle": "Arrow width",
+  "legend": [
+    50000,
+    200000
+  ],
+  "nodes": {
+    "txgulf": {
+      "label": "Texas Gulf Coast",
+      "lonlat": [
+        -95.3,
+        29.2
+      ],
+      "sides": [
+        "left",
+        "below",
+        "above"
+      ]
+    },
+    "lagulf": {
+      "label": "Louisiana",
+      "lonlat": [
+        -91.2,
+        29.4
+      ],
+      "sides": [
+        "above",
+        "right",
+        "below"
+      ]
+    },
+    "border": {
+      "label": "Mexico border crossings",
+      "lonlat": [
+        -101.5,
+        29.0
+      ],
+      "sides": [
+        "left",
+        "above",
+        "below"
+      ]
+    },
+    "west": {
+      "label": "West Coast",
+      "lonlat": [
+        -118.5,
+        34.0
+      ],
+      "sides": [
+        "left",
+        "above"
+      ]
+    },
+    "lakes": {
+      "label": "Great Lakes",
+      "lonlat": [
+        -83.0,
+        42.3
+      ],
+      "sides": [
+        "below",
+        "left"
+      ]
+    },
+    "mexico": {
+      "label": "Mexico",
+      "lonlat": [
+        -101.5,
+        20.5
+      ]
+    },
+    "latam": {
+      "label": "South & Central America",
+      "lonlat": [
+        -77,
+        4
+      ]
+    },
+    "europe": {
+      "label": "Europe",
+      "lonlat": [
+        -60,
+        25
+      ],
+      "arrowLabel": "To Europe"
+    },
+    "canada": {
+      "label": "Canada",
+      "lonlat": [
+        -80,
+        52
+      ]
+    }
+  },
+  "flows": [
+    {
+      "from": "txgulf",
+      "to": "latam",
+      "value": 430000
+    },
+    {
+      "from": "txgulf",
+      "to": "europe",
+      "value": 140000
+    },
+    {
+      "from": "txgulf",
+      "to": "mexico",
+      "value": 150000
+    },
+    {
+      "from": "lagulf",
+      "to": "latam",
+      "value": 130000
+    },
+    {
+      "from": "lagulf",
+      "to": "europe",
+      "value": 70000
+    },
+    {
+      "from": "border",
+      "to": "mexico",
+      "value": 70000
+    },
+    {
+      "from": "west",
+      "to": "mexico",
+      "value": 20000
+    },
+    {
+      "from": "lakes",
+      "to": "canada",
+      "value": 20000
+    }
+  ],
+  "frames": {
+    "substack": {
+      "bounds": [
+        [
+          -125,
+          16
+        ],
+        [
+          -66,
+          50
+        ]
+      ]
+    },
+    "vertical": {
+      "bounds": [
+        [
+          -110,
+          15
+        ],
+        [
+          -78,
+          47
+        ]
+      ]
+    },
+    "square": {
+      "bounds": [
+        [
+          -122,
+          15
+        ],
+        [
+          -68,
+          50
+        ]
+      ]
+    }
+  },
+  "geoBBox": [
+    -170,
+    -25,
+    -20,
+    75
+  ],
+  "style": "fan",
+  "arrowLength": 150
+}
