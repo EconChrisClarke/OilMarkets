@@ -24,6 +24,13 @@ stay in `charts/`.
   - `fan`: one short straight arrow per origin–destination pair.
 - `frames.{substack,vertical,square}.bounds`: `[[west,south],[east,north]]`,
   fitted with a conformal conic projection.
+- `direction: "in"` (with `style: "fan"`): an import map. The dot is the
+  destination (e.g. a state) and the arrows arrive at it from the direction of
+  their origin, coloured by the origin node's `color`; origin labels read
+  "From X" at the arrow tails. `toward` is then the point the arrow comes from.
+- `labelAt` on a dot's node (fan and departure styles) moves its label to that
+  `[lon, lat]`, joined to the dot by a hairline leader. Use it when a cluster
+  of dots (New England) leaves no room next to the dot.
 - `legend`: reference values drawn as sample arrows. `draft: true` stamps a
   PLACEHOLDER watermark on the map.
 

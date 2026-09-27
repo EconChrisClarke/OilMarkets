@@ -1,0 +1,34 @@
+state,state_name,origin_country,barrels_per_day
+MA,Massachusetts,Canada,47425
+ME,Maine,Canada,38211
+PR,Puerto Rico,Colombia,12102
+MT,Montana,Canada,11322
+NY,New York,Canada,11137
+RI,Rhode Island,Canada,8072
+PR,Puerto Rico,Canada,7594
+AK,Alaska,Canada,7513
+VT,Vermont,Canada,5005
+ND,North Dakota,Canada,4125
+HI,Hawaii,"Korea, South",2142
+WA,Washington,Canada,2022
+MI,Michigan,Canada,1554
+WI,Wisconsin,Canada,1311
+FL,Florida,Colombia,1090
+OR,Oregon,Canada,898
+AK,Alaska,Japan,881
+SC,South Carolina,Canada,852
+FL,Florida,Mexico,654
+LA,Louisiana,Iraq,592
+GA,Georgia,Canada,541
+AK,Alaska,"Korea, South",465
+TX,Texas,Brazil,459
+NY,New York,Mexico,439
+PA,Pennsylvania,Canada,432
+CA,California,Thailand,313
+MN,Minnesota,Canada,246
+VI,US Virgin Islands,Netherlands,225
+LA,Louisiana,Canada,181
+TX,Texas,Colombia,66
+MI,Michigan,Germany,11
+NY,New York,France,9
+TX,Texas,Mexico,1

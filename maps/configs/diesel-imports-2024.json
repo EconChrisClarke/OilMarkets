@@ -1,0 +1,381 @@
+{
+  "headline": "Most US diesel imports are Canadian fuel landing in New England",
+  "subhead": "Distillate fuel oil imports by state of entry and country of origin, 2024, barrels per day",
+  "note": "Map covers 90% of imports. Alaska (9k b/d) and Hawaii (2k b/d) not shown. State is where the diesel cleared customs.",
+  "source": "US Census Bureau, International Trade API (imports by customs district, HS10)",
+  "sourceUrl": "https://api.census.gov/data/timeseries/intltrade/imports/hs",
+  "units": "b/d",
+  "draft": false,
+  "style": "fan",
+  "direction": "in",
+  "arrowStyle": "swoosh",
+  "arrowLength": 95,
+  "maxArrowWidth": 26,
+  "legendTitle": "Arrow width",
+  "legend": [
+    10000,
+    40000
+  ],
+  "geoBBox": [
+    -170,
+    -25,
+    -20,
+    75
+  ],
+  "nodes": {
+    "MA": {
+      "label": "Massachusetts",
+      "short": "MA",
+      "lonlat": [
+        -71.2,
+        42.4
+      ],
+      "sides": [
+        "se",
+        "below"
+      ]
+    },
+    "ME": {
+      "label": "Maine",
+      "short": "Maine",
+      "lonlat": [
+        -70.0,
+        44.0
+      ],
+      "sides": [
+        "right",
+        "se",
+        "ne"
+      ]
+    },
+    "NY": {
+      "label": "New York",
+      "short": "New York",
+      "lonlat": [
+        -75.6,
+        43.1
+      ],
+      "sides": [
+        "left",
+        "sw",
+        "below",
+        "nw"
+      ]
+    },
+    "MT": {
+      "label": "Montana",
+      "short": "Montana",
+      "lonlat": [
+        -110.5,
+        47.6
+      ],
+      "sides": [
+        "below",
+        "left",
+        "right"
+      ]
+    },
+    "RI": {
+      "label": "Rhode Island",
+      "short": "RI",
+      "lonlat": [
+        -71.5,
+        41.7
+      ],
+      "labelAt": [
+        -70.5,
+        38.6
+      ],
+      "sides": [
+        "below",
+        "right",
+        "left"
+      ]
+    },
+    "VT": {
+      "label": "Vermont",
+      "short": "Vermont",
+      "lonlat": [
+        -72.8,
+        44.4
+      ],
+      "sides": [
+        "left",
+        "sw",
+        "below",
+        "nw"
+      ]
+    },
+    "ND": {
+      "label": "North Dakota",
+      "short": "ND",
+      "lonlat": [
+        -98.5,
+        47.9
+      ],
+      "sides": [
+        "below",
+        "right",
+        "left"
+      ]
+    },
+    "WA": {
+      "label": "Washington",
+      "short": "WA",
+      "lonlat": [
+        -122.3,
+        47.6
+      ],
+      "sides": [
+        "below",
+        "left",
+        "right"
+      ]
+    },
+    "MI": {
+      "label": "Michigan",
+      "short": "Michigan",
+      "lonlat": [
+        -83.05,
+        42.33
+      ],
+      "sides": [
+        "below",
+        "left",
+        "sw",
+        "right"
+      ]
+    },
+    "WI": {
+      "label": "Wisconsin",
+      "short": "Wisconsin",
+      "lonlat": [
+        -87.9,
+        43.04
+      ],
+      "sides": [
+        "below",
+        "left",
+        "sw"
+      ]
+    },
+    "FL": {
+      "label": "Florida",
+      "short": "Florida",
+      "lonlat": [
+        -81.6,
+        27.8
+      ],
+      "sides": [
+        "left",
+        "below",
+        "right"
+      ]
+    },
+    "PR": {
+      "label": "Puerto Rico",
+      "short": "PR",
+      "lonlat": [
+        -66.3,
+        18.25
+      ],
+      "sides": [
+        "right",
+        "below",
+        "left",
+        "above"
+      ]
+    },
+    "canada": {
+      "label": "Canada",
+      "color": "#1B3A5C",
+      "lonlat": [
+        -95,
+        58
+      ],
+      "labelAt": [
+        -86,
+        51.5
+      ],
+      "sides": [
+        "left",
+        "above",
+        "below"
+      ]
+    },
+    "colombia": {
+      "label": "Colombia",
+      "color": "#2E8B7A",
+      "lonlat": [
+        -74,
+        5
+      ]
+    }
+  },
+  "flows": [
+    {
+      "from": "canada",
+      "to": "MA",
+      "value": 47400.0,
+      "toward": [
+        -60,
+        40.5
+      ]
+    },
+    {
+      "from": "canada",
+      "to": "ME",
+      "value": 38200.0,
+      "toward": [
+        -67,
+        49
+      ]
+    },
+    {
+      "from": "colombia",
+      "to": "PR",
+      "value": 12100.0
+    },
+    {
+      "from": "canada",
+      "to": "MT",
+      "value": 11300.0,
+      "toward": [
+        -110.5,
+        53.6
+      ]
+    },
+    {
+      "from": "canada",
+      "to": "NY",
+      "value": 11100.0,
+      "toward": [
+        -75.6,
+        49.1
+      ]
+    },
+    {
+      "from": "canada",
+      "to": "RI",
+      "value": 8100.0,
+      "toward": [
+        -60,
+        37.5
+      ]
+    },
+    {
+      "from": "canada",
+      "to": "PR",
+      "value": 7600.0,
+      "toward": [
+        -61,
+        30
+      ]
+    },
+    {
+      "from": "canada",
+      "to": "VT",
+      "value": 5000.0,
+      "toward": [
+        -72.8,
+        50.4
+      ]
+    },
+    {
+      "from": "canada",
+      "to": "ND",
+      "value": 4100.0,
+      "toward": [
+        -98.5,
+        53.9
+      ]
+    },
+    {
+      "from": "canada",
+      "to": "WA",
+      "value": 2000.0,
+      "toward": [
+        -122.3,
+        53.6
+      ]
+    },
+    {
+      "from": "canada",
+      "to": "MI",
+      "value": 1600.0,
+      "toward": [
+        -83.05,
+        48.33
+      ]
+    },
+    {
+      "from": "canada",
+      "to": "WI",
+      "value": 1300.0,
+      "toward": [
+        -87.9,
+        49.04
+      ]
+    },
+    {
+      "from": "colombia",
+      "to": "FL",
+      "value": 1100.0
+    }
+  ],
+  "frames": {
+    "substack": {
+      "bounds": [
+        [
+          -125,
+          16
+        ],
+        [
+          -62,
+          53
+        ]
+      ]
+    },
+    "vertical": {
+      "bounds": [
+        [
+          -124,
+          16
+        ],
+        [
+          -63,
+          52
+        ]
+      ],
+      "labelMin": 6000,
+      "shortLabels": true
+    },
+    "square": {
+      "bounds": [
+        [
+          -124,
+          16
+        ],
+        [
+          -61,
+          53
+        ]
+      ],
+      "nodes": {
+        "RI": {
+          "labelAt": [
+            -68.5,
+            39.6
+          ]
+        },
+        "PR": {
+          "sides": [
+            "left",
+            "nw",
+            "above"
+          ]
+        }
+      }
+    }
+  }
+}

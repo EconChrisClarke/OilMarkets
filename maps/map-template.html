@@ -251,14 +251,20 @@ function draw(ctx, W, H, P){
      Departure arrows replace proportional circles: same job, but they also
      say which way the product goes. */
   let flows = MAP.flows.slice();
+  /* MAP.direction "in" (imports): the dot is the destination and the fan
+     arrows arrive at it from the direction of their origin, coloured by
+     origin. "anchor" is the node with the dot, "far" the one off at the tails. */
+  const inb = MAP.direction === 'in';
+  const anchorOf = f => inb ? f.to : f.from, farOf = f => inb ? f.from : f.to;
   if(MAP.style === 'fan'){
     /* One short straight arrow per origin-destination pair, pointing at the
        destination: the direction is geographic, the length is fixed, so
        only the width carries the value. */
     flows = flows.map(f => {
-      const a = pos[f.from], b = f.toward ? proj(f.toward) : pos[f.to], d = Math.hypot(b[0]-a[0], b[1]-a[1])||1;
-      const ux = (b[0]-a[0])/d, uy = (b[1]-a[1])/d, off = 6*s;
-      let len = Math.min((NODES[f.from].length || MAP.arrowLength || 120)*s, d - off);
+      /* inbound: toward is the point the arrow comes from */
+      const a = pos[anchorOf(f)], b = f.toward ? proj(f.toward) : pos[farOf(f)], d = Math.hypot(b[0]-a[0], b[1]-a[1])||1;
+      const ux = (b[0]-a[0])/d, uy = (b[1]-a[1])/d, off = (inb ? 8 : 6)*s;
+      let len = Math.min((NODES[anchorOf(f)].length || MAP.arrowLength || 120)*s, d - off);
       /* Keep the whole arrowhead inside the map area: a frame narrower than
          the arrow's reach (New York -> Europe on 9:16) shortens the arrow
          rather than letting it run off the edge. */
@@ -266,7 +272,8 @@ function draw(ctx, W, H, P){
       const reach = (lo, hi, p, u) => u > 1e-9 ? (hi - p)/u : u < -1e-9 ? (lo - p)/u : Infinity;
       const room = Math.min(reach(mL + m, mR - m, a[0], ux), reach(mapTop + m, mapBot - m, a[1], uy)) - off;
       if(room > 0) len = Math.min(len, room);
-      return Object.assign({}, f, {bend:0, p0:[a[0]+ux*off, a[1]+uy*off], p2:[a[0]+ux*(off+len), a[1]+uy*(off+len)]});
+      const near = [a[0]+ux*off, a[1]+uy*off], far = [a[0]+ux*(off+len), a[1]+uy*(off+len)];
+      return Object.assign({}, f, {bend:0, p0: inb ? far : near, p2: inb ? near : far});
     });
   } else if(MAP.style === 'departure'){
     const byFrom = {};
@@ -295,7 +302,7 @@ function draw(ctx, W, H, P){
        split     one trunk per origin that splits into its destinations,
                  Sankey-fashion, so the origin total is visible as a width */
   const AS = MAP.arrowStyle || 'flat';
-  const colorOf = f => (NODES[f.to] && NODES[f.to].color) || T.red;
+  const colorOf = f => (NODES[farOf(f)] && NODES[farOf(f)].color) || T.red;
   if(AS === 'split' && flows.length && flows[0].p0){
     const byFrom = {};
     flows.forEach(f => { (byFrom[f.from] = byFrom[f.from] || []).push(f); });
@@ -367,8 +374,10 @@ function draw(ctx, W, H, P){
   };
   const fits = r => !blocker(r);
   const dropped = [];
-  function label(k, t1, t2, sides, color){
-    const p = pos[k];
+  /* dotK: the dot this label belongs to, when the label is anchored somewhere
+     else (node.labelAt on an origin); it always gets a leader back to the dot */
+  function label(k, t1, t2, sides, color, dotK){
+    const p = pos[k], dp = pos[dotK || k];
     ctx.font = '700 ' + (T.szLabel*s) + 'px ' + T.fBody;
     const w1 = ctx.measureText(t1).width;
     ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
@@ -390,11 +399,11 @@ function draw(ctx, W, H, P){
       if(b){ why.push(side + '@' + Math.round(g/s) + ':' + b); continue; }
       r.src = 'label ' + t1; placed.push(r);
       /* pushed off its dot: a hairline leader says which dot it belongs to */
-      if(g > 10*s && !k.startsWith('_d_')){
-        const cx = Math.min(Math.max(p[0], r.x), r.x + r.w), cy = Math.min(Math.max(p[1], r.y + 2*s), r.y + r.h - 2*s);
-        const d = Math.hypot(cx - p[0], cy - p[1]) || 1;
+      if((g > 10*s || dotK) && !k.startsWith('_d_')){
+        const cx = Math.min(Math.max(dp[0], r.x), r.x + r.w), cy = Math.min(Math.max(dp[1], r.y + 2*s), r.y + r.h - 2*s);
+        const d = Math.hypot(cx - dp[0], cy - dp[1]) || 1;
         ctx.strokeStyle = T.muted; ctx.lineWidth = 1*s;
-        ctx.beginPath(); ctx.moveTo(p[0] + (cx-p[0])/d*4.5*s, p[1] + (cy-p[1])/d*4.5*s);
+        ctx.beginPath(); ctx.moveTo(dp[0] + (cx-dp[0])/d*4.5*s, dp[1] + (cy-dp[1])/d*4.5*s);
         ctx.lineTo(cx - (cx-p[0])/d*3*s, cy - (cy-p[1])/d*3*s); ctx.stroke();
       }
       const tx = al==='right' ? x+w : al==='center' ? x+w/2 : x;
@@ -417,11 +426,11 @@ function draw(ctx, W, H, P){
     totals[f.to] = (totals[f.to]||0) + f.value;
   });
   /* origins: a dot where the arrow leaves, then the name and its total */
-  const origins = [...new Set(MAP.flows.map(f => f.from))].sort((a,b) => totals[b]-totals[a]);
+  const origins = [...new Set(MAP.flows.map(anchorOf))].sort((a,b) => totals[b]-totals[a]);
   origins.forEach(k => {
     ctx.fillStyle = T.ink; ctx.beginPath(); ctx.arc(pos[k][0], pos[k][1], 3.2*s, 0, 6.284); ctx.fill();
   });
-  const dests = [...new Set(MAP.flows.map(f => f.to))].sort((a,b) => totals[b]-totals[a]);
+  const dests = [...new Set(MAP.flows.map(farOf))].sort((a,b) => totals[b]-totals[a]);
   if(MAP.style === 'flows' || !MAP.style) dests.forEach(k => label(k, NODES[k].label, fmtVal(totals[k]),
     NODES[k].sides || ['below','above','left','right']));
   /* every origin dot is off limits to every label */
@@ -433,20 +442,27 @@ function draw(ctx, W, H, P){
   const labelMin = fr.labelMin || 0;
   /* frames.X.shortLabels: use node.short where a frame is too tight for full names */
   const nameOf = n => (fr.shortLabels && n.short) || n.label;
-  const jobs = origins.filter(k => totals[k] >= labelMin).map(k => ({v:totals[k], run:() => label(k, nameOf(NODES[k]), fmtVal(totals[k]),
-    NODES[k].sides || ['left','right','above','below'])}));
-  /* fan: one label per destination, at the value-weighted centre of its arrowheads */
+  /* node.labelAt on a dot's node (fan and departure styles) moves its label
+     off the dot, to a clear spot joined to it by a leader */
+  const jobs = origins.filter(k => totals[k] >= labelMin).map(k => ({v:totals[k], run:() => {
+    const at = MAP.style !== 'flows' && MAP.style && NODES[k].labelAt;
+    if(at) pos['_a_' + k] = proj(at);
+    label(at ? '_a_' + k : k, nameOf(NODES[k]), fmtVal(totals[k]),
+      NODES[k].sides || ['left','right','above','below'], null, at ? k : undefined);
+  }}));
+  /* fan: one label per destination, at the value-weighted centre of its
+     arrowheads (inbound: per origin, at the centre of its arrow tails) */
   if(MAP.style === 'fan') dests.forEach(k => {
-    const fs = flows.filter(f => f.to === k), tot = fs.reduce((a,f) => a + f.value, 0);
+    const fs = flows.filter(f => farOf(f) === k), tot = fs.reduce((a,f) => a + f.value, 0);
     const c = [0,0], dir = [0,0];
-    fs.forEach(f => { const w = f.value/tot;
-      c[0] += f.p2[0]*w; c[1] += f.p2[1]*w;
-      dir[0] += (f.p2[0]-f.p0[0])*w; dir[1] += (f.p2[1]-f.p0[1])*w; });
+    fs.forEach(f => { const w = f.value/tot, e = inb ? f.p0 : f.p2;
+      c[0] += e[0]*w; c[1] += e[1]*w;
+      dir[0] += (f.p2[0]-f.p0[0])*w*(inb ? -1 : 1); dir[1] += (f.p2[1]-f.p0[1])*w*(inb ? -1 : 1); });
     const n = NODES[k];
     const side = Math.abs(dir[0]) > Math.abs(dir[1]) ? (dir[0] > 0 ? ['right','below','above'] : ['left','below','above'])
                                                      : (dir[1] > 0 ? ['below','right','left'] : ['above','right','left']);
     pos['_d_' + k] = n.labelAt ? proj(n.labelAt) : c;
-    jobs.push({v:tot, run:() => label('_d_' + k, n.arrowLabel || 'To ' + n.label, fmtVal(tot), n.sides || side, n.textColor || n.color)});
+    jobs.push({v:tot, run:() => label('_d_' + k, n.arrowLabel || (inb ? 'From ' : 'To ') + n.label, fmtVal(tot), n.sides || side, n.textColor || n.color)});
   });
   jobs.sort((a,b) => b.v - a.v).forEach(j => j.run());
   if(dropped.length) console.log('LABELS_DROPPED', P.name, dropped);
