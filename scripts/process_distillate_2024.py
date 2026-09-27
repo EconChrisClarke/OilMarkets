@@ -152,13 +152,15 @@ cfg = {
     "flows": [],
     "frames": {
         "substack": {"bounds": [[-126, 14], [-62, 50]]},
-        "vertical": {"bounds": [[-125, 14], [-63, 49]], "labelMin": 30000, "shortLabels": True},
+        "vertical": {"bounds": [[-125, 14], [-63, 49]], "labelMin": 30000, "shortLabels": True,
+                     # on 9:16 the St. Croix arrow crowds the Caribbean: label over Panama
+                     "nodes": {"latam": {"labelAt": [-80, 10], "sides": ["below", "se", "right"]}}},
         "square": {"bounds": [[-124, 14], [-66, 50]]},
     },
 }
 cfg["nodes"].update({
     "mexico": {"label": "Mexico", "color": "#7A1712", "lonlat": [-101.5, 21.5], "labelAt": [-102, 20.2], "sides": ["below", "sw", "se", "right", "left"]},
-    "latam": {"label": "Latin America", "color": "#C71E1D", "lonlat": [-80, 11], "labelAt": [-86, 16.5], "sides": ["below", "right", "left"]},
+    "latam": {"label": "Latin America", "color": "#C71E1D", "lonlat": [-80, 11], "labelAt": [-86, 16.5], "sides": ["below", "se", "right", "sw", "left"]},
     "europe": {"label": "Europe", "color": "#E8A33D", "textColor": "#9A5B0C", "lonlat": [-40, 38]},
 })
 for (k, dest), v in sorted(flows.items(), key=lambda x: -x[1]):

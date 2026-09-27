@@ -207,6 +207,10 @@ function draw(ctx, W, H, P){
 
   /* map */
   const fr = (MAP.frames[P.name] || MAP.frames.substack);
+  /* frames.X.nodes overrides a node's placement for one frame (labelAt,
+     sides, length): a 9:16 frame often needs a label somewhere else. */
+  const NODES = Object.fromEntries(Object.entries(MAP.nodes).map(([k, n]) =>
+    [k, Object.assign({}, n, (fr.nodes || {})[k])]));
   const [[w0,s0],[e0,n0]] = fr.bounds;
   const ring = [];
   for(let i=0;i<=20;i++){ const t=i/20; ring.push([w0+(e0-w0)*t, s0], [w0+(e0-w0)*t, n0]); }
@@ -230,7 +234,7 @@ function draw(ctx, W, H, P){
   /* arrows: largest first so the small ones stay visible on top */
   const pos = {};
   const inset = 18*s;
-  for(const [k,n] of Object.entries(MAP.nodes)){
+  for(const [k,n] of Object.entries(NODES)){
     let p = proj(n.lonlat);
     p = [Math.min(Math.max(p[0], mL+inset), mR-inset), Math.min(Math.max(p[1], mapTop+inset), mapBot-inset)];
     pos[k] = p;
@@ -254,7 +258,7 @@ function draw(ctx, W, H, P){
     flows = flows.map(f => {
       const a = pos[f.from], b = f.toward ? proj(f.toward) : pos[f.to], d = Math.hypot(b[0]-a[0], b[1]-a[1])||1;
       const ux = (b[0]-a[0])/d, uy = (b[1]-a[1])/d, off = 6*s;
-      let len = Math.min((MAP.nodes[f.from].length || MAP.arrowLength || 120)*s, d - off);
+      let len = Math.min((NODES[f.from].length || MAP.arrowLength || 120)*s, d - off);
       /* Keep the whole arrowhead inside the map area: a frame narrower than
          the arrow's reach (New York -> Europe on 9:16) shortens the arrow
          rather than letting it run off the edge. */
@@ -270,7 +274,7 @@ function draw(ctx, W, H, P){
     flows = Object.entries(byFrom).map(([k, fs]) => {
       const tot = fs.reduce((a,f) => a + f.value, 0);
       let dx = 0, dy = 0;
-      const n = MAP.nodes[k];
+      const n = NODES[k];
       if(n.heading !== undefined){
         dx = Math.sin(n.heading*Math.PI/180); dy = -Math.cos(n.heading*Math.PI/180);
       } else fs.forEach(f => {
@@ -291,7 +295,7 @@ function draw(ctx, W, H, P){
        split     one trunk per origin that splits into its destinations,
                  Sankey-fashion, so the origin total is visible as a width */
   const AS = MAP.arrowStyle || 'flat';
-  const colorOf = f => (MAP.nodes[f.to] && MAP.nodes[f.to].color) || T.red;
+  const colorOf = f => (NODES[f.to] && NODES[f.to].color) || T.red;
   if(AS === 'split' && flows.length && flows[0].p0){
     const byFrom = {};
     flows.forEach(f => { (byFrom[f.from] = byFrom[f.from] || []).push(f); });
@@ -333,8 +337,8 @@ function draw(ctx, W, H, P){
     HIT.push({flow:f, path:a.path, mid:a.mid});
     /* labels keep off the arrow body (the first quarter, next to the dot, is left free) */
     a.centre.forEach((c,i) => {
-      if(c.t < 0.25 || i % 6) return;
-      const w2 = Math.max(c.w*1.2, 6*s);
+      if(c.t < 0.25 || (i % 6 && i !== a.centre.length - 1)) return;   // always keep the tip
+      const w2 = Math.max(c.t === 1 ? c.w*0.7 : c.w*1.2, 6*s);   // the tip box is the head itself
       arrowRects.push({x:c.x-w2/2, y:c.y-w2/2, w:w2, h:w2, src:'arrow ' + f.from + '>' + f.to});
     });
   });
@@ -344,7 +348,7 @@ function draw(ctx, W, H, P){
   /* the key sits bottom-left; keep labels off it */
   /* The destination labels are printed in their arrow colours, so a swatch key
      repeats them; MAP.colorKey turns it on where labels alone are not enough. */
-  const nKeyDest = MAP.legend && MAP.colorKey ? Object.values(MAP.nodes).filter(n => n.color).length : 0;
+  const nKeyDest = MAP.legend && MAP.colorKey ? Object.values(NODES).filter(n => n.color).length : 0;
   const keyH = !MAP.legend ? 0 :
     (nKeyDest ? T.szSmall*s*1.6 + nKeyDest*20*s + 8*s : 0) + T.szSmall*s*0.6 + MAP.legend.length*30*s;
   const keyTR = (fr.keyPos || MAP.keyPos) === 'tr';
@@ -418,8 +422,8 @@ function draw(ctx, W, H, P){
     ctx.fillStyle = T.ink; ctx.beginPath(); ctx.arc(pos[k][0], pos[k][1], 3.2*s, 0, 6.284); ctx.fill();
   });
   const dests = [...new Set(MAP.flows.map(f => f.to))].sort((a,b) => totals[b]-totals[a]);
-  if(MAP.style === 'flows' || !MAP.style) dests.forEach(k => label(k, MAP.nodes[k].label, fmtVal(totals[k]),
-    MAP.nodes[k].sides || ['below','above','left','right']));
+  if(MAP.style === 'flows' || !MAP.style) dests.forEach(k => label(k, NODES[k].label, fmtVal(totals[k]),
+    NODES[k].sides || ['below','above','left','right']));
   /* every origin dot is off limits to every label */
   origins.forEach(k => placed.push({x:pos[k][0]-6*s, y:pos[k][1]-6*s, w:12*s, h:12*s, src:'dot ' + k}));
   /* Labels go down in order of volume, origins and destinations mixed, so
@@ -429,8 +433,8 @@ function draw(ctx, W, H, P){
   const labelMin = fr.labelMin || 0;
   /* frames.X.shortLabels: use node.short where a frame is too tight for full names */
   const nameOf = n => (fr.shortLabels && n.short) || n.label;
-  const jobs = origins.filter(k => totals[k] >= labelMin).map(k => ({v:totals[k], run:() => label(k, nameOf(MAP.nodes[k]), fmtVal(totals[k]),
-    MAP.nodes[k].sides || ['left','right','above','below'])}));
+  const jobs = origins.filter(k => totals[k] >= labelMin).map(k => ({v:totals[k], run:() => label(k, nameOf(NODES[k]), fmtVal(totals[k]),
+    NODES[k].sides || ['left','right','above','below'])}));
   /* fan: one label per destination, at the value-weighted centre of its arrowheads */
   if(MAP.style === 'fan') dests.forEach(k => {
     const fs = flows.filter(f => f.to === k), tot = fs.reduce((a,f) => a + f.value, 0);
@@ -438,7 +442,7 @@ function draw(ctx, W, H, P){
     fs.forEach(f => { const w = f.value/tot;
       c[0] += f.p2[0]*w; c[1] += f.p2[1]*w;
       dir[0] += (f.p2[0]-f.p0[0])*w; dir[1] += (f.p2[1]-f.p0[1])*w; });
-    const n = MAP.nodes[k];
+    const n = NODES[k];
     const side = Math.abs(dir[0]) > Math.abs(dir[1]) ? (dir[0] > 0 ? ['right','below','above'] : ['left','below','above'])
                                                      : (dir[1] > 0 ? ['below','right','left'] : ['above','right','left']);
     pos['_d_' + k] = n.labelAt ? proj(n.labelAt) : c;
@@ -450,7 +454,7 @@ function draw(ctx, W, H, P){
   /* key: destination colours, then reference widths */
   if(MAP.legend){
     const kx = keyX + pad*0.8, ky0 = keyTR ? keyY + keyH : mapBot - pad*0.6;
-    const dk = MAP.colorKey ? dests.filter(k => MAP.nodes[k].color) : [];
+    const dk = MAP.colorKey ? dests.filter(k => NODES[k].color) : [];
     let ky = ky0 - keyH;
     ctx.textAlign = 'left';
     ctx.font = '600 ' + (T.szSmall*s) + 'px ' + T.fBody;
@@ -458,10 +462,10 @@ function draw(ctx, W, H, P){
       ctx.fillStyle = T.muted; ctx.fillText('Destination', kx, ky + T.szSmall*s);
       ky += T.szSmall*s*1.6;
       dk.forEach(k => {
-        ctx.fillStyle = MAP.nodes[k].color;
+        ctx.fillStyle = NODES[k].color;
         ctx.beginPath(); ctx.roundRect(kx, ky + 2*s, 22*s, 11*s, 2*s); ctx.fill();
         ctx.fillStyle = T.ink; ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
-        ctx.fillText(MAP.nodes[k].label, kx + 30*s, ky + 12*s);
+        ctx.fillText(NODES[k].label, kx + 30*s, ky + 12*s);
         ky += 20*s;
       });
       ky += 8*s;

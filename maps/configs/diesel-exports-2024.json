@@ -154,7 +154,9 @@
       ],
       "sides": [
         "below",
+        "se",
         "right",
+        "sw",
         "left"
       ]
     },
@@ -302,7 +304,20 @@
         ]
       ],
       "labelMin": 30000,
-      "shortLabels": true
+      "shortLabels": true,
+      "nodes": {
+        "latam": {
+          "labelAt": [
+            -80,
+            10
+          ],
+          "sides": [
+            "below",
+            "se",
+            "right"
+          ]
+        }
+      }
     },
     "square": {
       "bounds": [
