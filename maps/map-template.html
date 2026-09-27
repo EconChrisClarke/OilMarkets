@@ -254,7 +254,14 @@ function draw(ctx, W, H, P){
     flows = flows.map(f => {
       const a = pos[f.from], b = f.toward ? proj(f.toward) : pos[f.to], d = Math.hypot(b[0]-a[0], b[1]-a[1])||1;
       const ux = (b[0]-a[0])/d, uy = (b[1]-a[1])/d, off = 6*s;
-      const len = Math.min((MAP.nodes[f.from].length || MAP.arrowLength || 120)*s, d - off);
+      let len = Math.min((MAP.nodes[f.from].length || MAP.arrowLength || 120)*s, d - off);
+      /* Keep the whole arrowhead inside the map area: a frame narrower than
+         the arrow's reach (New York -> Europe on 9:16) shortens the arrow
+         rather than letting it run off the edge. */
+      const m = 10*s + width(f.value)*0.95;
+      const reach = (lo, hi, p, u) => u > 1e-9 ? (hi - p)/u : u < -1e-9 ? (lo - p)/u : Infinity;
+      const room = Math.min(reach(mL + m, mR - m, a[0], ux), reach(mapTop + m, mapBot - m, a[1], uy)) - off;
+      if(room > 0) len = Math.min(len, room);
       return Object.assign({}, f, {bend:0, p0:[a[0]+ux*off, a[1]+uy*off], p2:[a[0]+ux*(off+len), a[1]+uy*(off+len)]});
     });
   } else if(MAP.style === 'departure'){
@@ -341,7 +348,11 @@ function draw(ctx, W, H, P){
   const keyH = !MAP.legend ? 0 :
     (nKeyDest ? T.szSmall*s*1.6 + nKeyDest*20*s + 8*s : 0) + T.szSmall*s*0.6 + MAP.legend.length*30*s;
   const keyTR = (fr.keyPos || MAP.keyPos) === 'tr';
-  const keyW = pad*0.8 + 190*s;
+  /* reserve only the key's real footprint: sample arrow + widest value label */
+  ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
+  const keyTextW = Math.max(...(MAP.legend || [0]).map(v => ctx.measureText(fmtVal(v)).width),
+    (ctx.font = '600 ' + (T.szSmall*s) + 'px ' + T.fBody, ctx.measureText(MAP.legendTitle || 'Arrow width').width - 80*s));
+  const keyW = pad*0.8 + 80*s + keyTextW + 8*s;
   const keyX = keyTR ? mR - keyW : mL, keyY = keyTR ? mapTop + pad*0.6 : mapBot - pad*0.6 - keyH - 6*s;
   if(MAP.legend) placed.push({x:keyX, y:keyY, w:keyW, h:keyH + pad*0.6 + 6*s, src:'key'});
   /* why a candidate spot fails: off the map, or the first thing it hits */
