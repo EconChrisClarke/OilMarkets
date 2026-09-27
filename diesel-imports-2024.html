@@ -64,11 +64,12 @@ const MAP = {
  "direction": "in",
  "arrowStyle": "swoosh",
  "arrowLength": 95,
- "maxArrowWidth": 26,
+ "maxArrowWidth": 32,
+ "widthMaxValue": 320000,
  "legendTitle": "Arrow width",
  "legend": [
-  10000,
-  40000
+  50000,
+  200000
  ],
  "geoBBox": [
   -170,
@@ -624,7 +625,10 @@ function draw(ctx, W, H, P){
     p = [Math.min(Math.max(p[0], mL+inset), mR-inset), Math.min(Math.max(p[1], mapTop+inset), mapBot-inset)];
     pos[k] = p;
   }
-  const maxV = Math.max(...MAP.flows.map(f => f.value));
+  /* MAP.widthMaxValue fixes the value drawn at maxArrowWidth, so two maps
+     meant to be compared (exports and imports) share one width scale;
+     otherwise the largest flow on this map gets the full width */
+  const maxV = MAP.widthMaxValue || Math.max(...MAP.flows.map(f => f.value));
   const maxW = (MAP.maxArrowWidth || 30)*s;
   const minW = 2.5*s;
   const width = v => Math.max(minW, v/maxV*maxW);

@@ -10,11 +10,12 @@
   "direction": "in",
   "arrowStyle": "swoosh",
   "arrowLength": 95,
-  "maxArrowWidth": 26,
+  "maxArrowWidth": 32,
+  "widthMaxValue": 320000,
   "legendTitle": "Arrow width",
   "legend": [
-    10000,
-    40000
+    50000,
+    200000
   ],
   "geoBBox": [
     -170,

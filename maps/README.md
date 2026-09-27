@@ -31,6 +31,9 @@ stay in `charts/`.
 - `labelAt` on a dot's node (fan and departure styles) moves its label to that
   `[lon, lat]`, joined to the dot by a hairline leader. Use it when a cluster
   of dots (New England) leaves no room next to the dot.
+- `widthMaxValue`: the value drawn at `maxArrowWidth`. Without it the map's
+  largest flow gets the full width; set it (with the same `maxArrowWidth` and
+  `legend`) on maps meant to be compared, so equal widths mean equal flows.
 - `legend`: reference values drawn as sample arrows. `draft: true` stamps a
   PLACEHOLDER watermark on the map.
 

@@ -124,9 +124,12 @@ cfg = {
     "direction": "in",
     "arrowStyle": "swoosh",
     "arrowLength": 95,
-    "maxArrowWidth": 26,
+    # Same width scale and key as the export map (diesel-exports-2024.json:
+    # 320k b/d drawn 32 wide), so the two maps can be compared arrow for arrow.
+    "maxArrowWidth": 32,
+    "widthMaxValue": 320000,
     "legendTitle": "Arrow width",
-    "legend": [10000, 40000],
+    "legend": [50000, 200000],
     "geoBBox": [-170, -25, -20, 75],
     "nodes": {**{k: {"label": STATE_NAME[k], "short": k if len(STATE_NAME[k]) > 9 else STATE_NAME[k],
                      **n} for k, n in STATE_NODE.items()}, **ORIGINS},
