@@ -157,9 +157,9 @@ cfg = {
     },
 }
 cfg["nodes"].update({
-    "mexico": {"label": "Mexico", "lonlat": [-101.5, 21.5], "labelAt": [-102, 20.2], "sides": ["below", "left"]},
-    "latam": {"label": "Latin America", "lonlat": [-80, 11], "labelAt": [-86, 16.5], "sides": ["below", "right", "left"]},
-    "europe": {"label": "Europe", "lonlat": [-40, 38]},
+    "mexico": {"label": "Mexico", "color": "#7A1712", "lonlat": [-101.5, 21.5], "labelAt": [-102, 20.2], "sides": ["below", "left"]},
+    "latam": {"label": "Latin America", "color": "#C71E1D", "lonlat": [-80, 11], "labelAt": [-86, 16.5], "sides": ["below", "right", "left"]},
+    "europe": {"label": "Europe", "color": "#E8A33D", "textColor": "#9A5B0C", "lonlat": [-40, 38]},
 })
 for (k, dest), v in sorted(flows.items(), key=lambda x: -x[1]):
     if v < MIN:

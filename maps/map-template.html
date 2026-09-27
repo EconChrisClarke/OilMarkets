@@ -117,44 +117,57 @@ function drawLogo(ctx, xRight, yBottom, h){
    shape whose shaft width is proportional to the value. Width is linear in
    the value (not square-rooted as a circle's area would be) because the
    reader compares widths, a one-dimensional quantity. */
-function curvePts(p0, p2, bend, n){
-  const mx = (p0[0]+p2[0])/2, my = (p0[1]+p2[1])/2;
+function bendCtl(p0, p2, bend){
   const dx = p2[0]-p0[0], dy = p2[1]-p0[1];
-  const c = [mx - dy*bend, my + dx*bend];
-  const pts = [];
+  return [(p0[0]+p2[0])/2 - dy*bend, (p0[1]+p2[1])/2 + dx*bend];
+}
+/* A ribbon along the quadratic p0 -> c -> p2, shaft width easing from w0 at
+   the tail to w1 at the head, closed with an arrowhead sized from w1. The
+   width that carries the value is w1: the head end is what the eye compares. */
+function ribbon(p0, c, p2, w0, w1, s){
+  const n = 80, pts = [];
   for(let i=0;i<=n;i++){
     const t = i/n, u = 1-t;
     pts.push([u*u*p0[0] + 2*u*t*c[0] + t*t*p2[0], u*u*p0[1] + 2*u*t*c[1] + t*t*p2[1]]);
   }
-  return pts;
-}
-function arrowPath(p0, p2, bend, w, s){
-  const pts = curvePts(p0, p2, bend, 80);
   const cum = [0];
   for(let i=1;i<pts.length;i++) cum.push(cum[i-1] + Math.hypot(pts[i][0]-pts[i-1][0], pts[i][1]-pts[i-1][1]));
-  const L = cum[cum.length-1];
-  const hl = Math.min(Math.max(w*1.5, 11*s), L*0.45), hw = Math.max(w*1.9, w + 10*s);
-  const shaft = pts.filter((p,i) => cum[i] <= L - hl);
-  if(shaft.length < 2) shaft.push(pts[1]);
+  const L = cum[n];
+  const hl = Math.min(Math.max(w1*1.35, 11*s), L*0.45), hw = Math.max(w1*1.8, w1 + 10*s);
+  const idx = [];
+  pts.forEach((p,i) => { if(cum[i] <= L - hl) idx.push(i); });
+  if(idx.length < 2) idx.push(1);
   const nrm = (a,b) => { const dx=b[0]-a[0], dy=b[1]-a[1], d=Math.hypot(dx,dy)||1; return [-dy/d, dx/d]; };
-  const left = [], right = [];
-  shaft.forEach((p,i) => {
-    const a = shaft[Math.max(0,i-1)], b = shaft[Math.min(shaft.length-1,i+1)];
-    const n = nrm(a,b);
-    left.push([p[0]+n[0]*w/2, p[1]+n[1]*w/2]);
-    right.push([p[0]-n[0]*w/2, p[1]-n[1]*w/2]);
+  const left = [], right = [], centre = [];
+  const Ls = cum[idx[idx.length-1]] || 1;
+  idx.forEach((i,j) => {
+    const p = pts[i], a = pts[idx[Math.max(0,j-1)]], b = pts[idx[Math.min(idx.length-1,j+1)]];
+    const nn = nrm(a,b);
+    const e = cum[i]/Ls, w = w0 + (w1-w0)*(1 - (1-e)*(1-e));   // ease-out: fattens early
+    left.push([p[0]+nn[0]*w/2, p[1]+nn[1]*w/2]);
+    right.push([p[0]-nn[0]*w/2, p[1]-nn[1]*w/2]);
+    centre.push({x:p[0], y:p[1], w, t:cum[i]/L});
   });
-  const base = shaft[shaft.length-1], tip = pts[pts.length-1];
-  const n = nrm(base, tip);
+  const base = pts[idx[idx.length-1]], tip = pts[n], nn = nrm(base, tip);
   const P = new Path2D();
   P.moveTo(left[0][0], left[0][1]);
   left.forEach(p => P.lineTo(p[0], p[1]));
-  P.lineTo(base[0]+n[0]*hw/2, base[1]+n[1]*hw/2);
+  P.lineTo(base[0]+nn[0]*hw/2, base[1]+nn[1]*hw/2);
   P.lineTo(tip[0], tip[1]);
-  P.lineTo(base[0]-n[0]*hw/2, base[1]-n[1]*hw/2);
+  P.lineTo(base[0]-nn[0]*hw/2, base[1]-nn[1]*hw/2);
   for(let i=right.length-1;i>=0;i--) P.lineTo(right[i][0], right[i][1]);
   P.closePath();
-  return {path:P, tip, tail:pts[0], mid:pts[40]};
+  centre.push({x:tip[0], y:tip[1], w:hw, t:1});
+  return {path:P, tip, tail:pts[0], mid:pts[40], centre};
+}
+function arrowPath(p0, p2, bend, w, s){ return ribbon(p0, bendCtl(p0, p2, bend), p2, w, w, s); }
+
+/* colour helpers: tints are mixed toward the background rather than made
+   transparent, so overlapping arrows never muddy into a third colour */
+function hexRgb(h){ h = h.replace('#',''); return [0,2,4].map(i => parseInt(h.slice(i,i+2),16)); }
+function mix(h1, h2, t){
+  const a = hexRgb(h1), b = hexRgb(h2);
+  return 'rgb(' + a.map((v,i) => Math.round(v + (b[i]-v)*t)).join(',') + ')';
 }
 
 /* ---- draw --------------------------------------------------------------- */
@@ -264,34 +277,72 @@ function draw(ctx, W, H, P){
               p2:[pos[k][0]+dx/d*(off+len), pos[k][1]+dy/d*(off+len)], dir:[dx/d, dy/d]};
     });
   }
+  /* Arrow styles (MAP.arrowStyle), all coloured by destination:
+       flat      solid shaft and head
+       gradient  pale at the tail, full colour at the head: reads as motion
+       swoosh    tapers from a point and curves slightly, like a brush stroke
+       split     one trunk per origin that splits into its destinations,
+                 Sankey-fashion, so the origin total is visible as a width */
+  const AS = MAP.arrowStyle || 'flat';
+  const colorOf = f => (MAP.nodes[f.to] && MAP.nodes[f.to].color) || T.red;
+  if(AS === 'split' && flows.length && flows[0].p0){
+    const byFrom = {};
+    flows.forEach(f => { (byFrom[f.from] = byFrom[f.from] || []).push(f); });
+    Object.entries(byFrom).forEach(([k, fs]) => {
+      const O = pos[k], gap = 1.4*s, off = 6*s;
+      const us = fs.map(f => { const dx=f.p2[0]-O[0], dy=f.p2[1]-O[1], d=Math.hypot(dx,dy)||1; return [dx/d, dy/d, d]; });
+      let mx = 0, my = 0;
+      fs.forEach((f,i) => { mx += us[i][0]*f.value; my += us[i][1]*f.value; });
+      const md = Math.hypot(mx,my)||1; mx /= md; my /= md;
+      const nx = -my, ny = mx;
+      const order = fs.map((f,i) => i).sort((i,j) => (us[i][0]*nx+us[i][1]*ny) - (us[j][0]*nx+us[j][1]*ny));
+      const tot = fs.reduce((a,f) => a + width(f.value), 0) + gap*(fs.length-1);
+      let acc = -tot/2;
+      order.forEach(i => {
+        const f = fs[i], w = width(f.value), o = acc + w/2; acc += w + gap;
+        const len = us[i][2];
+        f.p0 = [O[0] + mx*off + nx*o, O[1] + my*off + ny*o];
+        f.ctl = [O[0] + mx*len*0.28 + nx*o, O[1] + my*len*0.28 + ny*o];
+      });
+    });
+  }
   flows.sort((a,b) => b.value - a.value);
   flows.forEach(f => {
-    const a = arrowPath(f.p0 || pos[f.from], f.p2 || pos[f.to], f.bend ?? 0.18, width(f.value), s);
-    ctx.fillStyle = f.color || T.red;
-    ctx.globalAlpha = 0.92; ctx.fill(a.path); ctx.globalAlpha = 1;
-    ctx.strokeStyle = T.bg; ctx.lineWidth = 1.4*s; ctx.stroke(a.path);
+    const p0 = f.p0 || pos[f.from], p2 = f.p2 || pos[f.to], w = width(f.value), col = colorOf(f);
+    let a;
+    if(AS === 'swoosh') a = ribbon(p0, bendCtl(p0, p2, MAP.swooshBend ?? 0.12), p2, Math.max(1.5*s, w*0.12), w, s);
+    else if(AS === 'split' && f.ctl) a = ribbon(p0, f.ctl, p2, w, w, s);
+    else a = arrowPath(p0, p2, f.p0 ? 0 : (f.bend ?? 0.18), w, s);
+    if(AS === 'gradient' || AS === 'swoosh'){
+      const g = ctx.createLinearGradient(a.tail[0], a.tail[1], a.tip[0], a.tip[1]);
+      g.addColorStop(0, mix(col, T.bg, AS === 'swoosh' ? 0.55 : 0.8));
+      g.addColorStop(0.65, col);
+      g.addColorStop(1, col);
+      ctx.fillStyle = g;
+    } else ctx.fillStyle = col;
+    ctx.fill(a.path);
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = T.bg; ctx.lineWidth = (AS === 'split' ? 1.0 : 1.6)*s; ctx.stroke(a.path);
     HIT.push({flow:f, path:a.path, mid:a.mid});
-    /* Labels keep off straight arrows; curved flows are too loose a fit for boxes. */
-    if(f.p0){
-      const w = width(f.value)*1.3;
-      for(let t=0.25;t<=1.001;t+=0.075){
-        const x = f.p0[0]+(f.p2[0]-f.p0[0])*t, yy = f.p0[1]+(f.p2[1]-f.p0[1])*t;
-        arrowRects.push({x:x-w/2, y:yy-w/2, w, h:w});
-      }
-    }
+    /* labels keep off the arrow body (the first quarter, next to the dot, is left free) */
+    a.centre.forEach((c,i) => {
+      if(c.t < 0.25 || i % 6) return;
+      const w2 = Math.max(c.w*1.2, 6*s);
+      arrowRects.push({x:c.x-w2/2, y:c.y-w2/2, w:w2, h:w2});
+    });
   });
 
   /* labels, placed greedily; a label that would collide is dropped, never shrunk */
   const placed = arrowRects.slice();
   /* the key sits bottom-left; keep labels off it */
-  if(MAP.legend){
-    const kh = MAP.legend.length*30*s + T.szSmall*s*2;
-    placed.push({x:mL, y:mapBot - pad*0.6 - kh, w:pad*0.8 + 190*s, h:kh + pad*0.6});
-  }
+  const nKeyDest = MAP.legend ? Object.values(MAP.nodes).filter(n => n.color).length : 0;
+  const keyH = !MAP.legend ? 0 :
+    (nKeyDest ? T.szSmall*s*1.6 + nKeyDest*20*s + 8*s : 0) + T.szSmall*s*0.6 + MAP.legend.length*30*s;
+  if(MAP.legend) placed.push({x:mL, y:mapBot - pad*0.6 - keyH - 6*s, w:pad*0.8 + 190*s, h:keyH + pad*0.6 + 6*s});
   const fits = r => r.x >= mL+4 && r.x+r.w <= mR-4 && r.y >= mapTop+4 && r.y+r.h <= mapBot-4 &&
     !placed.some(q => r.x < q.x+q.w && q.x < r.x+r.w && r.y < q.y+q.h && q.y < r.y+r.h);
   const dropped = [];
-  function label(k, t1, t2, sides){
+  function label(k, t1, t2, sides, color){
     const p = pos[k];
     ctx.font = '700 ' + (T.szLabel*s) + 'px ' + T.fBody;
     const w1 = ctx.measureText(t1).width;
@@ -313,7 +364,7 @@ function draw(ctx, W, H, P){
       ctx.textAlign = al;
       ctx.lineJoin = 'round'; ctx.strokeStyle = T.bg; ctx.lineWidth = 4*s;
       ctx.font = '700 ' + (T.szLabel*s) + 'px ' + T.fBody;
-      ctx.strokeText(t1, tx, yy + T.szLabel*s*0.95); ctx.fillStyle = T.ink; ctx.fillText(t1, tx, yy + T.szLabel*s*0.95);
+      ctx.strokeText(t1, tx, yy + T.szLabel*s*0.95); ctx.fillStyle = color || T.ink; ctx.fillText(t1, tx, yy + T.szLabel*s*0.95);
       if(t2){
         ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
         ctx.strokeText(t2, tx, yy + T.szLabel*s*2.1); ctx.fillStyle = T.muted; ctx.fillText(t2, tx, yy + T.szLabel*s*2.1);
@@ -350,21 +401,36 @@ function draw(ctx, W, H, P){
     const side = Math.abs(dir[0]) > Math.abs(dir[1]) ? (dir[0] > 0 ? ['right','below','above'] : ['left','below','above'])
                                                      : (dir[1] > 0 ? ['below','right','left'] : ['above','right','left']);
     pos['_d_' + k] = n.labelAt ? proj(n.labelAt) : c;
-    label('_d_' + k, n.arrowLabel || 'To ' + n.label, fmtVal(tot), n.sides || side);
+    label('_d_' + k, n.arrowLabel || 'To ' + n.label, fmtVal(tot), n.sides || side, n.textColor || n.color);
   });
   if(dropped.length) console.log('LABELS_DROPPED', P.name, dropped);
 
-  /* key: two reference arrows */
+  /* key: destination colours, then reference widths */
   if(MAP.legend){
     const kx = mL + pad*0.8, ky0 = mapBot - pad*0.6;
-    let ky = ky0 - MAP.legend.length*30*s;
-    ctx.textAlign = 'left'; ctx.fillStyle = T.muted;
+    const dk = dests.filter(k => MAP.nodes[k].color);
+    let ky = ky0 - keyH;
+    ctx.textAlign = 'left';
     ctx.font = '600 ' + (T.szSmall*s) + 'px ' + T.fBody;
-    ctx.fillText(MAP.legendTitle || 'Arrow width', kx, ky - 8*s);
+    if(dk.length){
+      ctx.fillStyle = T.muted; ctx.fillText('Destination', kx, ky + T.szSmall*s);
+      ky += T.szSmall*s*1.6;
+      dk.forEach(k => {
+        ctx.fillStyle = MAP.nodes[k].color;
+        ctx.beginPath(); ctx.roundRect(kx, ky + 2*s, 22*s, 11*s, 2*s); ctx.fill();
+        ctx.fillStyle = T.ink; ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
+        ctx.fillText(MAP.nodes[k].label, kx + 30*s, ky + 12*s);
+        ky += 20*s;
+      });
+      ky += 8*s;
+    }
+    ctx.fillStyle = T.muted; ctx.font = '600 ' + (T.szSmall*s) + 'px ' + T.fBody;
+    ctx.fillText(MAP.legendTitle || 'Arrow width', kx, ky + T.szSmall*s);
+    ky += T.szSmall*s*0.6;
     MAP.legend.forEach(v => {
       ky += 30*s;
       const a = arrowPath([kx, ky-8*s], [kx+70*s, ky-8*s], 0, width(v), s);
-      ctx.fillStyle = T.red; ctx.fill(a.path);
+      ctx.fillStyle = T.muted; ctx.fill(a.path);
       ctx.fillStyle = T.muted; ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
       ctx.fillText(fmtVal(v), kx + 80*s, ky - 8*s + T.szSmall*s*0.35);
     });
