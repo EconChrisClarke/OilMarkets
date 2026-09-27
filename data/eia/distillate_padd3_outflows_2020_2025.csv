@@ -1,0 +1,55 @@
+year,from,to,mode,thousand_barrels,barrels_per_day
+2020,Gulf Coast (PADD 3),East Coast (PADD 1),all,325632,889705
+2020,Gulf Coast (PADD 3),East Coast (PADD 1),pipeline,276977,756768
+2020,Gulf Coast (PADD 3),East Coast (PADD 1),tanker and barge,48655,132937
+2020,Gulf Coast (PADD 3),Midwest (PADD 2),all,28403,77604
+2020,Gulf Coast (PADD 3),Midwest (PADD 2),pipeline,26349,71992
+2020,Gulf Coast (PADD 3),Midwest (PADD 2),tanker and barge,2054,5612
+2020,Gulf Coast (PADD 3),West Coast (PADD 5),all,9570,26148
+2020,Gulf Coast (PADD 3),West Coast (PADD 5),pipeline,9570,26148
+2021,Gulf Coast (PADD 3),East Coast (PADD 1),all,291134,797627
+2021,Gulf Coast (PADD 3),East Coast (PADD 1),pipeline,244076,668701
+2021,Gulf Coast (PADD 3),East Coast (PADD 1),tanker and barge,47058,128926
+2021,Gulf Coast (PADD 3),Midwest (PADD 2),all,40965,112233
+2021,Gulf Coast (PADD 3),Midwest (PADD 2),pipeline,37995,104096
+2021,Gulf Coast (PADD 3),Midwest (PADD 2),tanker and barge,2970,8137
+2021,Gulf Coast (PADD 3),West Coast (PADD 5),all,12244,33545
+2021,Gulf Coast (PADD 3),West Coast (PADD 5),pipeline,12244,33545
+2022,Gulf Coast (PADD 3),East Coast (PADD 1),all,312860,857151
+2022,Gulf Coast (PADD 3),East Coast (PADD 1),pipeline,263587,722156
+2022,Gulf Coast (PADD 3),East Coast (PADD 1),tanker and barge,49273,134995
+2022,Gulf Coast (PADD 3),Midwest (PADD 2),all,26764,73326
+2022,Gulf Coast (PADD 3),Midwest (PADD 2),pipeline,23911,65510
+2022,Gulf Coast (PADD 3),Midwest (PADD 2),tanker and barge,2853,7816
+2022,Gulf Coast (PADD 3),West Coast (PADD 5),all,10792,29567
+2022,Gulf Coast (PADD 3),West Coast (PADD 5),pipeline,10721,29373
+2022,Gulf Coast (PADD 3),West Coast (PADD 5),tanker and barge,71,195
+2023,Gulf Coast (PADD 3),East Coast (PADD 1),all,300879,824326
+2023,Gulf Coast (PADD 3),East Coast (PADD 1),pipeline,255133,698995
+2023,Gulf Coast (PADD 3),East Coast (PADD 1),tanker and barge,45746,125332
+2023,Gulf Coast (PADD 3),Midwest (PADD 2),all,28725,78699
+2023,Gulf Coast (PADD 3),Midwest (PADD 2),pipeline,26192,71759
+2023,Gulf Coast (PADD 3),Midwest (PADD 2),tanker and barge,2533,6940
+2023,Gulf Coast (PADD 3),West Coast (PADD 5),all,10053,27542
+2023,Gulf Coast (PADD 3),West Coast (PADD 5),pipeline,10053,27542
+2023,Gulf Coast (PADD 3),West Coast (PADD 5),tanker and barge,0,0
+2024,Gulf Coast (PADD 3),East Coast (PADD 1),all,317833,868396
+2024,Gulf Coast (PADD 3),East Coast (PADD 1),pipeline,271703,742358
+2024,Gulf Coast (PADD 3),East Coast (PADD 1),tanker and barge,46130,126038
+2024,Gulf Coast (PADD 3),Midwest (PADD 2),all,22823,62358
+2024,Gulf Coast (PADD 3),Midwest (PADD 2),pipeline,21054,57525
+2024,Gulf Coast (PADD 3),Midwest (PADD 2),tanker and barge,1769,4833
+2024,Gulf Coast (PADD 3),Rockies (PADD 4),all,643,1757
+2024,Gulf Coast (PADD 3),Rockies (PADD 4),pipeline,643,1757
+2024,Gulf Coast (PADD 3),West Coast (PADD 5),all,12549,34287
+2024,Gulf Coast (PADD 3),West Coast (PADD 5),pipeline,12549,34287
+2025,Gulf Coast (PADD 3),East Coast (PADD 1),all,324147,888074
+2025,Gulf Coast (PADD 3),East Coast (PADD 1),pipeline,266438,729967
+2025,Gulf Coast (PADD 3),East Coast (PADD 1),tanker and barge,57771,158277
+2025,Gulf Coast (PADD 3),Midwest (PADD 2),all,21563,59077
+2025,Gulf Coast (PADD 3),Midwest (PADD 2),pipeline,19552,53567
+2025,Gulf Coast (PADD 3),Midwest (PADD 2),tanker and barge,2011,5510
+2025,Gulf Coast (PADD 3),Rockies (PADD 4),all,1354,3710
+2025,Gulf Coast (PADD 3),Rockies (PADD 4),pipeline,1410,3863
+2025,Gulf Coast (PADD 3),West Coast (PADD 5),all,14211,38934
+2025,Gulf Coast (PADD 3),West Coast (PADD 5),pipeline,14211,38934

@@ -267,7 +267,7 @@ function draw(ctx, W, H, P){
       /* inbound: toward is the point the arrow comes from */
       const a = pos[anchorOf(f)], b = f.toward ? proj(f.toward) : pos[farOf(f)], d = Math.hypot(b[0]-a[0], b[1]-a[1])||1;
       const ux = (b[0]-a[0])/d, uy = (b[1]-a[1])/d, off = (inb ? 8 : 6)*s;
-      let len = Math.min((NODES[anchorOf(f)].length || MAP.arrowLength || 120)*s, d - off);
+      let len = Math.min((f.length || NODES[anchorOf(f)].length || MAP.arrowLength || 120)*s, d - off);   // flow, then node, then map
       /* Keep the whole arrowhead inside the map area: a frame narrower than
          the arrow's reach (New York -> Europe on 9:16) shortens the arrow
          rather than letting it run off the edge. */

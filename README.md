@@ -10,6 +10,7 @@ Charts and data on global crude oil markets.
 |---|---|---|
 | 1 | The US exports 1.2 million barrels of diesel a day, mostly from the Gulf | [diesel-exports-2024.html](https://econchrisclarke.github.io/OilMarkets/diesel-exports-2024.html) |
 | 2 | Most US diesel imports are Canadian fuel landing in New England | [diesel-imports-2024.html](https://econchrisclarke.github.io/OilMarkets/diesel-imports-2024.html) |
+| 3 | The Gulf Coast sends more diesel abroad than to the rest of the US | [gulf-diesel-2024.html](https://econchrisclarke.github.io/OilMarkets/gulf-diesel-2024.html) |
 
 ### US diesel exports by port region and destination, 2024
 
@@ -28,6 +29,27 @@ Arrow width is barrels per day.
 
 **Source:** US Census Bureau, International Trade API, exports by customs
 district at the HS10 level (Schedule B 2710.19.1106/1109/1112 and 2710.20).
+
+### Where Gulf Coast diesel goes, 2024
+
+The Gulf Coast (PADD 3) sent 1.04 million barrels a day of distillate fuel
+oil abroad in 2024, against 0.97 million to the rest of the US. Almost all of
+the domestic flow went to the East Coast (868k b/d, 85% by pipeline). The
+Midwest took 62k b/d, and the West 34k b/d, all of it by pipeline to Arizona:
+no Gulf diesel went to the West Coast by ship. Same arrow scale as the export
+and import maps.
+
+- **View the map:** [gulf-diesel-2024.html](https://econchrisclarke.github.io/OilMarkets/gulf-diesel-2024.html)
+- **Data:** [`data/eia/distillate_padd3_outflows_2020_2025.csv`](data/eia/distillate_padd3_outflows_2020_2025.csv)
+  (movements to other regions by mode, 2020-2025),
+  [`data/census_trade/distillate_exports_padd3_by_region_2024.csv`](data/census_trade/distillate_exports_padd3_by_region_2024.csv) (exports)
+- **Map config:** [`maps/configs/gulf-diesel-2024.json`](maps/configs/gulf-diesel-2024.json),
+  built by [`scripts/process_gulf_diesel_2024.py`](scripts/process_gulf_diesel_2024.py)
+
+**Source:** EIA, Movements by Pipeline, Tanker, Barge and Rail between PAD
+Districts (annual); US Census Bureau, International Trade API, exports by
+customs district (HS10) from the Houston-Galveston, Port Arthur, New Orleans,
+Mobile, Laredo and El Paso districts.
 
 ### US diesel imports by state of entry and origin, 2024
 
