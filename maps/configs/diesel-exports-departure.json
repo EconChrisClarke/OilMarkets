@@ -1,0 +1,294 @@
+{
+  "headline": "Most US diesel exports leave from a handful of Gulf Coast ports",
+  "subhead": "Distillate fuel oil exports by port and destination, 2024, barrels per day",
+  "note": "PLACEHOLDER VALUES for layout only. Real figures will come from Census port-level trade data (HS 2710.19 distillate lines), converted to barrels with national unit values.",
+  "source": "US Census Bureau, USA Trade Online, port-level exports",
+  "sourceUrl": "https://usatrade.census.gov",
+  "units": "b/d",
+  "draft": true,
+  "maxArrowWidth": 30,
+  "legendTitle": "Arrow width",
+  "legend": [
+    50000,
+    200000
+  ],
+  "nodes": {
+    "houston": {
+      "label": "Houston",
+      "lonlat": [
+        -95.0,
+        29.7
+      ],
+      "sides": [
+        "left",
+        "above"
+      ]
+    },
+    "corpus": {
+      "label": "Corpus Christi",
+      "lonlat": [
+        -97.4,
+        27.8
+      ],
+      "sides": [
+        "left",
+        "below"
+      ]
+    },
+    "beaumont": {
+      "label": "Port Arthur",
+      "lonlat": [
+        -93.9,
+        29.9
+      ],
+      "sides": [
+        "above",
+        "right"
+      ]
+    },
+    "lakecharles": {
+      "label": "Lake Charles",
+      "lonlat": [
+        -93.2,
+        30.2
+      ],
+      "sides": [
+        "above",
+        "right"
+      ]
+    },
+    "neworleans": {
+      "label": "New Orleans",
+      "lonlat": [
+        -90.1,
+        29.95
+      ],
+      "sides": [
+        "above",
+        "right"
+      ]
+    },
+    "laredo": {
+      "label": "Laredo",
+      "lonlat": [
+        -99.5,
+        27.5
+      ],
+      "sides": [
+        "left",
+        "below"
+      ]
+    },
+    "elpaso": {
+      "label": "El Paso",
+      "lonlat": [
+        -106.5,
+        31.8
+      ],
+      "sides": [
+        "above",
+        "left"
+      ]
+    },
+    "losangeles": {
+      "label": "Los Angeles",
+      "lonlat": [
+        -118.2,
+        33.75
+      ],
+      "sides": [
+        "left",
+        "below"
+      ]
+    },
+    "detroit": {
+      "label": "Detroit",
+      "lonlat": [
+        -83.0,
+        42.3
+      ],
+      "sides": [
+        "below",
+        "right"
+      ]
+    },
+    "mexico": {
+      "label": "Mexico",
+      "lonlat": [
+        -101.5,
+        21.5
+      ],
+      "sides": [
+        "below",
+        "left"
+      ]
+    },
+    "latam": {
+      "label": "South & Central America",
+      "lonlat": [
+        -77,
+        5
+      ],
+      "sides": [
+        "above",
+        "left",
+        "right"
+      ]
+    },
+    "europe": {
+      "label": "Europe",
+      "lonlat": [
+        -35,
+        36
+      ],
+      "sides": [
+        "below",
+        "above",
+        "left"
+      ]
+    },
+    "canada": {
+      "label": "Canada",
+      "lonlat": [
+        -80,
+        46.5
+      ],
+      "sides": [
+        "above",
+        "right"
+      ]
+    }
+  },
+  "flows": [
+    {
+      "from": "houston",
+      "to": "latam",
+      "value": 250000,
+      "bend": 0.12
+    },
+    {
+      "from": "houston",
+      "to": "europe",
+      "value": 80000,
+      "bend": -0.15
+    },
+    {
+      "from": "houston",
+      "to": "mexico",
+      "value": 60000,
+      "bend": 0.15
+    },
+    {
+      "from": "corpus",
+      "to": "mexico",
+      "value": 90000,
+      "bend": 0.2
+    },
+    {
+      "from": "corpus",
+      "to": "latam",
+      "value": 60000,
+      "bend": 0.2
+    },
+    {
+      "from": "beaumont",
+      "to": "latam",
+      "value": 120000,
+      "bend": 0.05
+    },
+    {
+      "from": "beaumont",
+      "to": "europe",
+      "value": 60000,
+      "bend": -0.1
+    },
+    {
+      "from": "lakecharles",
+      "to": "europe",
+      "value": 40000,
+      "bend": -0.05
+    },
+    {
+      "from": "neworleans",
+      "to": "latam",
+      "value": 70000,
+      "bend": -0.05
+    },
+    {
+      "from": "neworleans",
+      "to": "europe",
+      "value": 30000,
+      "bend": 0
+    },
+    {
+      "from": "laredo",
+      "to": "mexico",
+      "value": 40000,
+      "bend": 0.1
+    },
+    {
+      "from": "elpaso",
+      "to": "mexico",
+      "value": 30000,
+      "bend": 0.2
+    },
+    {
+      "from": "losangeles",
+      "to": "mexico",
+      "value": 20000,
+      "bend": 0.25
+    },
+    {
+      "from": "detroit",
+      "to": "canada",
+      "value": 20000,
+      "bend": 0.2
+    }
+  ],
+  "frames": {
+    "substack": {
+      "bounds": [
+        [
+          -125,
+          14
+        ],
+        [
+          -66,
+          50
+        ]
+      ]
+    },
+    "vertical": {
+      "bounds": [
+        [
+          -108,
+          14
+        ],
+        [
+          -78,
+          47
+        ]
+      ]
+    },
+    "square": {
+      "bounds": [
+        [
+          -122,
+          14
+        ],
+        [
+          -68,
+          50
+        ]
+      ]
+    }
+  },
+  "geoBBox": [
+    -170,
+    -25,
+    -20,
+    75
+  ],
+  "style": "departure",
+  "arrowLength": 95
+}

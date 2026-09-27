@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAP_TITLE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@144,700&family=Inter:wght@400;500;600;700&family=Jost:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --ink:#111827; --muted:#6B7280; --red:#C71E1D; --bg:#FFF1F2; }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+    font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}
+  #stage{margin:0 auto;padding:8px;text-align:center}
+  canvas{display:inline-block;max-width:100%;height:auto;touch-action:pan-y;
+    box-shadow:0 1px 3px rgba(17,24,39,.10)}
+  #below{margin:14px auto 30px;padding:0 8px;text-align:left}
+  #copytext p{margin:0 0 6px;font:400 13px/1.5 'Inter',sans-serif;color:#374151}
+  #copytext .ct-head{font-weight:700;color:var(--ink)}
+  #copytext .src{color:#767C86}
+  #copytext a{color:inherit}
+  #bar{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-top:14px}
+  #bar .lab{flex:0 0 84px;font:500 11.5px/1.4 'Inter',sans-serif;color:#9CA3AF;
+    letter-spacing:.06em;text-transform:uppercase}
+  #bar button{font:600 12.5px/1 'Inter',system-ui,sans-serif;color:#374151;background:transparent;
+    border:1px solid #D9C7CB;border-radius:7px;padding:8px 11px;cursor:pointer}
+  #bar button:hover{border-color:var(--red);color:var(--red)}
+  #bar button.on{border-color:var(--red);color:#fff;background:var(--red)}
+  #bar button.dl{margin-left:auto;border-color:#B9A6AA;font-weight:700}
+  #bar button.dl:hover{background:var(--red);border-color:var(--red);color:#fff}
+  body.embed #below{display:none}
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="cv"></canvas></div>
+<div id="below">
+  <div id="copytext"></div>
+  <div id="bar">
+    <span class="lab">Frame</span>
+    <button data-m="substack">Substack 1456</button>
+    <button data-m="vertical">Vertical 9:16</button>
+    <button data-m="square">Square 1:1</button>
+    <button class="dl" id="dl">Download PNG</button>
+  </div>
+</div>
+<script>/*LIBS*/</script>
+<script>
+const GEO = /*GEO*/;
+const MAP = /*CONFIG*/;
+
+/* ============================================================================
+   THEME — shared with the chart template (econ-chart-style). Map-only
+   colours are derived from the rose background so land and water read as
+   one warm surface rather than as a grey atlas pasted onto a pink page.
+   ========================================================================= */
+const T = {
+  bg:'#FFF1F2', ink:'#111827', muted:'#6B7280', faint:'#767C86', red:'#C71E1D',
+  land:'#F5E3E6', home:'#EBD0D5', border:'#D8C1C6', stateLine:'#FFF6F7',
+  fTitle:"'Fraunces',Georgia,'Times New Roman',serif", headWeight:700,
+  fBody:"'Inter',system-ui,-apple-system,sans-serif",
+  fLogo:"'Jost',system-ui,-apple-system,sans-serif",
+  szHead:25, szSub:14.5, szLabel:13.5, szSmall:12, szFoot:11.5, pad:26, gap:9
+};
+const PRESETS = {
+  substack: { w:1456, h:900,  s:1.55, ex:2, hs:1.00, fs:1.00, safe:{t:0,b:0,l:0,r:0} },
+  vertical: { w:1080, h:1920, s:2.00, ex:1, hs:0.78, fs:0.58, safe:{t:150,b:380,l:30,r:110} },
+  square:   { w:1080, h:1080, s:1.65, ex:1, hs:0.94, fs:0.85, safe:{t:16,b:16,l:16,r:16} }
+};
+
+/* ---- helpers ------------------------------------------------------------ */
+function fmtVal(v){
+  const u = MAP.units || '';
+  if(v >= 1e6) return (Math.round(v/1e5)/10) + 'M ' + u;
+  if(v >= 1e3) return Math.round(v/1e3) + 'k ' + u;
+  return Math.round(v) + ' ' + u;
+}
+function wrap(ctx, text, maxW){
+  const words = String(text).split(/\s+/), lines = [];
+  let cur = '';
+  words.forEach(w => {
+    const t = cur ? cur + ' ' + w : w;
+    if(ctx.measureText(t).width > maxW && cur){ lines.push(cur); cur = w; } else cur = t;
+  });
+  if(cur) lines.push(cur);
+  return lines;
+}
+function measureSpaced(ctx, text, sp){
+  let w = 0; for(const ch of text) w += ctx.measureText(ch).width + sp; return w - sp;
+}
+function drawSpaced(ctx, text, x, y, sp){
+  for(const ch of text){ ctx.fillText(ch, x, y); x += ctx.measureText(ch).width + sp; }
+}
+/* Identical to drawLogo() in the chart template. */
+function drawLogo(ctx, xRight, yBottom, h){
+  const sq = h, words = ['ECON','CHRIS','CLARKE'];
+  const tSize = h*0.268, tSp = h*0.026, lineH = tSize*1.395, gap = h*0.15;
+  ctx.font = '700 ' + tSize + 'px ' + T.fLogo; ctx.textAlign = 'left';
+  let tw = 0; words.forEach(t => { tw = Math.max(tw, measureSpaced(ctx, t, tSp)); });
+  const total = sq + gap + tw, x = xRight - total, y = yBottom - h;
+  ctx.fillStyle = T.red; ctx.fillRect(x, y, sq, sq);
+  ctx.strokeStyle = '#FFFFFF'; ctx.lineJoin = 'miter'; ctx.lineCap = 'butt'; ctx.lineWidth = sq*0.095;
+  const ax = x + sq*0.215, ay = y + sq*0.845;
+  ctx.beginPath(); ctx.moveTo(ax, y + sq*0.105); ctx.lineTo(ax, ay); ctx.lineTo(x + sq*0.905, ay); ctx.stroke();
+  ctx.lineCap = 'round'; ctx.beginPath();
+  ctx.moveTo(x + sq*0.30, y + sq*0.82); ctx.lineTo(x + sq*0.80, y + sq*0.14);
+  ctx.moveTo(x + sq*0.24, y + sq*0.26); ctx.lineTo(x + sq*0.88, y + sq*0.70);
+  ctx.stroke(); ctx.lineCap = 'butt';
+  ctx.fillStyle = T.red; ctx.font = '700 ' + tSize + 'px ' + T.fLogo;
+  const capH = tSize*0.72, top = y + (h - ((words.length-1)*lineH + capH))/2;
+  words.forEach((t,i) => drawSpaced(ctx, t, x + sq + gap, top + capH + i*lineH, tSp));
+  return total;
+}
+
+/* ---- arrows --------------------------------------------------------------
+   A flow is a quadratic curve from origin to destination, drawn as a filled
+   shape whose shaft width is proportional to the value. Width is linear in
+   the value (not square-rooted as a circle's area would be) because the
+   reader compares widths, a one-dimensional quantity. */
+function curvePts(p0, p2, bend, n){
+  const mx = (p0[0]+p2[0])/2, my = (p0[1]+p2[1])/2;
+  const dx = p2[0]-p0[0], dy = p2[1]-p0[1];
+  const c = [mx - dy*bend, my + dx*bend];
+  const pts = [];
+  for(let i=0;i<=n;i++){
+    const t = i/n, u = 1-t;
+    pts.push([u*u*p0[0] + 2*u*t*c[0] + t*t*p2[0], u*u*p0[1] + 2*u*t*c[1] + t*t*p2[1]]);
+  }
+  return pts;
+}
+function arrowPath(p0, p2, bend, w, s){
+  const pts = curvePts(p0, p2, bend, 80);
+  const cum = [0];
+  for(let i=1;i<pts.length;i++) cum.push(cum[i-1] + Math.hypot(pts[i][0]-pts[i-1][0], pts[i][1]-pts[i-1][1]));
+  const L = cum[cum.length-1];
+  const hl = Math.min(Math.max(w*1.5, 11*s), L*0.45), hw = Math.max(w*1.9, w + 10*s);
+  const shaft = pts.filter((p,i) => cum[i] <= L - hl);
+  if(shaft.length < 2) shaft.push(pts[1]);
+  const nrm = (a,b) => { const dx=b[0]-a[0], dy=b[1]-a[1], d=Math.hypot(dx,dy)||1; return [-dy/d, dx/d]; };
+  const left = [], right = [];
+  shaft.forEach((p,i) => {
+    const a = shaft[Math.max(0,i-1)], b = shaft[Math.min(shaft.length-1,i+1)];
+    const n = nrm(a,b);
+    left.push([p[0]+n[0]*w/2, p[1]+n[1]*w/2]);
+    right.push([p[0]-n[0]*w/2, p[1]-n[1]*w/2]);
+  });
+  const base = shaft[shaft.length-1], tip = pts[pts.length-1];
+  const n = nrm(base, tip);
+  const P = new Path2D();
+  P.moveTo(left[0][0], left[0][1]);
+  left.forEach(p => P.lineTo(p[0], p[1]));
+  P.lineTo(base[0]+n[0]*hw/2, base[1]+n[1]*hw/2);
+  P.lineTo(tip[0], tip[1]);
+  P.lineTo(base[0]-n[0]*hw/2, base[1]-n[1]*hw/2);
+  for(let i=right.length-1;i>=0;i--) P.lineTo(right[i][0], right[i][1]);
+  P.closePath();
+  return {path:P, tip, tail:pts[0], mid:pts[40]};
+}
+
+/* ---- draw --------------------------------------------------------------- */
+let HIT = [];
+function draw(ctx, W, H, P){
+  const s = P.s, hz = s*P.hs, fz = s*P.fs, pad = T.pad*s;
+  const L = P.safe.l + pad, R = W - P.safe.r - pad;
+  ctx.fillStyle = T.bg; ctx.fillRect(0,0,W,H);
+  ctx.textBaseline = 'alphabetic';
+
+  /* header */
+  let y = P.safe.t + pad;
+  ctx.fillStyle = T.ink; ctx.textAlign = 'left';
+  ctx.font = T.headWeight + ' ' + (T.szHead*hz) + 'px ' + T.fTitle;
+  wrap(ctx, MAP.headline, R-L).forEach(l => { y += T.szHead*hz*1.12; ctx.fillText(l, L, y); });
+  ctx.fillStyle = T.muted; ctx.font = '400 ' + (T.szSub*hz) + 'px ' + T.fBody;
+  y += T.gap*hz*0.6;
+  wrap(ctx, MAP.subhead, R-L).forEach(l => { y += T.szSub*hz*1.35; ctx.fillText(l, L, y); });
+  const mapTop = y + T.gap*s*1.4;
+
+  /* footer, measured first so the map takes what is left */
+  ctx.font = '400 ' + (T.szFoot*fz) + 'px ' + T.fBody;
+  const logoH = T.szFoot*fz*3.6;
+  const footTextW = R - L - logoH*3.2;
+  const lines = [];
+  if(MAP.note) wrap(ctx, MAP.note, footTextW).forEach(l => lines.push(l));
+  const src = 'Source: ' + MAP.source + (MAP.sourceUrl ? ' · ' + MAP.sourceUrl : '');
+  wrap(ctx, src, footTextW).forEach(l => lines.push(l));
+  const lh = T.szFoot*fz*1.4;
+  const footH = Math.max(lines.length*lh, logoH);
+  const footBottom = H - P.safe.b - pad;
+  const mapBot = footBottom - footH - T.gap*s*1.6;
+  lines.forEach((l,i) => {
+    ctx.fillStyle = T.faint; ctx.fillText(l, L, footBottom - footH + (i+0.8)*lh);
+  });
+  drawLogo(ctx, R, footBottom, logoH);
+
+  /* map */
+  const fr = (MAP.frames[P.name] || MAP.frames.substack);
+  const [[w0,s0],[e0,n0]] = fr.bounds;
+  const ring = [];
+  for(let i=0;i<=20;i++){ const t=i/20; ring.push([w0+(e0-w0)*t, s0], [w0+(e0-w0)*t, n0]); }
+  for(let i=0;i<=20;i++){ const t=i/20; ring.push([w0, s0+(n0-s0)*t], [e0, s0+(n0-s0)*t]); }
+  const mL = P.safe.l, mR = W - P.safe.r;
+  const proj = d3.geoConicConformal().parallels([20,45]).rotate([fr.rotate || 96, 0])
+    .fitExtent([[mL, mapTop], [mR, mapBot]], {type:'MultiPoint', coordinates:ring});
+  const gp = d3.geoPath(proj, ctx);
+
+  ctx.save();
+  ctx.beginPath(); ctx.rect(mL, mapTop, mR-mL, mapBot-mapTop); ctx.clip();
+  GEO.countries.forEach(f => {
+    ctx.beginPath(); gp(f);
+    ctx.fillStyle = f.properties.name === GEO.home ? T.home : T.land; ctx.fill();
+  });
+  ctx.beginPath(); gp(GEO.stateLines);
+  ctx.strokeStyle = T.stateLine; ctx.lineWidth = 0.9*s; ctx.stroke();
+  ctx.beginPath(); GEO.countries.forEach(f => gp(f));
+  ctx.strokeStyle = T.border; ctx.lineWidth = 0.7*s; ctx.stroke();
+
+  /* arrows: largest first so the small ones stay visible on top */
+  const pos = {};
+  const inset = 18*s;
+  for(const [k,n] of Object.entries(MAP.nodes)){
+    let p = proj(n.lonlat);
+    p = [Math.min(Math.max(p[0], mL+inset), mR-inset), Math.min(Math.max(p[1], mapTop+inset), mapBot-inset)];
+    pos[k] = p;
+  }
+  const maxV = Math.max(...MAP.flows.map(f => f.value));
+  const maxW = (MAP.maxArrowWidth || 30)*s;
+  const minW = 2.5*s;
+  const width = v => Math.max(minW, v/maxV*maxW);
+  HIT = [];
+  const arrowRects = [];
+  /* Two styles. "flows": one curved arrow per origin-destination pair.
+     "departure": one straight arrow per origin, width = its total, pointing
+     toward its value-weighted destination (or node.heading, compass degrees).
+     Departure arrows replace proportional circles: same job, but they also
+     say which way the product goes. */
+  let flows = MAP.flows.slice();
+  if(MAP.style === 'fan'){
+    /* One short straight arrow per origin-destination pair, pointing at the
+       destination: the direction is geographic, the length is fixed, so
+       only the width carries the value. */
+    flows = flows.map(f => {
+      const a = pos[f.from], b = pos[f.to], d = Math.hypot(b[0]-a[0], b[1]-a[1])||1;
+      const ux = (b[0]-a[0])/d, uy = (b[1]-a[1])/d, off = 6*s;
+      const len = Math.min((MAP.nodes[f.from].length || MAP.arrowLength || 120)*s, d - off);
+      return Object.assign({}, f, {bend:0, p0:[a[0]+ux*off, a[1]+uy*off], p2:[a[0]+ux*(off+len), a[1]+uy*(off+len)]});
+    });
+  } else if(MAP.style === 'departure'){
+    const byFrom = {};
+    flows.forEach(f => { (byFrom[f.from] = byFrom[f.from] || []).push(f); });
+    flows = Object.entries(byFrom).map(([k, fs]) => {
+      const tot = fs.reduce((a,f) => a + f.value, 0);
+      let dx = 0, dy = 0;
+      const n = MAP.nodes[k];
+      if(n.heading !== undefined){
+        dx = Math.sin(n.heading*Math.PI/180); dy = -Math.cos(n.heading*Math.PI/180);
+      } else fs.forEach(f => {
+        const vx = pos[f.to][0]-pos[k][0], vy = pos[f.to][1]-pos[k][1], d = Math.hypot(vx,vy)||1;
+        dx += vx/d*f.value; dy += vy/d*f.value;
+      });
+      const d = Math.hypot(dx,dy)||1, len = (n.length || MAP.arrowLength || 120)*s;
+      const off = 5*s;
+      return {from:k, value:tot, bend:0, parts:fs,
+              p0:[pos[k][0]+dx/d*off, pos[k][1]+dy/d*off],
+              p2:[pos[k][0]+dx/d*(off+len), pos[k][1]+dy/d*(off+len)], dir:[dx/d, dy/d]};
+    });
+  }
+  flows.sort((a,b) => b.value - a.value);
+  flows.forEach(f => {
+    const a = arrowPath(f.p0 || pos[f.from], f.p2 || pos[f.to], f.bend ?? 0.18, width(f.value), s);
+    ctx.fillStyle = f.color || T.red;
+    ctx.globalAlpha = 0.92; ctx.fill(a.path); ctx.globalAlpha = 1;
+    ctx.strokeStyle = T.bg; ctx.lineWidth = 1.4*s; ctx.stroke(a.path);
+    HIT.push({flow:f, path:a.path, mid:a.mid});
+    /* Labels keep off straight arrows; curved flows are too loose a fit for boxes. */
+    if(f.p0){
+      const w = width(f.value)*1.3;
+      for(let t=0;t<=1;t+=0.1){
+        const x = f.p0[0]+(f.p2[0]-f.p0[0])*t, yy = f.p0[1]+(f.p2[1]-f.p0[1])*t;
+        arrowRects.push({x:x-w/2, y:yy-w/2, w, h:w});
+      }
+    }
+  });
+
+  /* labels, placed greedily; a label that would collide is dropped, never shrunk */
+  const placed = arrowRects.slice();
+  const fits = r => r.x >= mL+4 && r.x+r.w <= mR-4 && r.y >= mapTop+4 && r.y+r.h <= mapBot-4 &&
+    !placed.some(q => r.x < q.x+q.w && q.x < r.x+r.w && r.y < q.y+q.h && q.y < r.y+r.h);
+  const dropped = [];
+  function label(k, t1, t2, sides){
+    const p = pos[k];
+    ctx.font = '700 ' + (T.szLabel*s) + 'px ' + T.fBody;
+    const w1 = ctx.measureText(t1).width;
+    ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
+    const w2 = t2 ? ctx.measureText(t2).width : 0;
+    const w = Math.max(w1,w2), h = T.szLabel*s*(t2 ? 2.35 : 1.25), g = 9*s;
+    const at = {
+      left:  [p[0]-g-w, p[1]-h/2, 'right'], right: [p[0]+g, p[1]-h/2, 'left'],
+      above: [p[0]-w/2, p[1]-g-h, 'center'], below: [p[0]-w/2, p[1]+g, 'center']
+    };
+    for(const side of sides){
+      const [x,yy,al] = at[side], r = {x, y:yy, w, h};
+      if(!fits(r)) continue;
+      placed.push(r);
+      const tx = al==='right' ? x+w : al==='center' ? x+w/2 : x;
+      ctx.textAlign = al;
+      ctx.lineJoin = 'round'; ctx.strokeStyle = T.bg; ctx.lineWidth = 4*s;
+      ctx.font = '700 ' + (T.szLabel*s) + 'px ' + T.fBody;
+      ctx.strokeText(t1, tx, yy + T.szLabel*s*0.95); ctx.fillStyle = T.ink; ctx.fillText(t1, tx, yy + T.szLabel*s*0.95);
+      if(t2){
+        ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
+        ctx.strokeText(t2, tx, yy + T.szLabel*s*2.1); ctx.fillStyle = T.muted; ctx.fillText(t2, tx, yy + T.szLabel*s*2.1);
+      }
+      return true;
+    }
+    dropped.push(t1); return false;
+  }
+  const totals = {};
+  MAP.flows.forEach(f => {
+    totals[f.from] = (totals[f.from]||0) + f.value;
+    totals[f.to] = (totals[f.to]||0) + f.value;
+  });
+  /* origins: a dot where the arrow leaves, then the name and its total */
+  const origins = [...new Set(MAP.flows.map(f => f.from))].sort((a,b) => totals[b]-totals[a]);
+  origins.forEach(k => {
+    ctx.fillStyle = T.ink; ctx.beginPath(); ctx.arc(pos[k][0], pos[k][1], 3.2*s, 0, 6.284); ctx.fill();
+  });
+  const dests = [...new Set(MAP.flows.map(f => f.to))].sort((a,b) => totals[b]-totals[a]);
+  if(MAP.style === 'flows' || !MAP.style) dests.forEach(k => label(k, MAP.nodes[k].label, fmtVal(totals[k]),
+    MAP.nodes[k].sides || ['below','above','left','right']));
+  /* fan: name the destination at each arrowhead */
+  if(MAP.style === 'fan') flows.forEach(f => {
+    const n = MAP.nodes[f.to], tip = f.p2, d = [f.p2[0]-f.p0[0], f.p2[1]-f.p0[1]];
+    const side = Math.abs(d[0]) > Math.abs(d[1]) ? (d[0] > 0 ? ['right','below','above'] : ['left','below','above'])
+                                                 : (d[1] > 0 ? ['below','right','left'] : ['above','right','left']);
+    pos['_tip'] = tip;
+    label('_tip', (n.arrowLabel || 'To ' + n.label), fmtVal(f.value), n.sides || side);
+  });
+  origins.forEach(k => label(k, MAP.nodes[k].label, fmtVal(totals[k]),
+    MAP.nodes[k].sides || ['left','right','above','below']));
+  if(dropped.length) console.log('LABELS_DROPPED', P.name, dropped);
+
+  /* key: two reference arrows */
+  if(MAP.legend){
+    const kx = mL + pad*0.8, ky0 = mapBot - pad*0.6;
+    let ky = ky0 - MAP.legend.length*30*s;
+    ctx.textAlign = 'left'; ctx.fillStyle = T.muted;
+    ctx.font = '600 ' + (T.szSmall*s) + 'px ' + T.fBody;
+    ctx.fillText(MAP.legendTitle || 'Arrow width', kx, ky - 8*s);
+    MAP.legend.forEach(v => {
+      ky += 30*s;
+      const a = arrowPath([kx, ky-8*s], [kx+70*s, ky-8*s], 0, width(v), s);
+      ctx.fillStyle = T.red; ctx.fill(a.path);
+      ctx.fillStyle = T.muted; ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
+      ctx.fillText(fmtVal(v), kx + 80*s, ky - 8*s + T.szSmall*s*0.35);
+    });
+  }
+
+  if(MAP.draft){
+    ctx.save();
+    ctx.translate((mL+mR)/2, (mapTop+mapBot)/2); ctx.rotate(-0.35);
+    ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(199,30,29,0.13)';
+    ctx.font = '800 ' + (48*s) + 'px ' + T.fBody;
+    ctx.fillText('PLACEHOLDER DATA', 0, 0);
+    ctx.font = '700 ' + (20*s) + 'px ' + T.fBody;
+    ctx.fillText('layout draft — not real values', 0, 34*s);
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
+/* ---- screen, hover, export ---------------------------------------------- */
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+let MODE = 'substack', BS = 1;
+function defaultMode(){
+  const q = new URLSearchParams(location.search);
+  if(q.get('embed')) document.body.classList.add('embed');
+  const asked = q.get('mode'); if(asked && PRESETS[asked]) return asked;
+  const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  return (coarse && Math.min(innerWidth, innerHeight) <= 820) ? 'vertical' : 'substack';
+}
+function render(){
+  const P = Object.assign({name:MODE}, PRESETS[MODE]);
+  const stage = document.getElementById('stage');
+  const k = Math.min((stage.clientWidth-16)/P.w, innerHeight*0.86/P.h);
+  const dpr = Math.min(devicePixelRatio||1, 2.5);
+  BS = k*dpr;
+  cv.width = Math.round(P.w*BS); cv.height = Math.round(P.h*BS);
+  cv.style.width = Math.round(P.w*k)+'px'; cv.style.height = Math.round(P.h*k)+'px';
+  ctx.setTransform(BS,0,0,BS,0,0);
+  draw(ctx, P.w, P.h, P);
+  document.getElementById('below').style.width = Math.round(P.w*k)+'px';
+}
+function setMode(m){
+  MODE = m;
+  document.querySelectorAll('#bar button[data-m]').forEach(b => b.classList.toggle('on', b.dataset.m===m));
+  render();
+}
+function hover(e){
+  const r = cv.getBoundingClientRect();
+  const px = (e.clientX-r.left)*cv.width/r.width, py = (e.clientY-r.top)*cv.height/r.height;
+  render();
+  ctx.setTransform(BS,0,0,BS,0,0);
+  let hit = null;
+  for(let i=HIT.length-1;i>=0;i--) if(ctx.isPointInPath(HIT[i].path, px, py)){ hit = HIT[i]; break; }
+  if(!hit) return;
+  const s = PRESETS[MODE].s, f = hit.flow;
+  const t = f.parts
+    ? MAP.nodes[f.from].label + '   ' + fmtVal(f.value) + '   (' +
+      f.parts.slice().sort((a,b)=>b.value-a.value).map(p => MAP.nodes[p.to].label + ' ' + Math.round(p.value/f.value*100) + '%').join(', ') + ')'
+    : MAP.nodes[f.from].label + ' → ' + MAP.nodes[f.to].label + '   ' + fmtVal(f.value);
+  ctx.strokeStyle = T.ink; ctx.lineWidth = 2*s; ctx.stroke(hit.path);
+  ctx.font = '600 ' + (T.szLabel*s) + 'px ' + T.fBody;
+  const bw = ctx.measureText(t).width + 16*s, bh = T.szLabel*s*2.1;
+  const x = px/BS + 14*s, y = py/BS - bh - 8*s;
+  ctx.fillStyle = 'rgba(17,24,39,.93)'; ctx.beginPath(); ctx.roundRect(x, y, bw, bh, 5*s); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.textAlign = 'left'; ctx.fillText(t, x+8*s, y+bh*0.65);
+}
+function download(){
+  const P = Object.assign({name:MODE}, PRESETS[MODE]);
+  const off = document.createElement('canvas');
+  off.width = P.w*P.ex; off.height = P.h*P.ex;
+  const c = off.getContext('2d'); c.setTransform(P.ex,0,0,P.ex,0,0);
+  draw(c, P.w, P.h, P);
+  const a = document.createElement('a');
+  a.download = MAP.headline.toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,60) + '-' + MODE + '.png';
+  a.href = off.toDataURL('image/png'); a.click();
+  render();
+}
+function copyText(){
+  const esc = t => String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  const out = ['<p class="ct-head">' + esc(MAP.headline) + '</p>', '<p>' + esc(MAP.subhead) + '</p>'];
+  if(MAP.note) out.push('<p>' + esc(MAP.note) + '</p>');
+  out.push('<p class="src">Source: ' + esc(MAP.source) +
+    (MAP.sourceUrl ? ' &middot; <a href="' + esc(MAP.sourceUrl) + '">' + esc(MAP.sourceUrl) + '</a>' : '') + '</p>');
+  document.getElementById('copytext').innerHTML = out.join('');
+}
+document.querySelectorAll('#bar button[data-m]').forEach(b => b.onclick = () => setMode(b.dataset.m));
+document.getElementById('dl').onclick = download;
+cv.addEventListener('mousemove', hover);
+cv.addEventListener('mouseleave', render);
+addEventListener('resize', render);
+copyText();
+MODE = defaultMode();
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => setMode(MODE));
+</script>
+</body>
+</html>
