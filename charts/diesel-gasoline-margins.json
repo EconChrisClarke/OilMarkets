@@ -2899,7 +2899,8 @@
       "y": 132.72,
       "text": "2008: crude peaks",
       "dx": 20,
-      "dy": -6
+      "dy": -6,
+      "series": "Brent crude"
     },
     {
       "x": "2022-10-15",

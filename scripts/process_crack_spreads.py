@@ -14,6 +14,9 @@ Inputs (fetched): EIA spot price history, monthly averages of daily closes
 Outputs:
   data/eia/gulf_crack_spreads_monthly.csv
   charts/diesel-gasoline-margins.json
+Build:
+  python3 chartkit/scripts/build_chart.py --config charts/diesel-gasoline-margins.json \
+      --out diesel-gasoline-margins.html
 """
 
 import csv
@@ -95,7 +98,8 @@ cfg = {
         {"name": "Gasoline margin", "color": "#1B3A5C", "data": [[date(m), gm[m]] for m in months]},
     ],
     "annotations": [
-        {"x": date(peak08), "y": p["brent"][peak08], "text": "2008: crude peaks", "dx": 20, "dy": -6},
+        {"x": date(peak08), "y": p["brent"][peak08], "text": "2008: crude peaks", "dx": 20, "dy": -6,
+         "series": "Brent crude"},
         {"x": date(peak22), "y": dm[peak22], "text": "2022: Russia's war", "dx": -20, "dy": -6},
         {"x": date(peak26), "y": dm[peak26], "text": "2026: Iran war", "dx": -60, "dy": -10},
     ],
