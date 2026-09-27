@@ -4,6 +4,12 @@ Charts and data on global crude oil markets.
 
 ## Charts
 
+**Live pages** (GitHub Pages, `https://econchrisclarke.github.io/OilMarkets/`):
+
+| # | Chart | Live page |
+|---|---|---|
+| 1 | The US exports 1.2 million barrels of diesel a day, mostly from the Gulf | [diesel-exports-2024.html](https://econchrisclarke.github.io/OilMarkets/diesel-exports-2024.html) |
+
 ### US diesel exports by port region and destination, 2024
 
 The US exported 1.19 million barrels a day of distillate fuel oil (diesel and
@@ -11,7 +17,7 @@ heating oil) in 2024, mostly from Texas and Louisiana/Mississippi ports.
 About half went to Latin America, a quarter to Europe and a fifth to Mexico.
 Arrow width is barrels per day.
 
-- **View the map:** [Open interactive map](https://htmlpreview.github.io/?https://raw.githubusercontent.com/EconChrisClarke/OilMarkets/main/charts/diesel-exports-2024.html)
+- **View the map:** [diesel-exports-2024.html](https://econchrisclarke.github.io/OilMarkets/diesel-exports-2024.html)
   (Substack, vertical and square frames; hover for flow details; PNG export button)
 - **Data:** [`data/census_trade/distillate_exports_by_district_2024.csv`](data/census_trade/distillate_exports_by_district_2024.csv)
   (exports), [`data/census_trade/distillate_imports_by_district_2024.csv`](data/census_trade/distillate_imports_by_district_2024.csv) (imports)

@@ -6,8 +6,12 @@ Square 1:1), hover tooltips, and a Download PNG button, like the chart template.
 
 ```bash
 cd maps && npm install          # geometry + d3-geo, from the npm registry
-node build_map.js --config configs/diesel-exports-fan.json --out ../charts/diesel-exports-fan.html
+node build_map.js --config configs/diesel-exports-2024.json --out ../diesel-exports-2024.html
 ```
+
+Published maps are written to the repo root, where GitHub Pages serves them at
+`https://econchrisclarke.github.io/OilMarkets/<name>.html`. Drafts and variants
+stay in `charts/`.
 
 ## Config
 
