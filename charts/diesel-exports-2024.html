@@ -55,12 +55,13 @@ const GEO = {"countries":[{"type":"Feature","id":"862","properties":{"name":"Ven
 const MAP = {
  "headline": "The US exports 1.2 million barrels of diesel a day, mostly from the Gulf",
  "subhead": "Distillate fuel oil exports by exporting region and destination, 2024, barrels per day",
- "note": "Distillate = light fuel oils of 25 API or more at every sulfur grade (Schedule B 2710.19.1106/1109/1112) plus diesel with biodiesel (2710.20). Total exports 1.19M b/d; arrows show flows of 5,000 b/d or more (96% of the total). Texas Gulf Coast = Houston-Galveston (incl. Corpus Christi) and Port Arthur customs districts. Latin America includes Central and South America and the Caribbean.",
+ "note": "Map covers 98% of exports.",
  "source": "US Census Bureau, International Trade API (exports by customs district, HS10)",
  "sourceUrl": "https://api.census.gov/data/timeseries/intltrade/exports/hs",
  "units": "b/d",
  "draft": false,
  "style": "fan",
+ "arrowStyle": "swoosh",
  "arrowLength": 150,
  "maxArrowWidth": 32,
  "legendTitle": "Arrow width",
@@ -77,6 +78,7 @@ const MAP = {
  "nodes": {
   "txgulf": {
    "label": "Texas Gulf Coast",
+   "short": "Texas Gulf",
    "lonlat": [
     -94.9,
     29.4
@@ -87,25 +89,17 @@ const MAP = {
    ]
   },
   "la": {
-   "label": "Louisiana",
+   "label": "Louisiana & Mississippi",
+   "short": "LA & MS",
    "lonlat": [
-    -90.6,
-    29.6
+    -90.2,
+    29.8
    ],
    "sides": [
     "above",
+    "nw",
+    "ne",
     "right"
-   ]
-  },
-  "mobile": {
-   "label": "Mobile",
-   "lonlat": [
-    -88.05,
-    30.5
-   ],
-   "sides": [
-    "right",
-    "above"
    ]
   },
   "laredo": {
@@ -115,7 +109,10 @@ const MAP = {
     27.5
    ],
    "sides": [
+    "nw",
+    "above",
     "left",
+    "sw",
     "below"
    ]
   },
@@ -124,6 +121,11 @@ const MAP = {
    "lonlat": [
     -106.45,
     31.75
+   ],
+   "sides": [
+    "ne",
+    "above",
+    "nw"
    ]
   },
   "nogales": {
@@ -131,6 +133,13 @@ const MAP = {
    "lonlat": [
     -110.94,
     31.34
+   ],
+   "sides": [
+    "sw",
+    "ne",
+    "nw",
+    "left",
+    "below"
    ]
   },
   "pnw": {
@@ -154,6 +163,19 @@ const MAP = {
     40.6
    ]
   },
+  "usvi": {
+   "label": "St. Croix",
+   "lonlat": [
+    -64.75,
+    17.7
+   ],
+   "sides": [
+    "nw",
+    "left",
+    "above",
+    "sw"
+   ]
+  },
   "mexico": {
    "label": "Mexico",
    "color": "#7A1712",
@@ -167,6 +189,8 @@ const MAP = {
    ],
    "sides": [
     "below",
+    "se",
+    "right",
     "left"
    ]
   },
@@ -206,12 +230,12 @@ const MAP = {
   {
    "from": "la",
    "to": "latam",
-   "value": 181000
+   "value": 218000
   },
   {
    "from": "la",
    "to": "europe",
-   "value": 175000,
+   "value": 177000,
    "toward": [
     -60,
     24.5
@@ -239,11 +263,6 @@ const MAP = {
    "from": "laredo",
    "to": "mexico",
    "value": 58000
-  },
-  {
-   "from": "mobile",
-   "to": "latam",
-   "value": 36000
   },
   {
    "from": "pnw",
@@ -280,7 +299,7 @@ const MAP = {
   {
    "from": "la",
    "to": "mexico",
-   "value": 18000
+   "value": 19000
   },
   {
    "from": "pnw",
@@ -290,6 +309,11 @@ const MAP = {
     -124.5,
     28
    ]
+  },
+  {
+   "from": "usvi",
+   "to": "latam",
+   "value": 16000
   },
   {
    "from": "calif",
@@ -326,10 +350,12 @@ const MAP = {
      14
     ],
     [
-     -74,
+     -63,
      49
     ]
-   ]
+   ],
+   "labelMin": 30000,
+   "shortLabels": true
   },
   "square": {
    "bounds": [
@@ -341,7 +367,8 @@ const MAP = {
      -66,
      50
     ]
-   ]
+   ],
+   "keyPos": "tr"
   }
  }
 };
@@ -625,19 +652,29 @@ function draw(ctx, W, H, P){
     a.centre.forEach((c,i) => {
       if(c.t < 0.25 || i % 6) return;
       const w2 = Math.max(c.w*1.2, 6*s);
-      arrowRects.push({x:c.x-w2/2, y:c.y-w2/2, w:w2, h:w2});
+      arrowRects.push({x:c.x-w2/2, y:c.y-w2/2, w:w2, h:w2, src:'arrow ' + f.from + '>' + f.to});
     });
   });
 
   /* labels, placed greedily; a label that would collide is dropped, never shrunk */
   const placed = arrowRects.slice();
   /* the key sits bottom-left; keep labels off it */
-  const nKeyDest = MAP.legend ? Object.values(MAP.nodes).filter(n => n.color).length : 0;
+  /* The destination labels are printed in their arrow colours, so a swatch key
+     repeats them; MAP.colorKey turns it on where labels alone are not enough. */
+  const nKeyDest = MAP.legend && MAP.colorKey ? Object.values(MAP.nodes).filter(n => n.color).length : 0;
   const keyH = !MAP.legend ? 0 :
     (nKeyDest ? T.szSmall*s*1.6 + nKeyDest*20*s + 8*s : 0) + T.szSmall*s*0.6 + MAP.legend.length*30*s;
-  if(MAP.legend) placed.push({x:mL, y:mapBot - pad*0.6 - keyH - 6*s, w:pad*0.8 + 190*s, h:keyH + pad*0.6 + 6*s});
-  const fits = r => r.x >= mL+4 && r.x+r.w <= mR-4 && r.y >= mapTop+4 && r.y+r.h <= mapBot-4 &&
-    !placed.some(q => r.x < q.x+q.w && q.x < r.x+r.w && r.y < q.y+q.h && q.y < r.y+r.h);
+  const keyTR = (fr.keyPos || MAP.keyPos) === 'tr';
+  const keyW = pad*0.8 + 190*s;
+  const keyX = keyTR ? mR - keyW : mL, keyY = keyTR ? mapTop + pad*0.6 : mapBot - pad*0.6 - keyH - 6*s;
+  if(MAP.legend) placed.push({x:keyX, y:keyY, w:keyW, h:keyH + pad*0.6 + 6*s, src:'key'});
+  /* why a candidate spot fails: off the map, or the first thing it hits */
+  const blocker = r => {
+    if(!(r.x >= mL+4 && r.x+r.w <= mR-4 && r.y >= mapTop+4 && r.y+r.h <= mapBot-4)) return 'edge';
+    const q = placed.find(q => r.x < q.x+q.w && q.x < r.x+r.w && r.y < q.y+q.h && q.y < r.y+r.h);
+    return q ? (q.src || '?') : null;
+  };
+  const fits = r => !blocker(r);
   const dropped = [];
   function label(k, t1, t2, sides, color){
     const p = pos[k];
@@ -648,15 +685,27 @@ function draw(ctx, W, H, P){
     const w = Math.max(w1,w2), h = T.szLabel*s*(t2 ? 2.35 : 1.25);
     /* nearest first, then two steps further out: a label pushed a little off
        its dot still reads as belonging to it; a missing label does not */
+    const why = [];
     for(const g of [9*s, 26*s, 44*s]){
     const at = {
       left:  [p[0]-g-w, p[1]-h/2, 'right'], right: [p[0]+g, p[1]-h/2, 'left'],
-      above: [p[0]-w/2, p[1]-g-h, 'center'], below: [p[0]-w/2, p[1]+g, 'center']
+      above: [p[0]-w/2, p[1]-g-h, 'center'], below: [p[0]-w/2, p[1]+g, 'center'],
+      ne: [p[0]+g*0.7, p[1]-g*0.7-h, 'left'],  nw: [p[0]-g*0.7-w, p[1]-g*0.7-h, 'right'],
+      se: [p[0]+g*0.7, p[1]+g*0.7, 'left'],    sw: [p[0]-g*0.7-w, p[1]+g*0.7, 'right']
     };
     for(const side of sides){
       const [x,yy,al] = at[side], r = {x, y:yy, w, h};
-      if(!fits(r)) continue;
-      placed.push(r);
+      const b = blocker(r);
+      if(b){ why.push(side + '@' + Math.round(g/s) + ':' + b); continue; }
+      r.src = 'label ' + t1; placed.push(r);
+      /* pushed off its dot: a hairline leader says which dot it belongs to */
+      if(g > 10*s && !k.startsWith('_d_')){
+        const cx = Math.min(Math.max(p[0], r.x), r.x + r.w), cy = Math.min(Math.max(p[1], r.y + 2*s), r.y + r.h - 2*s);
+        const d = Math.hypot(cx - p[0], cy - p[1]) || 1;
+        ctx.strokeStyle = T.muted; ctx.lineWidth = 1*s;
+        ctx.beginPath(); ctx.moveTo(p[0] + (cx-p[0])/d*4.5*s, p[1] + (cy-p[1])/d*4.5*s);
+        ctx.lineTo(cx - (cx-p[0])/d*3*s, cy - (cy-p[1])/d*3*s); ctx.stroke();
+      }
       const tx = al==='right' ? x+w : al==='center' ? x+w/2 : x;
       ctx.textAlign = al;
       ctx.lineJoin = 'round'; ctx.strokeStyle = T.bg; ctx.lineWidth = 4*s;
@@ -669,7 +718,7 @@ function draw(ctx, W, H, P){
       return true;
     }
     }
-    dropped.push(t1); return false;
+    dropped.push(t1); if(window.MAP_DEBUG) console.log('DROP', P.name, t1, why.join(' | ')); return false;
   }
   const totals = {};
   MAP.flows.forEach(f => {
@@ -684,9 +733,17 @@ function draw(ctx, W, H, P){
   const dests = [...new Set(MAP.flows.map(f => f.to))].sort((a,b) => totals[b]-totals[a]);
   if(MAP.style === 'flows' || !MAP.style) dests.forEach(k => label(k, MAP.nodes[k].label, fmtVal(totals[k]),
     MAP.nodes[k].sides || ['below','above','left','right']));
-  /* origins first: where the diesel leaves is the point of the map */
-  origins.forEach(k => label(k, MAP.nodes[k].label, fmtVal(totals[k]),
-    MAP.nodes[k].sides || ['left','right','above','below']));
+  /* every origin dot is off limits to every label */
+  origins.forEach(k => placed.push({x:pos[k][0]-6*s, y:pos[k][1]-6*s, w:12*s, h:12*s, src:'dot ' + k}));
+  /* Labels go down in order of volume, origins and destinations mixed, so
+     when space runs out it is the smallest flow that loses its label. */
+  /* frames.X.labelMin: the phone frame skips small origins on purpose (as the
+     chart template drops point labels there); they stay drawn and hoverable */
+  const labelMin = fr.labelMin || 0;
+  /* frames.X.shortLabels: use node.short where a frame is too tight for full names */
+  const nameOf = n => (fr.shortLabels && n.short) || n.label;
+  const jobs = origins.filter(k => totals[k] >= labelMin).map(k => ({v:totals[k], run:() => label(k, nameOf(MAP.nodes[k]), fmtVal(totals[k]),
+    MAP.nodes[k].sides || ['left','right','above','below'])}));
   /* fan: one label per destination, at the value-weighted centre of its arrowheads */
   if(MAP.style === 'fan') dests.forEach(k => {
     const fs = flows.filter(f => f.to === k), tot = fs.reduce((a,f) => a + f.value, 0);
@@ -698,14 +755,15 @@ function draw(ctx, W, H, P){
     const side = Math.abs(dir[0]) > Math.abs(dir[1]) ? (dir[0] > 0 ? ['right','below','above'] : ['left','below','above'])
                                                      : (dir[1] > 0 ? ['below','right','left'] : ['above','right','left']);
     pos['_d_' + k] = n.labelAt ? proj(n.labelAt) : c;
-    label('_d_' + k, n.arrowLabel || 'To ' + n.label, fmtVal(tot), n.sides || side, n.textColor || n.color);
+    jobs.push({v:tot, run:() => label('_d_' + k, n.arrowLabel || 'To ' + n.label, fmtVal(tot), n.sides || side, n.textColor || n.color)});
   });
+  jobs.sort((a,b) => b.v - a.v).forEach(j => j.run());
   if(dropped.length) console.log('LABELS_DROPPED', P.name, dropped);
 
   /* key: destination colours, then reference widths */
   if(MAP.legend){
-    const kx = mL + pad*0.8, ky0 = mapBot - pad*0.6;
-    const dk = dests.filter(k => MAP.nodes[k].color);
+    const kx = keyX + pad*0.8, ky0 = keyTR ? keyY + keyH : mapBot - pad*0.6;
+    const dk = MAP.colorKey ? dests.filter(k => MAP.nodes[k].color) : [];
     let ky = ky0 - keyH;
     ctx.textAlign = 'left';
     ctx.font = '600 ' + (T.szSmall*s) + 'px ' + T.fBody;

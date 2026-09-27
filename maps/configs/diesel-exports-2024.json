@@ -1,12 +1,13 @@
 {
   "headline": "The US exports 1.2 million barrels of diesel a day, mostly from the Gulf",
   "subhead": "Distillate fuel oil exports by exporting region and destination, 2024, barrels per day",
-  "note": "Distillate = light fuel oils of 25 API or more at every sulfur grade (Schedule B 2710.19.1106/1109/1112) plus diesel with biodiesel (2710.20). Total exports 1.19M b/d; arrows show flows of 5,000 b/d or more (96% of the total). Texas Gulf Coast = Houston-Galveston (incl. Corpus Christi) and Port Arthur customs districts. Latin America includes Central and South America and the Caribbean.",
+  "note": "Map covers 98% of exports.",
   "source": "US Census Bureau, International Trade API (exports by customs district, HS10)",
   "sourceUrl": "https://api.census.gov/data/timeseries/intltrade/exports/hs",
   "units": "b/d",
   "draft": false,
   "style": "fan",
+  "arrowStyle": "swoosh",
   "arrowLength": 150,
   "maxArrowWidth": 32,
   "legendTitle": "Arrow width",
@@ -23,6 +24,7 @@
   "nodes": {
     "txgulf": {
       "label": "Texas Gulf Coast",
+      "short": "Texas Gulf",
       "lonlat": [
         -94.9,
         29.4
@@ -33,25 +35,17 @@
       ]
     },
     "la": {
-      "label": "Louisiana",
+      "label": "Louisiana & Mississippi",
+      "short": "LA & MS",
       "lonlat": [
-        -90.6,
-        29.6
+        -90.2,
+        29.8
       ],
       "sides": [
         "above",
+        "nw",
+        "ne",
         "right"
-      ]
-    },
-    "mobile": {
-      "label": "Mobile",
-      "lonlat": [
-        -88.05,
-        30.5
-      ],
-      "sides": [
-        "right",
-        "above"
       ]
     },
     "laredo": {
@@ -61,7 +55,10 @@
         27.5
       ],
       "sides": [
+        "nw",
+        "above",
         "left",
+        "sw",
         "below"
       ]
     },
@@ -70,6 +67,11 @@
       "lonlat": [
         -106.45,
         31.75
+      ],
+      "sides": [
+        "ne",
+        "above",
+        "nw"
       ]
     },
     "nogales": {
@@ -77,6 +79,13 @@
       "lonlat": [
         -110.94,
         31.34
+      ],
+      "sides": [
+        "sw",
+        "ne",
+        "nw",
+        "left",
+        "below"
       ]
     },
     "pnw": {
@@ -100,6 +109,19 @@
         40.6
       ]
     },
+    "usvi": {
+      "label": "St. Croix",
+      "lonlat": [
+        -64.75,
+        17.7
+      ],
+      "sides": [
+        "nw",
+        "left",
+        "above",
+        "sw"
+      ]
+    },
     "mexico": {
       "label": "Mexico",
       "color": "#7A1712",
@@ -113,6 +135,8 @@
       ],
       "sides": [
         "below",
+        "se",
+        "right",
         "left"
       ]
     },
@@ -152,12 +176,12 @@
     {
       "from": "la",
       "to": "latam",
-      "value": 181000.0
+      "value": 218000.0
     },
     {
       "from": "la",
       "to": "europe",
-      "value": 175000.0,
+      "value": 177000.0,
       "toward": [
         -60,
         24.5
@@ -185,11 +209,6 @@
       "from": "laredo",
       "to": "mexico",
       "value": 58000.0
-    },
-    {
-      "from": "mobile",
-      "to": "latam",
-      "value": 36000.0
     },
     {
       "from": "pnw",
@@ -226,7 +245,7 @@
     {
       "from": "la",
       "to": "mexico",
-      "value": 18000.0
+      "value": 19000.0
     },
     {
       "from": "pnw",
@@ -236,6 +255,11 @@
         -124.5,
         28
       ]
+    },
+    {
+      "from": "usvi",
+      "to": "latam",
+      "value": 16000.0
     },
     {
       "from": "calif",
@@ -272,10 +296,12 @@
           14
         ],
         [
-          -74,
+          -63,
           49
         ]
-      ]
+      ],
+      "labelMin": 30000,
+      "shortLabels": true
     },
     "square": {
       "bounds": [
@@ -287,7 +313,8 @@
           -66,
           50
         ]
-      ]
+      ],
+      "keyPos": "tr"
     }
   }
 }

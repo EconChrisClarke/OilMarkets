@@ -100,15 +100,17 @@ write(D / "distillate_exports_by_port_2024_est.csv",
 # Export gateways: districts grouped so origins on the map sit far enough
 # apart to read. Land crossings stay separate because they are far apart.
 GATEWAYS = {
-    "txgulf": {"label": "Texas Gulf Coast", "districts": ["53", "21"], "lonlat": [-94.9, 29.4], "sides": ["left", "above"]},
-    "la":     {"label": "Louisiana", "districts": ["20"], "lonlat": [-90.6, 29.6], "sides": ["above", "right"]},
-    "mobile": {"label": "Mobile", "districts": ["19"], "lonlat": [-88.05, 30.5], "sides": ["right", "above"]},
-    "laredo": {"label": "Laredo", "districts": ["23"], "lonlat": [-99.5, 27.5], "sides": ["left", "below"]},
-    "elpaso": {"label": "El Paso", "districts": ["24"], "lonlat": [-106.45, 31.75]},
-    "nogales": {"label": "Nogales", "districts": ["26"], "lonlat": [-110.94, 31.34]},
+    "txgulf": {"label": "Texas Gulf Coast", "short": "Texas Gulf", "districts": ["53", "21"], "lonlat": [-94.9, 29.4], "sides": ["left", "above"]},
+    # The Mobile district's distillate mostly leaves from Pascagoula, MS
+    # (Chevron's refinery), so it joins the New Orleans district here.
+    "la":     {"label": "Louisiana & Mississippi", "short": "LA & MS", "districts": ["20", "19"], "lonlat": [-90.2, 29.8], "sides": ["above", "nw", "ne", "right"]},
+    "laredo": {"label": "Laredo", "districts": ["23"], "lonlat": [-99.5, 27.5], "sides": ["nw", "above", "left", "sw", "below"]},
+    "elpaso": {"label": "El Paso", "districts": ["24"], "lonlat": [-106.45, 31.75], "sides": ["ne", "above", "nw"]},
+    "nogales": {"label": "Nogales", "districts": ["26"], "lonlat": [-110.94, 31.34], "sides": ["sw", "ne", "nw", "left", "below"]},
     "pnw":    {"label": "Puget Sound", "districts": ["30"], "lonlat": [-123.2, 48.2]},
     "calif":  {"label": "California", "districts": ["27", "28"], "lonlat": [-120.9, 35.2]},
     "nyh":    {"label": "New York Harbor", "districts": ["10", "11"], "lonlat": [-74.1, 40.6]},
+    "usvi":   {"label": "St. Croix", "districts": ["51"], "lonlat": [-64.75, 17.7], "sides": ["nw", "left", "above", "sw"]},
 }
 # Latin America merges Central, South America and the Caribbean: most of it
 # heads for Panama (Chile, Peru and Ecuador are Pacific-coast buyers).
@@ -119,12 +121,12 @@ for (d, g), v in by_dr.items():
     for k, gw in GATEWAYS.items():
         if d in gw["districts"] and g in DEST_GROUP:
             flows[(k, DEST_GROUP[g])] += v
-MIN = 5000
+MIN = 3000
 shown = sum(v for v in flows.values() if v >= MIN)
 
 # Per-flow aim points, so arrows follow the sea route rather than crossing land.
 TOWARD = {
-    ("txgulf", "europe"): [-60, 24.5], ("la", "europe"): [-60, 24.5], ("mobile", "europe"): [-60, 24.5],
+    ("txgulf", "europe"): [-60, 24.5], ("la", "europe"): [-60, 24.5],
     ("nyh", "europe"): [-40, 41],
     ("pnw", "mexico"): [-125.5, 30], ("pnw", "latam"): [-124.5, 28],
     ("calif", "mexico"): [-116, 24], ("calif", "latam"): [-112, 14],
@@ -133,31 +135,29 @@ TOWARD = {
 cfg = {
     "headline": "The US exports 1.2 million barrels of diesel a day, mostly from the Gulf",
     "subhead": "Distillate fuel oil exports by exporting region and destination, 2024, barrels per day",
-    "note": (f"Distillate = light fuel oils of 25 API or more at every sulfur grade (Schedule B "
-             f"2710.19.1106/1109/1112) plus diesel with biodiesel (2710.20). Total exports "
-             f"{total_ex/1e6:.2f}M b/d; arrows show flows of 5,000 b/d or more ({shown/total_ex:.0%} "
-             f"of the total). Texas Gulf Coast = Houston-Galveston (incl. Corpus Christi) and Port "
-             f"Arthur customs districts. Latin America includes Central and South America and the Caribbean."),
+    # Kept deliberately short; the definitions live in the data README.
+    "note": f"Map covers {shown/total_ex:.0%} of exports.",
     "source": "US Census Bureau, International Trade API (exports by customs district, HS10)",
     "sourceUrl": "https://api.census.gov/data/timeseries/intltrade/exports/hs",
     "units": "b/d",
     "draft": False,
     "style": "fan",
+    "arrowStyle": "swoosh",
     "arrowLength": 150,
     "maxArrowWidth": 32,
     "legendTitle": "Arrow width",
     "legend": [50000, 200000],
     "geoBBox": [-170, -25, -20, 75],
-    "nodes": {k: {kk: g[kk] for kk in ("label", "lonlat", "sides") if kk in g} for k, g in GATEWAYS.items()},
+    "nodes": {k: {kk: g[kk] for kk in ("label", "short", "lonlat", "sides") if kk in g} for k, g in GATEWAYS.items()},
     "flows": [],
     "frames": {
         "substack": {"bounds": [[-126, 14], [-62, 50]]},
-        "vertical": {"bounds": [[-125, 14], [-74, 49]]},
-        "square": {"bounds": [[-124, 14], [-66, 50]]},
+        "vertical": {"bounds": [[-125, 14], [-63, 49]], "labelMin": 30000, "shortLabels": True},
+        "square": {"bounds": [[-124, 14], [-66, 50]], "keyPos": "tr"},
     },
 }
 cfg["nodes"].update({
-    "mexico": {"label": "Mexico", "color": "#7A1712", "lonlat": [-101.5, 21.5], "labelAt": [-102, 20.2], "sides": ["below", "left"]},
+    "mexico": {"label": "Mexico", "color": "#7A1712", "lonlat": [-101.5, 21.5], "labelAt": [-102, 20.2], "sides": ["below", "se", "right", "left"]},
     "latam": {"label": "Latin America", "color": "#C71E1D", "lonlat": [-80, 11], "labelAt": [-86, 16.5], "sides": ["below", "right", "left"]},
     "europe": {"label": "Europe", "color": "#E8A33D", "textColor": "#9A5B0C", "lonlat": [-40, 38]},
 })

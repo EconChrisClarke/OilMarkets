@@ -46,3 +46,30 @@ node build_map.js --config configs/diesel-exports-fan.json --out ../charts/diese
 - **Labels are placed greedily and dropped rather than shrunk.** Dropped names
   are logged as `LABELS_DROPPED` in the console. Straight arrows reserve their
   footprint so labels avoid them.
+
+### Arrow styles and labels (second round)
+
+- `arrowStyle`: `flat`, `gradient`, `swoosh` (the one chosen) or `split`.
+  - Swoosh tapers from a point to full width with a slight curve. Arrows
+    leaving one origin are thin where they overlap, which is why it reads best.
+  - Split (Sankey-style trunks) curls badly when one origin ships in
+    opposite directions.
+- **Destination colours:** set `color` (and `textColor` when the colour is too
+  light for text) on destination nodes. Use three warm hues separated by
+  lightness (red, amber, maroon) so they survive colour blindness. The
+  destination labels printed in those colours are the key, so the swatch key
+  (`colorKey`) is off by default.
+- **Label placement:**
+  - Labels are placed in descending order of volume, so the smallest flow is
+    the one that loses its label.
+  - Dots, arrow bodies and the key are all off limits to labels.
+  - A label pushed off its dot gets a hairline leader.
+  - Sides include diagonals (`ne`, `nw`, `se`, `sw`).
+- **Per-frame settings:**
+  - `labelMin` skips small origins on the phone frame, like the chart
+    template's `pl:false`.
+  - `shortLabels` uses each node's `short` name.
+  - `keyPos: "tr"` moves the key to the top right.
+- **Debugging:** set `window.MAP_DEBUG = 1` before load. Each dropped label
+  then logs every spot it tried and what blocked it (edge, a named arrow, a
+  label, a dot or the key). Fixing labels without this is guesswork.
