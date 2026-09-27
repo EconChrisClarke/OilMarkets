@@ -239,7 +239,7 @@ function draw(ctx, W, H, P){
        destination: the direction is geographic, the length is fixed, so
        only the width carries the value. */
     flows = flows.map(f => {
-      const a = pos[f.from], b = pos[f.to], d = Math.hypot(b[0]-a[0], b[1]-a[1])||1;
+      const a = pos[f.from], b = f.toward ? proj(f.toward) : pos[f.to], d = Math.hypot(b[0]-a[0], b[1]-a[1])||1;
       const ux = (b[0]-a[0])/d, uy = (b[1]-a[1])/d, off = 6*s;
       const len = Math.min((MAP.nodes[f.from].length || MAP.arrowLength || 120)*s, d - off);
       return Object.assign({}, f, {bend:0, p0:[a[0]+ux*off, a[1]+uy*off], p2:[a[0]+ux*(off+len), a[1]+uy*(off+len)]});
@@ -274,7 +274,7 @@ function draw(ctx, W, H, P){
     /* Labels keep off straight arrows; curved flows are too loose a fit for boxes. */
     if(f.p0){
       const w = width(f.value)*1.3;
-      for(let t=0;t<=1;t+=0.1){
+      for(let t=0.25;t<=1.001;t+=0.075){
         const x = f.p0[0]+(f.p2[0]-f.p0[0])*t, yy = f.p0[1]+(f.p2[1]-f.p0[1])*t;
         arrowRects.push({x:x-w/2, y:yy-w/2, w, h:w});
       }
@@ -283,6 +283,11 @@ function draw(ctx, W, H, P){
 
   /* labels, placed greedily; a label that would collide is dropped, never shrunk */
   const placed = arrowRects.slice();
+  /* the key sits bottom-left; keep labels off it */
+  if(MAP.legend){
+    const kh = MAP.legend.length*30*s + T.szSmall*s*2;
+    placed.push({x:mL, y:mapBot - pad*0.6 - kh, w:pad*0.8 + 190*s, h:kh + pad*0.6});
+  }
   const fits = r => r.x >= mL+4 && r.x+r.w <= mR-4 && r.y >= mapTop+4 && r.y+r.h <= mapBot-4 &&
     !placed.some(q => r.x < q.x+q.w && q.x < r.x+r.w && r.y < q.y+q.h && q.y < r.y+r.h);
   const dropped = [];
@@ -292,7 +297,10 @@ function draw(ctx, W, H, P){
     const w1 = ctx.measureText(t1).width;
     ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
     const w2 = t2 ? ctx.measureText(t2).width : 0;
-    const w = Math.max(w1,w2), h = T.szLabel*s*(t2 ? 2.35 : 1.25), g = 9*s;
+    const w = Math.max(w1,w2), h = T.szLabel*s*(t2 ? 2.35 : 1.25);
+    /* nearest first, then two steps further out: a label pushed a little off
+       its dot still reads as belonging to it; a missing label does not */
+    for(const g of [9*s, 26*s, 44*s]){
     const at = {
       left:  [p[0]-g-w, p[1]-h/2, 'right'], right: [p[0]+g, p[1]-h/2, 'left'],
       above: [p[0]-w/2, p[1]-g-h, 'center'], below: [p[0]-w/2, p[1]+g, 'center']
@@ -312,6 +320,7 @@ function draw(ctx, W, H, P){
       }
       return true;
     }
+    }
     dropped.push(t1); return false;
   }
   const totals = {};
@@ -327,16 +336,22 @@ function draw(ctx, W, H, P){
   const dests = [...new Set(MAP.flows.map(f => f.to))].sort((a,b) => totals[b]-totals[a]);
   if(MAP.style === 'flows' || !MAP.style) dests.forEach(k => label(k, MAP.nodes[k].label, fmtVal(totals[k]),
     MAP.nodes[k].sides || ['below','above','left','right']));
-  /* fan: name the destination at each arrowhead */
-  if(MAP.style === 'fan') flows.forEach(f => {
-    const n = MAP.nodes[f.to], tip = f.p2, d = [f.p2[0]-f.p0[0], f.p2[1]-f.p0[1]];
-    const side = Math.abs(d[0]) > Math.abs(d[1]) ? (d[0] > 0 ? ['right','below','above'] : ['left','below','above'])
-                                                 : (d[1] > 0 ? ['below','right','left'] : ['above','right','left']);
-    pos['_tip'] = tip;
-    label('_tip', (n.arrowLabel || 'To ' + n.label), fmtVal(f.value), n.sides || side);
-  });
+  /* origins first: where the diesel leaves is the point of the map */
   origins.forEach(k => label(k, MAP.nodes[k].label, fmtVal(totals[k]),
     MAP.nodes[k].sides || ['left','right','above','below']));
+  /* fan: one label per destination, at the value-weighted centre of its arrowheads */
+  if(MAP.style === 'fan') dests.forEach(k => {
+    const fs = flows.filter(f => f.to === k), tot = fs.reduce((a,f) => a + f.value, 0);
+    const c = [0,0], dir = [0,0];
+    fs.forEach(f => { const w = f.value/tot;
+      c[0] += f.p2[0]*w; c[1] += f.p2[1]*w;
+      dir[0] += (f.p2[0]-f.p0[0])*w; dir[1] += (f.p2[1]-f.p0[1])*w; });
+    const n = MAP.nodes[k];
+    const side = Math.abs(dir[0]) > Math.abs(dir[1]) ? (dir[0] > 0 ? ['right','below','above'] : ['left','below','above'])
+                                                     : (dir[1] > 0 ? ['below','right','left'] : ['above','right','left']);
+    pos['_d_' + k] = n.labelAt ? proj(n.labelAt) : c;
+    label('_d_' + k, n.arrowLabel || 'To ' + n.label, fmtVal(tot), n.sides || side);
+  });
   if(dropped.length) console.log('LABELS_DROPPED', P.name, dropped);
 
   /* key: two reference arrows */
