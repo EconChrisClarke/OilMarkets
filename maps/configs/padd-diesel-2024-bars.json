@@ -1,0 +1,288 @@
+{
+  "headline": "The Gulf Coast refines the diesel; the East Coast uses it",
+  "subhead": "Distillate fuel oil by region (PADD), 2024, barrels per day: refined vs used",
+  "note": "US totals: refined 4.94M b/d, consumed 3.79M, exported 1.29M. Refined is refinery and blender production; used is products supplied.",
+  "source": "EIA, Supply and Disposition by PAD District",
+  "sourceUrl": "https://www.eia.gov/dnav/pet/pet_sum_snd_a_epd0_mbblpd_a_cur.htm",
+  "units": "b/d",
+  "style": "flows",
+  "arrowStyle": "swoosh",
+  "hubPad": 8,
+  "keyCompact": true,
+  "maxArrowWidth": 40,
+  "legendTitle": "Arrow width",
+  "legend": [],
+  "colorKey": false,
+  "geoBBox": [
+    -170,
+    -25,
+    -20,
+    75
+  ],
+  "regions": {
+    "p1": {
+      "color": "#D9E2EE",
+      "states": [
+        "Connecticut",
+        "Maine",
+        "Massachusetts",
+        "New Hampshire",
+        "Rhode Island",
+        "Vermont",
+        "Delaware",
+        "District of Columbia",
+        "Maryland",
+        "New Jersey",
+        "New York",
+        "Pennsylvania",
+        "Florida",
+        "Georgia",
+        "North Carolina",
+        "South Carolina",
+        "Virginia",
+        "West Virginia"
+      ]
+    },
+    "p2": {
+      "color": "#D5E8E0",
+      "states": [
+        "Illinois",
+        "Indiana",
+        "Iowa",
+        "Kansas",
+        "Kentucky",
+        "Michigan",
+        "Minnesota",
+        "Missouri",
+        "Nebraska",
+        "North Dakota",
+        "South Dakota",
+        "Ohio",
+        "Oklahoma",
+        "Tennessee",
+        "Wisconsin"
+      ]
+    },
+    "p3": {
+      "color": "#F2E0C4",
+      "states": [
+        "Alabama",
+        "Arkansas",
+        "Louisiana",
+        "Mississippi",
+        "New Mexico",
+        "Texas"
+      ]
+    },
+    "p4": {
+      "color": "#E3DBEC",
+      "states": [
+        "Colorado",
+        "Idaho",
+        "Montana",
+        "Utah",
+        "Wyoming"
+      ]
+    },
+    "p5": {
+      "color": "#F3D5D3",
+      "states": [
+        "Arizona",
+        "California",
+        "Nevada",
+        "Oregon",
+        "Washington"
+      ]
+    }
+  },
+  "labelBars": {
+    "max": 3000000,
+    "height": 80,
+    "width": 10,
+    "gap": 1,
+    "pad": 4,
+    "values": false,
+    "legend": 1000000,
+    "legendLabel": "1M b/d",
+    "keys": [
+      {
+        "label": "dark: refined",
+        "color": "#5B6470"
+      },
+      {
+        "label": "light: used",
+        "color": "#B5BAC2"
+      }
+    ]
+  },
+  "nodes": {
+    "p1": {
+      "label": "East Coast",
+      "lonlat": [
+        -76.0,
+        40.1
+      ],
+      "hub": true,
+      "sub": "",
+      "textColor": "#3F5F86",
+      "labelBars": [
+        {
+          "value": 232000.0,
+          "color": "#3F5F86"
+        },
+        {
+          "value": 1131000.0,
+          "color": "#9FA8BC",
+          "textColor": "#3F5F86"
+        }
+      ]
+    },
+    "p2": {
+      "label": "Midwest",
+      "lonlat": [
+        -91.0,
+        41.8
+      ],
+      "hub": true,
+      "sub": "",
+      "textColor": "#2F7560",
+      "labelBars": [
+        {
+          "value": 1164000.0,
+          "color": "#2F7560"
+        },
+        {
+          "value": 1234000.0,
+          "color": "#97B3A9",
+          "textColor": "#2F7560"
+        }
+      ]
+    },
+    "p3": {
+      "label": "Gulf Coast",
+      "lonlat": [
+        -97.0,
+        31.3
+      ],
+      "hub": true,
+      "sub": "",
+      "textColor": "#A8711E",
+      "labelBars": [
+        {
+          "value": 2910000.0,
+          "color": "#A8711E"
+        },
+        {
+          "value": 851000.0,
+          "color": "#D4B188",
+          "textColor": "#A8711E"
+        }
+      ]
+    },
+    "p4": {
+      "label": "Rockies",
+      "lonlat": [
+        -109.0,
+        44.0
+      ],
+      "hub": true,
+      "sub": "",
+      "textColor": "#6C5A94",
+      "labelBars": [
+        {
+          "value": 202000.0,
+          "color": "#6C5A94"
+        },
+        {
+          "value": 211000.0,
+          "color": "#B6A6C3",
+          "textColor": "#6C5A94"
+        }
+      ]
+    },
+    "p5": {
+      "label": "West Coast",
+      "lonlat": [
+        -119.8,
+        38.2
+      ],
+      "hub": true,
+      "sub": "",
+      "textColor": "#B0443F",
+      "labelBars": [
+        {
+          "value": 428000.0,
+          "color": "#B0443F"
+        },
+        {
+          "value": 366000.0,
+          "color": "#D89A98",
+          "textColor": "#B0443F"
+        }
+      ]
+    }
+  },
+  "flows": [],
+  "frames": {
+    "substack": {
+      "bounds": [
+        [
+          -128,
+          22
+        ],
+        [
+          -62,
+          52
+        ]
+      ]
+    },
+    "vertical": {
+      "bounds": [
+        [
+          -127,
+          22
+        ],
+        [
+          -63,
+          52
+        ]
+      ],
+      "shortLabels": true,
+      "labelBarsHeight": 55,
+      "nodes": {
+        "p1": {
+          "lonlat": [
+            -72.6,
+            41.4
+          ]
+        },
+        "p2": {
+          "lonlat": [
+            -92.6,
+            41.4
+          ]
+        },
+        "p5": {
+          "lonlat": [
+            -119.5,
+            36.6
+          ]
+        }
+      }
+    },
+    "square": {
+      "bounds": [
+        [
+          -127,
+          22
+        ],
+        [
+          -63,
+          52
+        ]
+      ],
+      "labelBarsHeight": 60,
+      "nodes": {}
+    }
+  }
+}
