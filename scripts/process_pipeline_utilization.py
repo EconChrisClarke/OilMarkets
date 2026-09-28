@@ -10,7 +10,7 @@ Coast route.
    for networks (Magellan, Buckeye, TEPPCO) system deliveries and line
    capacity are not comparable. Deliveries include barrels dropped off along
    the way and on laterals, so a line that runs full can report a little
-   over 100%.
+   over 100%; such lines are drawn at 100% and labelled "Full".
 
 2. Monthly shipments (charts/pipeline-east-coast-monthly.json): EIA monthly
    movements by pipeline from the Gulf Coast (PADD 3) to the East Coast
@@ -99,9 +99,8 @@ util = {
     "type": "bar",
     "headline": "Colonial, the main fuel line from the Gulf to the East Coast, runs full",
     "subhead": "Barrels delivered as a share of capacity, 2024-2025 average, %",
-    "note": ("Deliveries are each pipeline company's reported barrels delivered, all products; they include barrels "
-             "dropped off along the way and on branch lines, so a line that runs full can show slightly over 100%. "
-             "Capacity: company filings and EIA. Pipelines whose report covers a whole network (e.g. Magellan, "
+    "note": ("Barrels each pipeline company delivered, all products, divided by the line's rated capacity. Full: "
+             "deliveries matched or exceeded rated capacity. Pipelines whose report covers a whole network (e.g. Magellan, "
              "Buckeye) are left out."),
     "source": "FERC Form No. 6, annual reports of oil pipeline companies (via Catalyst Cooperative PUDL); capacity: EIA, company 10-K filings",
     "sourceUrl": "https://data.catalyst.coop",
@@ -111,8 +110,12 @@ util = {
     "yZero": True,
     "valueLabels": True,
     "rules": [{"axis": "y", "at": 100, "label": "Capacity"}],
+    # at or above capacity: drawn at 100% and labelled "Full". Deliveries can exceed a
+    # line's rated capacity (barrels join and leave along the route), so a figure
+    # over 100% says the line is full, not by how much
     "series": [{"name": "Share of capacity used", "color": RED,
-                "data": [r["utilization_pct"] for r in rows]}],
+                "data": [min(r["utilization_pct"], 100) for r in rows],
+                "labels": ["Full" if r["utilization_pct"] >= 99.5 else None for r in rows]}],
     "highlight": rows[0]["pipeline"],
     "categoryShort": {r["pipeline"]: r["pipeline"].split(" (")[0] for r in rows},   # names only where routes do not fit
 }

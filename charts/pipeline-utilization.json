@@ -2,7 +2,7 @@
   "type": "bar",
   "headline": "Colonial, the main fuel line from the Gulf to the East Coast, runs full",
   "subhead": "Barrels delivered as a share of capacity, 2024-2025 average, %",
-  "note": "Deliveries are each pipeline company's reported barrels delivered, all products; they include barrels dropped off along the way and on branch lines, so a line that runs full can show slightly over 100%. Capacity: company filings and EIA. Pipelines whose report covers a whole network (e.g. Magellan, Buckeye) are left out.",
+  "note": "Barrels each pipeline company delivered, all products, divided by the line's rated capacity. Full: deliveries matched or exceeded rated capacity. Pipelines whose report covers a whole network (e.g. Magellan, Buckeye) are left out.",
   "source": "FERC Form No. 6, annual reports of oil pipeline companies (via Catalyst Cooperative PUDL); capacity: EIA, company 10-K filings",
   "sourceUrl": "https://data.catalyst.coop",
   "xType": "category",
@@ -33,13 +33,22 @@
       "name": "Share of capacity used",
       "color": "#C71E1D",
       "data": [
-        103.7,
+        100,
         99.4,
         92.2,
         86.1,
         80.6,
         76.4,
         43.3
+      ],
+      "labels": [
+        "Full",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
       ]
     }
   ],
