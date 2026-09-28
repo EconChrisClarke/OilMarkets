@@ -29,6 +29,11 @@
   #bar button.on{border-color:var(--red);color:#fff;background:var(--red)}
   #bar button.dl{margin-left:auto;border-color:#B9A6AA;font-weight:700}
   #bar button.dl:hover{background:var(--red);border-color:var(--red);color:#fff}
+  #bar label.lay{display:inline-flex;align-items:center;gap:6px;font:600 12.5px/1 'Inter',system-ui,sans-serif;
+    color:#374151;border:1px solid #D9C7CB;border-radius:7px;padding:6px 10px;cursor:pointer;user-select:none}
+  #bar label.lay input{margin:0;accent-color:var(--red)}
+  #bar label.lay .sw{display:inline-block;width:16px;height:4px;border-radius:2px}
+  #bar .brk{flex-basis:100%;height:0}
   body.embed #below{display:none}
 </style>
 </head>
@@ -37,6 +42,7 @@
 <div id="below">
   <div id="copytext"></div>
   <div id="bar">
+    <span id="layers" style="display:contents"></span>
     <span class="lab">Frame</span>
     <button data-m="substack">Substack 1456</button>
     <button data-m="vertical">Vertical 9:16</button>
@@ -239,6 +245,79 @@ function draw(ctx, W, H, P){
   ctx.beginPath(); GEO.countries.forEach(f => gp(f));
   ctx.strokeStyle = T.border; ctx.lineWidth = 0.7*s; ctx.stroke();
 
+  HIT = [];
+  /* MAP.lineLayers: [{id, label, color, lines:[{name, value, coords, route}]}]
+     draws routes (e.g. pipelines) with width set by value: MAP.lineWidthMax
+     design units at MAP.lineMaxValue (default: the largest value). A line
+     with no value is a thin line in a paler tint of its layer colour.
+     Layers listed in LAYER_HIDDEN (the page's checkboxes) are left out. */
+  const LL = (MAP.lineLayers || []).filter(L => !LAYER_HIDDEN.has(L.id));
+  const lMax = MAP.lineMaxValue || Math.max(1, ...(MAP.lineLayers || []).flatMap(L => L.lines.map(l => l.value || 0)));
+  const lw = v => Math.max(1.7*s, v / lMax * (MAP.lineWidthMax || 14) * s);
+  const lThin = (MAP.lineThin || 1.1)*s;
+  if(LL.length){
+    const gps = d3.geoPath(proj);
+    const pathOf = l => l._p || (l._p = {});
+    const P2 = l => { const c = pathOf(l); return c[P.name] || (c[P.name] = new Path2D(gps({type:'MultiLineString', coordinates:l.coords}) || '')); };
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    LL.forEach(L => {
+      ctx.strokeStyle = mix(L.color, T.bg, 0.35); ctx.lineWidth = lThin;
+      L.lines.filter(l => !l.value).forEach(l => {
+        const p = P2(l); ctx.stroke(p);
+        HIT.push({path:p, stroke:Math.max(lThin, 3*s), text:l.name + (l.route ? ' (' + l.route + ')' : '') + ': capacity not published'});
+      });
+    });
+    /* widest first, each with a hairline of background around it so
+       parallel and crossing lines stay distinct */
+    LL.flatMap(L => L.lines.filter(l => l.value).map(l => [L, l]))
+      .sort((a, b) => b[1].value - a[1].value)
+      .forEach(([L, l]) => {
+        const p = P2(l), w = lw(l.value);
+        ctx.strokeStyle = T.bg; ctx.lineWidth = w + 2*s; ctx.stroke(p);
+        ctx.strokeStyle = L.color; ctx.lineWidth = w; ctx.stroke(p);
+        HIT.push({path:p, stroke:w, text:l.name + ': ' + fmtVal(l.value) + (l.measure && l.measure !== 'Capacity' ? ' (' + l.measure.toLowerCase() + ')' : '')});
+      });
+    /* MAP.lineLabels: [{text, lonlat, layer, align, color}] names placed by hand */
+    (MAP.lineLabels || []).forEach(t => {
+      if(t.layer && LAYER_HIDDEN.has(t.layer)) return;
+      const q = proj(t.lonlat), L = (MAP.lineLayers || []).find(L => L.id === t.layer);
+      ctx.font = '700 ' + (T.szSmall*s) + 'px ' + T.fBody; ctx.textAlign = t.align || 'left';
+      ctx.lineJoin = 'round'; ctx.strokeStyle = T.bg; ctx.lineWidth = 4*s;
+      ctx.strokeText(t.text, q[0], q[1]); ctx.fillStyle = t.color || (L ? L.color : T.ink); ctx.fillText(t.text, q[0], q[1]);
+    });
+    ctx.textAlign = 'left';
+  }
+  /* MAP.lineLegend: reference values drawn as sample lines, bottom left
+     (frames.X.lineKeyAt: [lon, lat] for the key's top-left instead) */
+  if(MAP.lineLayers && MAP.lineLegend){
+    const rows = MAP.lineLegend, rowH = v => Math.max(20*s, lw(v) + 10*s);
+    ctx.font = '600 ' + (T.szSmall*s) + 'px ' + T.fBody;
+    const kh = T.szSmall*s*1.5 + rows.reduce((a, v) => a + rowH(v), 0) + 20*s + LL.length*20*s;
+    let kx = mL + pad*0.8, ky = mapBot - pad*0.6 - kh;
+    if(fr.lineKeyAt){ const q = proj(fr.lineKeyAt);   // kept inside the map
+      kx = Math.min(Math.max(q[0], mL + pad*0.8), mR - 230*s); ky = Math.min(Math.max(q[1], mapTop + pad*0.6), mapBot - pad*0.6 - kh); }
+    /* a pale panel, so lines passing under the key stay out of its way */
+    ctx.fillStyle = 'rgba(255,241,242,0.9)'; ctx.beginPath();
+    ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
+    const kw = 54*s + Math.max(...rows.map(v => ctx.measureText(fmtVal(v)).width),
+      ctx.measureText(MAP.lineThinLabel || 'Not published').width, ...LL.map(L => ctx.measureText(L.label).width)) + 16*s;
+    ctx.roundRect(kx - 8*s, ky - 6*s, kw, kh + 4*s, 6*s); ctx.fill();
+    ctx.fillStyle = T.muted; ctx.textAlign = 'left';
+    ctx.fillText(MAP.lineLegendTitle || 'Capacity', kx, ky + T.szSmall*s);
+    let y = ky + T.szSmall*s*1.5;
+    const sample = (w, col, label) => {
+      ctx.strokeStyle = col; ctx.lineWidth = w; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(kx + w/2, y); ctx.lineTo(kx + 44*s - w/2, y); ctx.stroke();
+      ctx.fillStyle = T.muted; ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
+      ctx.fillText(label, kx + 54*s, y + T.szSmall*s*0.35);
+    };
+    rows.forEach(v => { y += rowH(v)/2; sample(lw(v), T.muted, fmtVal(v)); y += rowH(v)/2; });
+    y += 10*s; sample(lThin, mix(T.muted, T.bg, 0.35), MAP.lineThinLabel || 'Not published');
+    y += 20*s;
+    LL.forEach(L => { sample(6*s, L.color, L.label); y += 20*s; });
+    ctx.lineCap = 'butt';
+  }
+
   /* arrows: largest first so the small ones stay visible on top */
   const pos = {};
   const inset = 18*s;
@@ -254,7 +333,6 @@ function draw(ctx, W, H, P){
   const maxW = (MAP.maxArrowWidth || 30)*s;
   const minW = 2.5*s;
   const width = v => Math.max(minW, v/maxV*maxW);
-  HIT = [];
   const arrowRects = [];
   /* A label block: the name (and optional second line) and, with
      node.labelBars ([{value, color}]), skinny bars beside the name on one
@@ -709,6 +787,17 @@ function draw(ctx, W, H, P){
 
 /* ---- screen, hover, export ---------------------------------------------- */
 const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+/* line layers the reader has switched off; ?hide=id1,id2 starts with some off */
+const LAYER_HIDDEN = new Set((new URLSearchParams(location.search).get('hide') || '').split(',').filter(Boolean));
+function layerBoxes(){
+  if(!MAP.lineLayers) return;
+  const box = document.getElementById('layers');
+  box.innerHTML = '<span class="lab">Show</span>' + MAP.lineLayers.map(L =>
+    '<label class="lay"><input type="checkbox" data-layer="' + L.id + '"' + (LAYER_HIDDEN.has(L.id) ? '' : ' checked') +
+    '><span class="sw" style="background:' + L.color + '"></span>' + L.label + '</label>').join('') + '<span class="brk"></span>';
+  box.querySelectorAll('input').forEach(i => i.onchange = () => {
+    i.checked ? LAYER_HIDDEN.delete(i.dataset.layer) : LAYER_HIDDEN.add(i.dataset.layer); render(); });
+}
 let MODE = 'substack', BS = 1;
 function defaultMode(){
   const q = new URLSearchParams(location.search);
@@ -740,14 +829,18 @@ function hover(e){
   render();
   ctx.setTransform(BS,0,0,BS,0,0);
   let hit = null;
-  for(let i=HIT.length-1;i>=0;i--) if(ctx.isPointInPath(HIT[i].path, px, py)){ hit = HIT[i]; break; }
+  for(let i=HIT.length-1;i>=0;i--){
+    const h = HIT[i];
+    if(h.stroke){ ctx.lineWidth = Math.max(h.stroke, 7*PRESETS[MODE].s); if(ctx.isPointInStroke(h.path, px, py)){ hit = h; break; } }
+    else if(ctx.isPointInPath(h.path, px, py)){ hit = h; break; }
+  }
   if(!hit) return;
   const s = PRESETS[MODE].s, f = hit.flow;
-  const t = f.parts
+  const t = hit.text ? hit.text : f.parts
     ? MAP.nodes[f.from].label + '   ' + fmtVal(f.value) + '   (' +
       f.parts.slice().sort((a,b)=>b.value-a.value).map(p => MAP.nodes[p.to].label + ' ' + Math.round(p.value/f.value*100) + '%').join(', ') + ')'
     : MAP.nodes[f.from].label + ' → ' + MAP.nodes[f.to].label + '   ' + fmtVal(f.value);
-  ctx.strokeStyle = T.ink; ctx.lineWidth = 2*s; ctx.stroke(hit.path);
+  ctx.strokeStyle = T.ink; ctx.lineWidth = hit.stroke ? hit.stroke + 2*s : 2*s; ctx.lineCap = 'round'; ctx.stroke(hit.path);
   ctx.font = '600 ' + (T.szLabel*s) + 'px ' + T.fBody;
   const bw = ctx.measureText(t).width + 16*s, bh = T.szLabel*s*2.1;
   const x = px/BS + 14*s, y = py/BS - bh - 8*s;
@@ -779,6 +872,7 @@ cv.addEventListener('mousemove', hover);
 cv.addEventListener('mouseleave', render);
 addEventListener('resize', render);
 copyText();
+layerBoxes();
 MODE = defaultMode();
 (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => setMode(MODE));
 </script>
