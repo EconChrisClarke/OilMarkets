@@ -127,6 +127,11 @@ const CHART = {
   ],
 
   hidden: [],                   // series names switched off at load (Series checkboxes)
+  /* column charts only: a silhouette above each category, {category: SVG path
+     in a 100x100 box} (chartkit/scripts/country_icons.js makes country ones);
+     section headers over runs of categories, [{label, from, to}]; and the
+     change from the first series to the last under each category label */
+  categoryIcons: null, categoryGroups: null, changeLabels: false,
   annotations: [],              // [{x, y, text, dx, dy, series?}] — commentary, with a
                                 // leader line. One or two, never five.
 
@@ -743,8 +748,19 @@ function draw(ctx, W, H, P, opts){
 
   const pL = L + yLabW + T.gap*s*1.1;
   const pR = R - rightPad;
-  const pT = plotTop;
-  const pB = plotBottom - T.szAxis*s*1.9 - alSpace.bottom;
+  /* Column charts can carry a strip above the plot: section headers
+     (categoryGroups) and a silhouette per category (categoryIcons), and a
+     line under each category label with the change from the first series
+     to the last (changeLabels). The plot gives up the room for them. */
+  const icons = isCat && CHART.type==='column' && CHART.categoryIcons;
+  const groups = isCat && CHART.type==='column' && CHART.categoryGroups;
+  const chg = isCat && CHART.type==='column' && CHART.changeLabels && S.length > 1;
+  const groupH = groups ? T.szAxis*s*2.0 : 0;
+  const iconH = icons ? T.szAxis*s*(P.h > P.w*1.3 ? 3.6 : 3.0) : 0;
+  const stripH = groupH + (icons ? iconH + T.gap*s*0.9 : 0);
+  const chgH = chg ? T.szLabel*s*1.45 : 0;
+  const pT = plotTop + stripH;
+  const pB = plotBottom - T.szAxis*s*1.9 - alSpace.bottom - chgH;
   const pw = pR-pL, ph = pB-pT;
   const yLo = tY(vMin), yHi = tY(vMax);
   const Y = v => pB - (tY(v)-yLo)/(yHi-yLo)*ph;
@@ -829,7 +845,52 @@ function draw(ctx, W, H, P, opts){
       while(ctx.measureText(txt).width > slot*0.94 && txt.length>3) txt = txt.slice(0,-2)+'…';
       ctx.fillText(txt, X(i), xLabY);
     });
+    if(chg){
+      /* first series to last, per category: "−31%", "−100%", "new" */
+      ctx.font = '700 ' + (T.szLabel*s) + 'px ' + T.fBody;
+      CHART.categories.forEach((c,i)=>{
+        const a = +S[0].data[i], b = +S[S.length-1].data[i];
+        if(!isFinite(a) || !isFinite(b)) return;
+        const pc = a ? Math.round((b/a - 1)*100) : null;
+        const txt = pc === null ? (b ? 'new' : '') : (pc > 0 ? '+' : pc < 0 ? '\u2212' : '') + Math.abs(pc) + '%';
+        ctx.fillStyle = pc !== null && pc < 0 ? T.red : T.ink;
+        ctx.fillText(txt, X(i), xLabY + T.szLabel*s*1.4);
+      });
+    }
     ctx.textAlign='left';
+    const slotW = pw/CHART.categories.length;
+    if(groups){
+      ctx.font = '600 ' + (T.szAxis*s) + 'px ' + T.fBody;
+      ctx.textAlign = 'center';
+      const idx = v => typeof v === 'number' ? v : CHART.categories.indexOf(v);
+      CHART.categoryGroups.forEach(g=>{
+        const i0 = idx(g.from), i1 = idx(g.to === undefined ? g.from : g.to);
+        if(i0 < 0 || i1 < 0) return;
+        const x0 = X(i0) - slotW/2 + T.gap*s*0.5, x1 = X(i1) + slotW/2 - T.gap*s*0.5;
+        let txt = String(g.label);
+        while(ctx.measureText(txt).width > (x1-x0) && txt.length>3) txt = txt.slice(0,-2)+'\u2026';
+        ctx.fillStyle = T.muted;
+        ctx.fillText(txt, (x0+x1)/2, plotTop + T.szAxis*s*0.95);
+        ctx.strokeStyle = T.zero; ctx.lineWidth = 1*s;
+        ctx.beginPath(); ctx.moveTo(x0, plotTop + T.szAxis*s*1.45); ctx.lineTo(x1, plotTop + T.szAxis*s*1.45); ctx.stroke();
+      });
+      ctx.textAlign = 'left';
+    }
+    if(icons){
+      /* each icon is a 100x100 SVG path (chartkit/scripts/country_icons.js),
+         fitted into a square above its category: not to scale */
+      const box = Math.min(iconH, slotW*0.62);
+      CHART.categories.forEach((c,i)=>{
+        const d = CHART.categoryIcons[c];
+        if(!d) return;
+        ctx.save();
+        ctx.translate(X(i) - box/2, plotTop + groupH + (iconH - box)/2);
+        ctx.scale(box/100, box/100);
+        ctx.fillStyle = CHART.iconColor || '#8B8F97';
+        ctx.fill(new Path2D(d));
+        ctx.restore();
+      });
+    }
   } else if(xLog || xSqrt){
     /* Decades, not data values. Picking from the observed x values — which is
        right for a time series, where they are years — would put 9,492 and
