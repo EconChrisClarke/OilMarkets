@@ -22,6 +22,7 @@ every product a line carries (gasoline, diesel, jet fuel), not diesel alone.
 
 import csv
 import json
+import math
 from pathlib import Path
 
 from openpyxl import Workbook
@@ -35,8 +36,42 @@ CAP = ROOT / "data" / "pipelines" / "pipeline_capacity.csv"
 RED, NAVY = "#C71E1D", "#1B3A5C"
 LAYERS = {"refined": ("Refined products", RED, "pipelines_products.geojson"),
           "crude": ("Crude oil", NAVY, "pipelines_crude.geojson")}
-# left off the map: Southern Lights carries diluent north to Alberta, not fuel
-EXCLUDE = {("ENBRIDGE", "Southern Lights")}
+# left off the map: Southern Lights carries diluent north to Alberta, not fuel;
+# Trans Mountain is in both EIA layers and is drawn once, as crude
+EXCLUDE = {("refined", "ENBRIDGE", "Southern Lights"), ("refined", "KINDER MORGAN", "TransMountain")}
+
+# EIA's routes are simplified sketches (Olympic has 9 points from Canada to
+# Portland), so a line can miss the city it supplies by 10 to 20 miles. Each
+# refined-product route's nearest point to one of these Western terminal
+# cities is moved onto the city when it lies within SNAP_MILES. (Eastern hubs
+# are left alone: Whiting, Wood River and Linden are real terminals outside
+# the big cities, and the network there is dense enough to read.)
+SNAP_MILES = 20
+CITIES = {"Seattle": (-122.33, 47.61), "Tacoma": (-122.44, 47.25), "Portland": (-122.68, 45.52),
+          "Spokane": (-117.43, 47.66), "Boise": (-116.20, 43.62), "Salt Lake City": (-111.89, 40.76),
+          "Las Vegas": (-115.14, 36.17), "Reno": (-119.81, 39.53), "Sacramento": (-121.49, 38.58),
+          "San Francisco": (-122.42, 37.77), "San Jose": (-121.89, 37.34), "Fresno": (-119.79, 36.74),
+          "Los Angeles": (-118.24, 34.05), "San Diego": (-117.16, 32.72), "Phoenix": (-112.07, 33.45),
+          "Tucson": (-110.97, 32.22), "El Paso": (-106.49, 31.76), "Albuquerque": (-106.65, 35.08),
+          "Denver": (-104.99, 39.74), "Billings": (-108.50, 45.78)}
+
+
+def miles(a, b):
+    la1, la2 = math.radians(a[1]), math.radians(b[1])
+    h = math.sin((la2 - la1) / 2) ** 2 + math.cos(la1) * math.cos(la2) * math.sin(math.radians(b[0] - a[0]) / 2) ** 2
+    return 7917.6 * math.asin(math.sqrt(h))
+
+
+def snap(feats):
+    moved = []
+    for f in feats:
+        ls = lines_of(f["geometry"])
+        for city, c in CITIES.items():
+            d, li, vi = min((miles(v, c), li, vi) for li, l in enumerate(ls) for vi, v in enumerate(l))
+            if 0 < d <= SNAP_MILES:
+                ls[li][vi] = [c[0], c[1]]
+                moved.append((f["properties"]["Pipename"], city, round(d)))
+    return moved
 
 rows = list(csv.DictReader(CAP.open()))
 # features that change capacity part way along: split at the vertex nearest
@@ -63,6 +98,9 @@ def rnd(ls):
 layers, unmatched = [], []
 for key, (label, color, fname) in LAYERS.items():
     feats = [f for f in json.load((GEO / fname).open())["features"] if f["geometry"]]
+    if key == "refined":
+        moved = snap(feats)
+        print(f"snapped {len(moved)} route points onto cities, e.g. {moved[:6]}")
     used = set()
     out = []
     for r in [r for r in rows if r["layer"] == key and r["pipename"]]:
@@ -91,7 +129,7 @@ for key, (label, color, fname) in LAYERS.items():
     # every other route in the layer: thin, named by the EIA layer
     for f in feats:
         p = f["properties"]
-        if p["FID"] in used or (p["Opername"], p["Pipename"]) in EXCLUDE:
+        if p["FID"] in used or (key, p["Opername"], p["Pipename"]) in EXCLUDE:
             continue
         out.append({"name": f'{p["Pipename"]} ({p["Opername"].title()})', "route": "", "value": None,
                     "coords": rnd(lines_of(f["geometry"]))})
@@ -118,6 +156,22 @@ cfg = {
     "lineLegend": [250000, 1000000, 2500000],
     "lineLegendTitle": "Capacity",
     "lineThinLabel": "Not published",
+    # a few terminal cities, so readers can see where the lines end
+    "places": [
+        {"name": "Seattle", "lonlat": [-122.33, 47.61], "side": "left"},
+        {"name": "Portland", "lonlat": [-122.68, 45.52], "side": "left"},
+        {"name": "San Francisco", "lonlat": [-122.42, 37.77], "side": "left"},
+        {"name": "Los Angeles", "lonlat": [-118.24, 34.05], "side": "below"},
+        {"name": "Las Vegas", "lonlat": [-115.14, 36.17], "side": "right"},
+        {"name": "Phoenix", "lonlat": [-112.07, 33.45], "side": "right"},
+        {"name": "Salt Lake City", "lonlat": [-111.89, 40.76], "side": "right"},
+        {"name": "Denver", "lonlat": [-104.99, 39.74], "side": "right"},
+        {"name": "El Paso", "lonlat": [-106.49, 31.76], "side": "below"},
+        {"name": "Houston", "lonlat": [-95.37, 29.76], "side": "below"},
+        {"name": "Chicago", "lonlat": [-87.63, 41.88], "side": "above"},
+        {"name": "Atlanta", "lonlat": [-84.39, 33.75], "side": "left"},
+        {"name": "New York", "lonlat": [-74.01, 40.71], "side": "right"},
+    ],
     "lineLabels": [
         {"text": "Colonial", "lonlat": [-83.6, 34.9], "layer": "refined", "align": "right"},
         {"text": "Products SE", "lonlat": [-86.4, 32.2], "layer": "refined", "align": "left"},

@@ -287,6 +287,24 @@ function draw(ctx, W, H, P){
     });
     ctx.textAlign = 'left';
   }
+  /* MAP.places: [{name, lonlat, side}] small city dots with names, so a
+     reader can see where lines end (side: right, left, above, below;
+     frames.X.hidePlaces: names to leave out of one frame) */
+  (MAP.places || []).filter(c => !(fr.hidePlaces || []).includes(c.name)).forEach(c => {
+    const q = proj(c.lonlat), r = 2.6*s;
+    ctx.fillStyle = T.ink; ctx.strokeStyle = T.bg; ctx.lineWidth = 1.4*s;
+    ctx.beginPath(); ctx.arc(q[0], q[1], r, 0, 6.284); ctx.fill(); ctx.stroke();
+    ctx.font = '600 ' + (T.szSmall*s*0.92) + 'px ' + T.fBody;
+    let side = c.side || 'right'; const g = 5*s, tw = ctx.measureText(c.name).width;
+    /* a name that would run off the map flips to the other side of its dot */
+    if(side === 'left' && q[0] - g - tw < mL + 4) side = 'right';
+    if(side === 'right' && q[0] + g + tw > mR - 4) side = 'left';
+    const at = {right: [q[0] + g, q[1] + T.szSmall*s*0.32, 'left'], left: [q[0] - g, q[1] + T.szSmall*s*0.32, 'right'],
+                above: [q[0], q[1] - g - 1*s, 'center'], below: [q[0], q[1] + g + T.szSmall*s*0.8, 'center']}[side];
+    ctx.textAlign = at[2]; ctx.lineJoin = 'round'; ctx.strokeStyle = T.bg; ctx.lineWidth = 3.5*s;
+    ctx.strokeText(c.name, at[0], at[1]); ctx.fillStyle = '#374151'; ctx.fillText(c.name, at[0], at[1]);
+  });
+  ctx.textAlign = 'left';
   /* MAP.lineLegend: reference values drawn as sample lines, bottom left
      (frames.X.lineKeyAt: [lon, lat] for the key's top-left instead) */
   if(MAP.lineLayers && MAP.lineLegend){
