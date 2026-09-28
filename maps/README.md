@@ -50,6 +50,9 @@ stay in `charts/`.
 - `labelBars`: `{max, height, width, legend, legendLabel, keys}` with
   `labelBars: [{value, color, textColor}]` on nodes draws skinny bars beside the
   node's name, values on top, placed with the label as one block.
+- `nearMax` (design units, default 90) lets `"near"` labels search further for
+  a free spot; `frames.X.labelBarsHeight` sets label-bar height per frame. A
+  leader is drawn only when a label sits away from its dot.
 - `color` on a flow overrides the destination colour (imports, exports and
   domestic flows in different colours).
 - `legend`: reference values drawn as sample arrows. `draft: true` stamps a

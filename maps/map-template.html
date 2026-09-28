@@ -396,12 +396,15 @@ function draw(ctx, W, H, P){
     (nKeyDest ? T.szSmall*s*1.6 + nKeyDest*20*s + 8*s : 0) + T.szSmall*s*0.6 + MAP.legend.length*30*s
     + (MAP.bars && MAP.bars.legend ? MAP.bars.legend / MAP.bars.max * MAP.bars.height * s + 24*s : 0)
     + (MAP.labelBars && MAP.labelBars.legend ? 16*s + (MAP.labelBars.title ? T.szSmall*s*1.3 + 8*s : 0)
-       + Math.max(MAP.labelBars.legend / MAP.labelBars.max * MAP.labelBars.height * s,
+       + Math.max(MAP.labelBars.legend / MAP.labelBars.max * (fr.labelBarsHeight || MAP.labelBars.height) * s,
                   T.szSmall*s*1.3*(1 + (MAP.labelBars.keys || []).filter(k => k.label).length)) : 0);
   const keyTR = (fr.keyPos || MAP.keyPos) === 'tr';
   /* reserve only the key's real footprint: sample arrow + widest value label */
   ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
+  const lbKeyLines = MAP.labelBars && MAP.labelBars.legend
+    ? [MAP.labelBars.legendLabel || ''].concat((MAP.labelBars.keys || []).map(k => k.label || '')) : [];
   const keyTextW = Math.max(...(MAP.legend || [0]).map(v => ctx.measureText(fmtVal(v)).width),
+    ...lbKeyLines.map(t => ctx.measureText(t).width),
     (ctx.font = '600 ' + (T.szSmall*s) + 'px ' + T.fBody, ctx.measureText(MAP.legendTitle || 'Arrow width').width - 80*s));
   const keyW = pad*0.8 + 80*s + keyTextW + 8*s;
   const keyX = keyTR ? mR - keyW : mL, keyY = keyTR ? mapTop + pad*0.6 : mapBot - pad*0.6 - keyH - 6*s;
@@ -429,7 +432,7 @@ function draw(ctx, W, H, P){
        each with its value on top; the name, bars and values are placed and
        kept clear of everything else as one block */
     const LB = MAP.labelBars, lbs = LB && (NODES[dotK || k] || {}).labelBars || null;
-    const lbW = (LB && LB.width || 7)*s, lbH = v => v / LB.max * LB.height * s;
+    const lbW = (LB && LB.width || 7)*s, lbH = v => v / LB.max * (fr.labelBarsHeight || LB.height) * s;   // frames.X.labelBarsHeight
     let barsW = 0, barsH = 0, slotW = 0;
     if(lbs){
       ctx.font = '700 ' + (T.szSmall*s*0.85) + 'px ' + T.fBody;
@@ -444,9 +447,11 @@ function draw(ctx, W, H, P){
     /* side "near": centred on the point if free, else the nearest free spot
        on a spiral around it (up to ~90 design units away) */
     if(sides.includes('near')){
-      const cands = [[0,0]];
-      for(let r=12; r<=90; r+=12) for(let a=0; a<16; a++)
-        cands.push([Math.cos(a*Math.PI/8)*r*1.6, Math.sin(a*Math.PI/8)*r]);
+      /* rings of candidates, nearest first, out to MAP.nearMax design units
+         (default 90); the first free one wins */
+      const cands = [[0,0]], rMax = MAP.nearMax || 90;
+      for(let r=12; r<=rMax; r+=(r < 90 ? 12 : 16)) for(let a=0; a<24; a++)
+        cands.push([Math.cos(a*Math.PI/12)*r*1.6, Math.sin(a*Math.PI/12)*r]);
       for(const [dx,dy] of cands){
         const x = p[0]+dx*s-w/2, yy = p[1]+dy*s-h/2, r = {x, y:yy, w, h};
         const b = blocker(r);
@@ -477,9 +482,10 @@ function draw(ctx, W, H, P){
     dropped.push(t1); if(window.MAP_DEBUG) console.log('DROP', P.name, t1, why.slice(0,24).join(' | ')); return false;
     function drawLabel(r, x, yy, al, pushed){
       /* pushed off its dot: a hairline leader says which dot it belongs to */
-      if((pushed || dotK) && !k.startsWith('_d_')){
-        const cx = Math.min(Math.max(dp[0], r.x), r.x + r.w), cy = Math.min(Math.max(dp[1], r.y + 2*s), r.y + r.h - 2*s);
-        const d = Math.hypot(cx - dp[0], cy - dp[1]) || 1;
+      const cx = Math.min(Math.max(dp[0], r.x), r.x + r.w), cy = Math.min(Math.max(dp[1], r.y + 2*s), r.y + r.h - 2*s);
+      const d = Math.hypot(cx - dp[0], cy - dp[1]) || 1;
+      /* no leader when the label already touches its dot */
+      if((pushed || dotK) && !k.startsWith('_d_') && d > 16*s){
         ctx.strokeStyle = T.muted; ctx.lineWidth = 1*s;
         ctx.beginPath(); ctx.moveTo(dp[0] + (cx-dp[0])/d*4.5*s, dp[1] + (cy-dp[1])/d*4.5*s);
         ctx.lineTo(cx - (cx-p[0])/d*3*s, cy - (cy-p[1])/d*3*s); ctx.stroke();
@@ -603,7 +609,7 @@ function draw(ctx, W, H, P){
     });
     if(MAP.labelBars && MAP.labelBars.legend){
       /* MAP.labelBars.legend: height sample; .keys: [{label, color}] one per bar */
-      const L = MAP.labelBars, h = L.legend / L.max * L.height * s, w = (L.width || 7)*s;
+      const L = MAP.labelBars, h = L.legend / L.max * (fr.labelBarsHeight || L.height) * s, w = (L.width || 7)*s;
       ky += 16*s;
       if(L.title){
         ky += T.szSmall*s*1.3;

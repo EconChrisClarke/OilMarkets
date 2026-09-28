@@ -101,19 +101,22 @@ print("movements (k b/d):", {f"{a}>{b}": round(v / 1000) for (a, b), v in mov.it
 NAVY, TEAL, RED = "#1B3A5C", "#2E8B7A", "#C71E1D"
 M = lambda v: f"{v/1e6:.1f}M" if v >= 995000 else f"{v/1e3:.0f}k"
 # dot where the arrows meet, and a clear spot for the label (joined by a leader)
-REGION = {
-    "p1": ("East Coast", [-77.8, 38.6], [-67.5, 40.6], ["near"]),
-    "p2": ("Midwest", [-90.5, 41.5], [-98.0, 47.2], ["near"]),
-    "p3": ("Gulf Coast", [-95.5, 31.0], [-104.0, 29.6], ["near"]),
-    "p4": ("Rockies", [-106.0, 39.0], None, ["near"]),
-    "p5": ("West Coast", [-119.5, 38.5], [-122.5, 31.5], ["near"])}
+# label blocks (name + bars) sit right beside the dot, on the listed sides in order
+# each block takes the nearest free spot around its own dot ("near" from the dot)
+REGION = {k: (n, ll, ll, ["near"]) for k, (n, ll) in {
+    "p1": ("East Coast", [-77.8, 38.6]), "p2": ("Midwest", [-90.5, 41.5]),
+    "p3": ("Gulf Coast", [-95.5, 31.0]), "p4": ("Rockies", [-109.5, 43.5]),
+    "p5": ("West Coast", [-119.5, 38.5])}.items()}
+# the East Coast's nearest free spot would be over Michigan (Midwest): start its
+# search off the Carolinas instead, so the block stays by its own region
+REGION["p1"] = ("East Coast", [-77.8, 38.6], [-72.8, 34.8], ["near"])
 nodes = {}
 for k, (n, ll, at, sides) in REGION.items():
     nodes[k] = {"label": n, "lonlat": ll, "sides": sides,
                 "sub": ""}   # refined and consumed are on the bars beside the name
     if at:
         nodes[k]["labelAt"] = at
-nodes["p4"].update({"lonlat": [-109.5, 43.5], "labelAt": [-114.5, 45.0]})
+
 
 # PADD membership (EIA definitions); pale fills for the areas, darker shades
 # of the same hues for each region's label and refining bar
@@ -147,6 +150,7 @@ for k in REGION:
 # where each region's foreign trade goes to or comes from, placed off the coast or border
 EXP_AT = {"p1": [-66, 34], "p3": [-89, 23.5], "p5": [-127.5, 36]}
 IMP_AT = {"p1": [-64.5, 45.5], "p2": [-88, 50.5], "p4": [-110, 50.5], "p5": [-127.5, 45.5]}
+IMP_MIN = 20000   # smaller import flows (Midwest, Rockies, West Coast) are named in the note
 flows = [{"from": a, "to": b, "value": round(v, -3), "color": NAVY} for (a, b), v in mov.items() if v >= 5000]
 MIN = 5000
 for k, at in EXP_AT.items():
@@ -156,7 +160,7 @@ for k, at in EXP_AT.items():
         flows.append({"from": k, "to": f"x{k}", "value": round(v, -3), "color": RED})
 for k, at in IMP_AT.items():
     v = bal[k]["imports"]
-    if v >= MIN:
+    if v >= IMP_MIN:
         nodes[f"m{k}"] = {"label": "Imports", "sub": M(v), "textColor": TEAL, "lonlat": at, "dot": False}
         flows.append({"from": f"m{k}", "to": k, "value": round(v, -3), "color": TEAL})
 shown_dom = sum(f["value"] for f in flows if f["color"] == NAVY)
@@ -169,12 +173,15 @@ cfg = {
     "subhead": f"Distillate fuel oil by region (PADD), {YEAR}, barrels per day: domestic shipments, imports and exports",
     "note": (f"US totals: refined {us_ref/1e6:.2f}M b/d, consumed {us_use/1e6:.2f}M, exported {us_exp/1e6:.2f}M. "
              "Imports are counted where they enter the country. Region-to-region arrows are gross shipments "
-             f"by pipeline, tanker, barge and rail; flows under {MIN//1000}k b/d are not drawn."),
+             f"by pipeline, tanker, barge and rail; flows under {MIN//1000}k b/d are not drawn. Imports into the "
+             f"Midwest ({bal['p2']['imports']/1e3:.0f}k), Rockies ({bal['p4']['imports']/1e3:.0f}k) and West Coast "
+             f"({bal['p5']['imports']/1e3:.0f}k) are too small to draw."),
     "source": "EIA, Supply and Disposition by PAD District; Movements by Pipeline, Tanker, Barge and Rail between PAD Districts",
     "sourceUrl": "https://www.eia.gov/dnav/pet/pet_move_ptb_a_EPD0_TNR_mbbl_a.htm",
     "units": "b/d",
     "style": "flows",
     "arrowStyle": "swoosh",
+    "nearMax": 260,        # region blocks may search far for a free spot (leader drawn)
     "maxArrowWidth": 40,
     "legendTitle": "Arrow width",
     "legend": [100000, 500000],
@@ -182,24 +189,28 @@ cfg = {
     "geoBBox": [-170, -25, -20, 75],
     "regions": {k: {"color": FILL[k], "states": PADD_STATES[k]} for k in PADD_STATES},
     # bars beside each region's name: 3M b/d would stand 60 design units tall
-    "labelBars": {"max": 3000000, "height": 60, "width": 7, "legend": 1000000,
+    "labelBars": {"max": 3000000, "height": 80, "width": 9, "legend": 1000000,
                   "legendLabel": "Bars: 1M b/d",
-                  "keys": [{"label": "dark refined, light consumed", "color": "#5B6470"},
-                           {"label": "", "color": "#B5BAC2"}]},
+                  "keys": [{"label": "dark: refined", "color": "#5B6470"},
+                           {"label": "light: used", "color": "#B5BAC2"}]},
     "nodes": nodes,
     "flows": flows,
     "frames": {
         "substack": {"bounds": [[-128, 22], [-62, 52]]},
-        "vertical": {"bounds": [[-127, 22], [-63, 52]], "shortLabels": True,
-                     # the tall frame is tight: West Coast exports go under their arrow,
-                     # Rockies imports into the open space above Montana
+        # shorter bars in the smaller frames, same scale within each frame
+        "vertical": {"bounds": [[-127, 22], [-63, 52]], "shortLabels": True, "labelBarsHeight": 55,
                      "nodes": {"xp5": {"labelAt": [-123.5, 33.0], "sides": ["near"]},
-                               "mp4": {"labelAt": [-112.5, 53.5], "sides": ["near"]},
-                               "p5": {"labelAt": [-121.5, 27.5], "sides": ["near"]},
-                               "p3": {"labelAt": [-86.5, 26.8], "sides": ["near"]}}},
-        "square": {"bounds": [[-127, 22], [-63, 52]],
-                   "nodes": {"p5": {"labelAt": [-121.5, 32.5], "sides": ["near"]},
-                             "p3": {"labelAt": [-101.0, 30.2], "sides": ["near"]}}},
+                               # tall frame: the Gulf block goes into the Gulf of Mexico,
+                               # the West Coast block over the Pacific off California
+                               "p3": {"labelAt": [-86.5, 26.0], "sides": ["near"]},
+                               "p5": {"labelAt": [-124.5, 29.5], "sides": ["near"]},
+                               # the empty space over Canada holds the northern regions'
+                               # blocks, each above its own region
+                               "p4": {"labelAt": [-112.0, 53.0], "sides": ["near"]},
+                               "p2": {"labelAt": [-92.0, 52.5], "sides": ["near"]},
+                               "p1": {"labelAt": [-74.5, 50.5], "sides": ["near"]},
+                               "mp1": {"labelAt": [-62.5, 44.5], "sides": ["near"]}}},
+        "square": {"bounds": [[-127, 22], [-63, 52]], "labelBarsHeight": 60},
     },
 }
 out = ROOT / "maps" / "configs" / f"padd-diesel-{YEAR}.json"
