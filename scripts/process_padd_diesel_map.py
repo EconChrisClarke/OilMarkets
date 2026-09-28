@@ -104,13 +104,13 @@ M = lambda v: f"{v/1e6:.1f}M" if v >= 995000 else f"{v/1e3:.0f}k"
 REGION = {
     "p1": ("East Coast", [-77.8, 38.6], [-67.5, 40.6], ["near"]),
     "p2": ("Midwest", [-90.5, 41.5], [-98.0, 47.2], ["near"]),
-    "p3": ("Gulf Coast", [-95.5, 31.0], [-97.0, 27.6], ["near"]),
+    "p3": ("Gulf Coast", [-95.5, 31.0], [-104.0, 29.6], ["near"]),
     "p4": ("Rockies", [-106.0, 39.0], None, ["near"]),
     "p5": ("West Coast", [-119.5, 38.5], [-122.5, 31.5], ["near"])}
 nodes = {}
 for k, (n, ll, at, sides) in REGION.items():
     nodes[k] = {"label": n, "lonlat": ll, "sides": sides,
-                "sub": f"uses {M(bal[k]['supplied'])}"}   # refining is on the bar
+                "sub": ""}   # refined and consumed are on the bars beside the name
     if at:
         nodes[k]["labelAt"] = at
 nodes["p4"].update({"lonlat": [-109.5, 43.5], "labelAt": [-114.5, 45.0]})
@@ -129,12 +129,21 @@ PADD_STATES = {
 }
 FILL = {"p1": "#D9E2EE", "p2": "#D5E8E0", "p3": "#F2E0C4", "p4": "#E3DBEC", "p5": "#F3D5D3"}
 DARK = {"p1": "#3F5F86", "p2": "#2F7560", "p3": "#A8711E", "p4": "#6C5A94", "p5": "#B0443F"}
-# where each region's refining bar stands: open ground inside the region, off the arrows
-BAR_AT = {"p1": [-81.6, 27.6], "p2": [-99.5, 37.6], "p3": [-102.8, 29.4],
-          "p4": [-111.8, 38.4], "p5": [-118.6, 42.4]}
+BG = "#FFF1F2"
+
+
+def mix(a, b, t):
+    """a blended toward b by t (0..1), as #rrggbb"""
+    ca = [int(a[i:i + 2], 16) for i in (1, 3, 5)]
+    cb = [int(b[i:i + 2], 16) for i in (1, 3, 5)]
+    return "#" + "".join(f"{round(x + (y - x) * t):02X}" for x, y in zip(ca, cb))
+
+
+# two skinny bars beside each region's name: refined (dark) and consumed (light)
 for k in REGION:
-    nodes[k].update({"bar": round(bal[k]["refined"], -3), "barAt": BAR_AT[k],
-                     "barColor": DARK[k], "textColor": DARK[k]})
+    nodes[k].update({"textColor": DARK[k], "labelBars": [
+        {"value": round(bal[k]["refined"], -3), "color": DARK[k]},
+        {"value": round(bal[k]["supplied"], -3), "color": mix(DARK[k], BG, 0.5), "textColor": DARK[k]}]})
 # where each region's foreign trade goes to or comes from, placed off the coast or border
 EXP_AT = {"p1": [-66, 34], "p3": [-89, 23.5], "p5": [-127.5, 36]}
 IMP_AT = {"p1": [-64.5, 45.5], "p2": [-88, 50.5], "p4": [-110, 50.5], "p5": [-127.5, 45.5]}
@@ -151,11 +160,15 @@ for k, at in IMP_AT.items():
         nodes[f"m{k}"] = {"label": "Imports", "sub": M(v), "textColor": TEAL, "lonlat": at, "dot": False}
         flows.append({"from": f"m{k}", "to": k, "value": round(v, -3), "color": TEAL})
 shown_dom = sum(f["value"] for f in flows if f["color"] == NAVY)
+us_ref = sum(b["refined"] for b in bal.values())
+us_use = sum(b["supplied"] for b in bal.values())
+us_exp = sum(b["exports"] for b in bal.values())
 all_dom = sum(mov.values())
 cfg = {
     "headline": "Most regions refine their own diesel; the East Coast relies on the Gulf Coast",
     "subhead": f"Distillate fuel oil by region (PADD), {YEAR}, barrels per day: domestic shipments, imports and exports",
-    "note": ("Imports are counted where they enter the country. Region-to-region arrows are gross shipments "
+    "note": (f"US totals: refined {us_ref/1e6:.2f}M b/d, consumed {us_use/1e6:.2f}M, exported {us_exp/1e6:.2f}M. "
+             "Imports are counted where they enter the country. Region-to-region arrows are gross shipments "
              f"by pipeline, tanker, barge and rail; flows under {MIN//1000}k b/d are not drawn."),
     "source": "EIA, Supply and Disposition by PAD District; Movements by Pipeline, Tanker, Barge and Rail between PAD Districts",
     "sourceUrl": "https://www.eia.gov/dnav/pet/pet_move_ptb_a_EPD0_TNR_mbbl_a.htm",
@@ -168,9 +181,11 @@ cfg = {
     "colorKey": False,
     "geoBBox": [-170, -25, -20, 75],
     "regions": {k: {"color": FILL[k], "states": PADD_STATES[k]} for k in PADD_STATES},
-    # refining bars: 3M b/d would stand 100 design units tall
-    "bars": {"max": 3000000, "height": 100, "width": 22, "legend": 1000000, "values": True,
-             "legendLabel": "1M b/d refined"},
+    # bars beside each region's name: 3M b/d would stand 60 design units tall
+    "labelBars": {"max": 3000000, "height": 60, "width": 7, "legend": 1000000,
+                  "legendLabel": "Bars: 1M b/d",
+                  "keys": [{"label": "dark refined, light consumed", "color": "#5B6470"},
+                           {"label": "", "color": "#B5BAC2"}]},
     "nodes": nodes,
     "flows": flows,
     "frames": {
@@ -180,10 +195,11 @@ cfg = {
                      # Rockies imports into the open space above Montana
                      "nodes": {"xp5": {"labelAt": [-123.5, 33.0], "sides": ["near"]},
                                "mp4": {"labelAt": [-112.5, 53.5], "sides": ["near"]},
-                               "p3": {"labelAt": [-100.5, 26.2], "sides": ["near"]},
-                               "p5": {"labelAt": [-114.5, 33.0], "sides": ["near"]},
-                               "p2": {"barAt": [-95.5, 38.2]}}},
-        "square": {"bounds": [[-127, 22], [-63, 52]]},
+                               "p5": {"labelAt": [-121.5, 27.5], "sides": ["near"]},
+                               "p3": {"labelAt": [-86.5, 26.8], "sides": ["near"]}}},
+        "square": {"bounds": [[-127, 22], [-63, 52]],
+                   "nodes": {"p5": {"labelAt": [-121.5, 32.5], "sides": ["near"]},
+                             "p3": {"labelAt": [-101.0, 30.2], "sides": ["near"]}}},
     },
 }
 out = ROOT / "maps" / "configs" / f"padd-diesel-{YEAR}.json"

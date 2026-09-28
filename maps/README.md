@@ -47,6 +47,9 @@ stay in `charts/`.
 - `bars`: `{max, height, width, values, legend, legendLabel}` with `bar`,
   `barAt` and `barColor` on nodes draws a vertical bar per node on one scale,
   with its value on top and a sample in the key.
+- `labelBars`: `{max, height, width, legend, legendLabel, keys}` with
+  `labelBars: [{value, color, textColor}]` on nodes draws skinny bars beside the
+  node's name, values on top, placed with the label as one block.
 - `color` on a flow overrides the destination colour (imports, exports and
   domestic flows in different colours).
 - `legend`: reference values drawn as sample arrows. `draft: true` stamps a
