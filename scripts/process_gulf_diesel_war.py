@@ -6,7 +6,7 @@ only official reported data, no estimates:
                            (Saudi Arabia, Kuwait and Bahrain are the only Gulf
                            states that report them)
   Europe's customs data    Eurostat Comext CN8, EU27 imports of gas oil
-                           (27101943/46/47/48) from all eight Gulf states
+                           (27101943/44/46/47/48) from all eight Gulf states
                            (fetch_eu_diesel_imports.py)
   Australia's statistics   Australian Petroleum Statistics, diesel imports
                            by source country, from the Gulf states
@@ -118,7 +118,7 @@ cfg = {
     "note": ("Official reported data only. Saudi Arabia, Kuwait and Bahrain are the only Gulf states that report "
              "diesel exports. EU27 and Australia count imports from all eight Gulf states "
              "(incl. UAE, Qatar, Oman, Iraq and Iran). March 2026 is left out: the war began on 28 February."),
-    "source": ("JODI Oil World Database (gas/diesel oil exports); Eurostat Comext, CN 27101943/46/47/48; "
+    "source": ("JODI Oil World Database (gas/diesel oil exports); Eurostat Comext, CN 27101943/44/46/47/48; "
                "Australian Petroleum Statistics (diesel imports by country)"),
     "sourceUrl": "https://www.jodidata.org/oil/database/data-downloads.aspx",
     "xType": "category",

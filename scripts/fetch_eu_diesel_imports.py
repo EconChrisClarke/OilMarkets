@@ -5,10 +5,15 @@ Eurostat Comext bulk files at CN8 detail.
 The Comext API only serves CN8 detail through 2024, and its HS6 code 271019
 mixes diesel with jet fuel and fuel oil. The monthly bulk files ("full_v2")
 carry every CN8 line, so they are downloaded one month at a time, filtered to
-the gas-oil codes, and deleted.
+the gas-oil codes, and deleted. (27101931, gas oil for a refinery's further
+processing, is feedstock rather than fuel and is left out.)
 
 CN8 codes kept (flow 1 = imports into each EU member state; extra-EU partners):
-  27101943  gas oils, sulfur <= 0.001% (road diesel, ULSD)
+  27101944  gas oils, sulfur <= 0.001% (road diesel, ULSD); since the 2025
+            nomenclature this is ordinary fossil ULSD, and 27101943 is the
+            same with >= 80% bio-based carbon (renewable diesel). Most Gulf
+            and US diesel into the EU is 27101944.
+  27101943  gas oils, sulfur <= 0.001%, >= 80% bio-based carbon (before 2025: all ULSD)
   27101946  gas oils, sulfur > 0.001% and <= 0.002%
   27101947  gas oils, sulfur > 0.002% and <= 0.1%
   27101948  gas oils, sulfur > 0.1%
@@ -19,8 +24,9 @@ Output: data/trade/eu_gasoil_imports_by_partner_monthly.csv
 """
 
 import csv
-import io
+import json
 import sys
+import time
 import urllib.request
 from calendar import monthrange
 from collections import defaultdict
@@ -33,28 +39,49 @@ RAW = ROOT / "data" / "raw" / "comext"          # git-ignored
 OUT = ROOT / "data" / "trade" / "eu_gasoil_imports_by_partner_monthly.csv"
 URL = ("https://ec.europa.eu/eurostat/api/dissemination/files/"
        "?file=comext%2FCOMEXT_DATA%2FPRODUCTS%2Ffull_v2_{}.7z")
-CODES = {"27101943", "27101946", "27101947", "27101948"}
+CODES = {"27101943", "27101944", "27101946", "27101947", "27101948"}
 BBL_PER_T = 7.46
 MONTHS = sys.argv[1:] or [f"{y}{m:02d}" for y, m in
                           [(2025, m) for m in range(1, 13)] + [(2026, m) for m in range(1, 8)]]
 
 agg = defaultdict(float)                       # (month, partner, cn8) -> kg
 RAW.mkdir(parents=True, exist_ok=True)
+
+
+def download(url, path, tries=5):
+    """Eurostat drops connections now and then: retry with backoff."""
+    for i in range(tries):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            path.write_bytes(urllib.request.urlopen(req, timeout=600).read())
+            return
+        except Exception as e:
+            print(f"  retry {i + 1} after {type(e).__name__}", flush=True)
+            time.sleep(15 * (i + 1))
+    raise RuntimeError(f"gave up on {url}")
+
+
 for mo in MONTHS:
-    arc = RAW / f"full_v2_{mo}.7z"
-    req = urllib.request.Request(URL.format(mo), headers={"User-Agent": "Mozilla/5.0"})
-    arc.write_bytes(urllib.request.urlopen(req, timeout=600).read())
-    with py7zr.SevenZipFile(arc) as z:
-        z.extractall(RAW)
-    arc.unlink()
-    dat = RAW / f"full_{mo}.dat"
-    n = 0
-    with dat.open(newline="") as f:
-        for r in csv.DictReader(f):
-            if r["PRODUCT_NC"] in CODES and r["FLOW"] == "1" and r["QUANTITY_KG"]:
-                agg[(mo, r["PARTNER"], r["PRODUCT_NC"])] += float(r["QUANTITY_KG"]); n += 1
-    dat.unlink()
-    print(f"{mo}: {n} gas-oil import lines", flush=True)
+    done = RAW / f"gasoil_{mo}.json"           # per-month cache, so a rerun resumes
+    if not done.exists():
+        arc = RAW / f"full_v2_{mo}.7z"
+        download(URL.format(mo), arc)
+        with py7zr.SevenZipFile(arc) as z:
+            z.extractall(RAW)
+        arc.unlink()
+        dat = RAW / f"full_{mo}.dat"
+        month = defaultdict(float)
+        with dat.open(newline="") as f:
+            for r in csv.DictReader(f):
+                if r["PRODUCT_NC"] in CODES and r["FLOW"] == "1" and r["QUANTITY_KG"]:
+                    month[f"{r['PARTNER']}|{r['PRODUCT_NC']}"] += float(r["QUANTITY_KG"])
+        dat.unlink()
+        done.write_text(json.dumps(month))
+    month = json.loads(done.read_text())
+    for key, kg in month.items():
+        p, c = key.split("|")
+        agg[(mo, p, c)] += kg
+    print(f"{mo}: {len(month)} partner-code lines", flush=True)
 
 rows = []
 for (mo, p, c), kg in agg.items():
