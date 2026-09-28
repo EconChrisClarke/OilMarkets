@@ -78,6 +78,8 @@ rows = list(csv.DictReader(CAP.open()))
 # this point; "s" is the part from the feature's start to the split, "n" the rest
 SPLIT = {40: (-79.85, 36.07),     # Colonial at Greensboro, NC
          181: (-112.1, 33.4)}      # Kinder Morgan SFPP at Phoenix: East Line / West Line
+SPLIT_NAMES = {(40, "s"): " (Houston to Greensboro)", (40, "n"): " (Greensboro to New York Harbor)",
+               (181, "s"): " (El Paso to Phoenix: East Line)", (181, "n"): " (Phoenix to Colton: West Line)"}
 
 
 def split_at(ls, pt, part):
@@ -96,6 +98,7 @@ def rnd(ls):
 
 
 layers, unmatched = [], []
+routes = []          # every EIA route segment, for the spreadsheet's "All routes" sheet
 for key, (label, color, fname) in LAYERS.items():
     feats = [f for f in json.load((GEO / fname).open())["features"] if f["geometry"]]
     if key == "refined":
@@ -126,6 +129,22 @@ for key, (label, color, fname) in LAYERS.items():
                     "value": int(r["capacity_bpd"]) if r["use_width"] == "Y" else None,
                     "measure": r["measure"], "coords": rnd(coords)})
         r["_segments"] = len(hit)
+        for f in hit:
+            part = fids.get(f["properties"]["FID"]) if fids else ""
+            f.setdefault("_rows", []).append((r, part))
+    for f in feats:
+        p = f["properties"]
+        # a feature split between two rows (Colonial at Greensboro) is listed once per part
+        for r, part in f.get("_rows") or [(None, "")]:
+            ls = lines_of(f["geometry"])
+            if part:
+                ls = split_at(ls, SPLIT[p["FID"]], part)
+            routes.append({"layer": label, "fid": p["FID"], "operator": p["Opername"].title(),
+                           "pipename": p["Pipename"] + SPLIT_NAMES.get((p["FID"], part), ""),
+                           "miles": sum(miles(l[i], l[i + 1]) for l in ls for i in range(len(l) - 1)),
+                           "row": r["name"] if r else "",
+                           "capacity": int(r["capacity_bpd"]) if r and r["use_width"] == "Y" else None,
+                           "excluded": (key, p["Opername"], p["Pipename"]) in EXCLUDE})
     # every other route in the layer: thin, named by the EIA layer
     for f in feats:
         p = f["properties"]
@@ -255,6 +274,9 @@ lines = [
      "could not be confirmed from an operator or official document; they are the best available and are drawn "
      "at the reported value.", False),
     ("Width on map: 'No (thin)' lines have no capacity figure from any source and appear at a fixed thin width.", False),
+    ("All routes on map: every route segment drawn on the map, under the name EIA gives it (the name shown when you "
+     "hover over a thin line), with the capacity row that sets its width, or 'Thin: no published figure'. Filter by "
+     "operator or route name to find a line seen on the map.", False),
     ("", False),
     ("Summary", True),
     ("Lines listed", False), ("Drawn with width", False), ("Refined-product capacity drawn (b/d)", False),
@@ -279,7 +301,35 @@ for k in range(4):
     c = about.cell(start + k, 2)
     c.font = Font(name=F, size=10)
     c.number_format = "#,##0"
-wb.move_sheet("About", offset=-1)
+# every route drawn on the map, so each line on the map can be looked up here
+ar = wb.create_sheet("All routes on map")
+acols = [("Layer", 16), ("EIA route name", 42), ("Operator (EIA)", 30), ("Length (miles)", 12),
+         ("On map", 30), ("Capacity (b/d)", 14), ("Capacity row (Pipelines sheet)", 52), ("EIA feature ID", 10)]
+ar.append([c for c, _ in acols])
+for x in sorted(routes, key=lambda x: (x["layer"], x["operator"], x["pipename"], x["fid"])):
+    drawn = ("Not drawn (" + ("carries diluent north, not fuel" if "Southern Lights" in x["pipename"]
+                              else "drawn once, in the crude layer") + ")") if x["excluded"] \
+        else ("Width set by capacity" if x["capacity"] else "Thin: no published figure")
+    ar.append([x["layer"], x["pipename"], x["operator"], round(x["miles"]), drawn, x["capacity"], x["row"], x["fid"]])
+for i, (_, w) in enumerate(acols, 1):
+    ar.column_dimensions[get_column_letter(i)].width = w
+    c = ar.cell(1, i)
+    c.font = Font(name=F, bold=True, color="FFFFFF")
+    c.fill = head_fill
+    c.alignment = Alignment(vertical="center", wrap_text=True)
+ar.row_dimensions[1].height = 30
+for ri in range(2, ar.max_row + 1):
+    for ci in range(1, len(acols) + 1):
+        c = ar.cell(ri, ci)
+        c.font = Font(name=F, size=10)
+        c.alignment = Alignment(vertical="top", wrap_text=True)
+        if ri % 2 == 0:
+            c.fill = band
+    ar.cell(ri, 4).number_format = "#,##0"
+    ar.cell(ri, 6).number_format = "#,##0"
+ar.freeze_panes = "C2"
+ar.auto_filter.ref = f"A1:{get_column_letter(len(acols))}{ar.max_row}"
+wb.move_sheet("About", offset=-2)
 wb.calculation.fullCalcOnLoad = True           # summary formulas compute when the file opens
 xo = ROOT / "data" / "pipelines" / "pipeline_capacity_sources.xlsx"
 wb.save(xo)
