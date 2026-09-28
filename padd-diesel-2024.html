@@ -55,7 +55,7 @@ const GEO = {"countries":[{"type":"Feature","id":"862","properties":{"name":"Ven
 const MAP = {
  "headline": "Most regions refine their own diesel; the East Coast relies on the Gulf Coast",
  "subhead": "Distillate fuel oil by region (PADD), 2024, barrels per day: domestic shipments, imports and exports",
- "note": "Imports are counted where they enter the country. Region-to-region arrows are gross shipments by pipeline, tanker, barge and rail; flows under 5k b/d are not drawn.",
+ "note": "US totals: refined 4.94M b/d, consumed 3.79M, exported 1.29M. Imports are counted where they enter the country. Region-to-region arrows are gross shipments by pipeline, tanker, barge and rail; flows under 5k b/d are not drawn.",
  "source": "EIA, Supply and Disposition by PAD District; Movements by Pipeline, Tanker, Barge and Rail between PAD Districts",
  "sourceUrl": "https://www.eia.gov/dnav/pet/pet_move_ptb_a_EPD0_TNR_mbbl_a.htm",
  "units": "b/d",
@@ -150,13 +150,22 @@ const MAP = {
    ]
   }
  },
- "bars": {
+ "labelBars": {
   "max": 3000000,
-  "height": 100,
-  "width": 22,
+  "height": 60,
+  "width": 7,
   "legend": 1000000,
-  "values": true,
-  "legendLabel": "1M b/d refined"
+  "legendLabel": "Bars: 1M b/d",
+  "keys": [
+   {
+    "label": "dark refined, light consumed",
+    "color": "#5B6470"
+   },
+   {
+    "label": "",
+    "color": "#B5BAC2"
+   }
+  ]
  },
  "nodes": {
   "p1": {
@@ -168,18 +177,23 @@ const MAP = {
    "sides": [
     "near"
    ],
-   "sub": "uses 1.1M",
+   "sub": "",
    "labelAt": [
     -67.5,
     40.6
    ],
-   "bar": 232000,
-   "barAt": [
-    -81.6,
-    27.6
-   ],
-   "barColor": "#3F5F86",
-   "textColor": "#3F5F86"
+   "textColor": "#3F5F86",
+   "labelBars": [
+    {
+     "value": 232000,
+     "color": "#3F5F86"
+    },
+    {
+     "value": 1131000,
+     "color": "#9FA8BC",
+     "textColor": "#3F5F86"
+    }
+   ]
   },
   "p2": {
    "label": "Midwest",
@@ -190,18 +204,23 @@ const MAP = {
    "sides": [
     "near"
    ],
-   "sub": "uses 1.2M",
+   "sub": "",
    "labelAt": [
     -98,
     47.2
    ],
-   "bar": 1164000,
-   "barAt": [
-    -99.5,
-    37.6
-   ],
-   "barColor": "#2F7560",
-   "textColor": "#2F7560"
+   "textColor": "#2F7560",
+   "labelBars": [
+    {
+     "value": 1164000,
+     "color": "#2F7560"
+    },
+    {
+     "value": 1234000,
+     "color": "#97B3A9",
+     "textColor": "#2F7560"
+    }
+   ]
   },
   "p3": {
    "label": "Gulf Coast",
@@ -212,18 +231,23 @@ const MAP = {
    "sides": [
     "near"
    ],
-   "sub": "uses 851k",
+   "sub": "",
    "labelAt": [
-    -97,
-    27.6
+    -104,
+    29.6
    ],
-   "bar": 2910000,
-   "barAt": [
-    -102.8,
-    29.4
-   ],
-   "barColor": "#A8711E",
-   "textColor": "#A8711E"
+   "textColor": "#A8711E",
+   "labelBars": [
+    {
+     "value": 2910000,
+     "color": "#A8711E"
+    },
+    {
+     "value": 851000,
+     "color": "#D4B188",
+     "textColor": "#A8711E"
+    }
+   ]
   },
   "p4": {
    "label": "Rockies",
@@ -234,18 +258,23 @@ const MAP = {
    "sides": [
     "near"
    ],
-   "sub": "uses 211k",
+   "sub": "",
    "labelAt": [
     -114.5,
     45
    ],
-   "bar": 202000,
-   "barAt": [
-    -111.8,
-    38.4
-   ],
-   "barColor": "#6C5A94",
-   "textColor": "#6C5A94"
+   "textColor": "#6C5A94",
+   "labelBars": [
+    {
+     "value": 202000,
+     "color": "#6C5A94"
+    },
+    {
+     "value": 211000,
+     "color": "#B6A6C3",
+     "textColor": "#6C5A94"
+    }
+   ]
   },
   "p5": {
    "label": "West Coast",
@@ -256,18 +285,23 @@ const MAP = {
    "sides": [
     "near"
    ],
-   "sub": "uses 366k",
+   "sub": "",
    "labelAt": [
     -122.5,
     31.5
    ],
-   "bar": 428000,
-   "barAt": [
-    -118.6,
-    42.4
-   ],
-   "barColor": "#B0443F",
-   "textColor": "#B0443F"
+   "textColor": "#B0443F",
+   "labelBars": [
+    {
+     "value": 428000,
+     "color": "#B0443F"
+    },
+    {
+     "value": 366000,
+     "color": "#D89A98",
+     "textColor": "#B0443F"
+    }
+   ]
   },
   "xp1": {
    "label": "Exports",
@@ -479,28 +513,22 @@ const MAP = {
       "near"
      ]
     },
-    "p3": {
-     "labelAt": [
-      -100.5,
-      26.2
-     ],
-     "sides": [
-      "near"
-     ]
-    },
     "p5": {
      "labelAt": [
-      -114.5,
-      33
+      -121.5,
+      27.5
      ],
      "sides": [
       "near"
      ]
     },
-    "p2": {
-     "barAt": [
-      -95.5,
-      38.2
+    "p3": {
+     "labelAt": [
+      -86.5,
+      26.8
+     ],
+     "sides": [
+      "near"
      ]
     }
    }
@@ -515,7 +543,27 @@ const MAP = {
      -63,
      52
     ]
-   ]
+   ],
+   "nodes": {
+    "p5": {
+     "labelAt": [
+      -121.5,
+      32.5
+     ],
+     "sides": [
+      "near"
+     ]
+    },
+    "p3": {
+     "labelAt": [
+      -101,
+      30.2
+     ],
+     "sides": [
+      "near"
+     ]
+    }
+   }
   }
  }
 };
@@ -865,7 +913,10 @@ function draw(ctx, W, H, P){
   const nKeyDest = MAP.legend && MAP.colorKey ? Object.values(NODES).filter(n => n.color).length : 0;
   const keyH = !MAP.legend ? 0 :
     (nKeyDest ? T.szSmall*s*1.6 + nKeyDest*20*s + 8*s : 0) + T.szSmall*s*0.6 + MAP.legend.length*30*s
-    + (MAP.bars && MAP.bars.legend ? MAP.bars.legend / MAP.bars.max * MAP.bars.height * s + 24*s : 0);
+    + (MAP.bars && MAP.bars.legend ? MAP.bars.legend / MAP.bars.max * MAP.bars.height * s + 24*s : 0)
+    + (MAP.labelBars && MAP.labelBars.legend ? 16*s + (MAP.labelBars.title ? T.szSmall*s*1.3 + 8*s : 0)
+       + Math.max(MAP.labelBars.legend / MAP.labelBars.max * MAP.labelBars.height * s,
+                  T.szSmall*s*1.3*(1 + (MAP.labelBars.keys || []).filter(k => k.label).length)) : 0);
   const keyTR = (fr.keyPos || MAP.keyPos) === 'tr';
   /* reserve only the key's real footprint: sample arrow + widest value label */
   ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
@@ -884,13 +935,28 @@ function draw(ctx, W, H, P){
   const dropped = [];
   /* dotK: the dot this label belongs to, when the label is anchored somewhere
      else (node.labelAt on an origin); it always gets a leader back to the dot */
+  const fmtShort = v => fmtVal(v).replace(' ' + (MAP.units || ''), '');
   function label(k, t1, t2, sides, color, dotK){
     const p = pos[k], dp = pos[dotK || k];
     ctx.font = '700 ' + (T.szLabel*s) + 'px ' + T.fBody;
     const w1 = ctx.measureText(t1).width;
     ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
     const w2 = t2 ? ctx.measureText(t2).width : 0;
-    const w = Math.max(w1,w2), h = T.szLabel*s*(t2 ? 2.35 : 1.25);
+    const textW = Math.max(w1,w2), textH = T.szLabel*s*(t2 ? 2.35 : 1.25);
+    /* node.labelBars: [{value, color}] drawn as skinny bars beside the name,
+       on one scale for the whole map (MAP.labelBars: {max, height, width}),
+       each with its value on top; the name, bars and values are placed and
+       kept clear of everything else as one block */
+    const LB = MAP.labelBars, lbs = LB && (NODES[dotK || k] || {}).labelBars || null;
+    const lbW = (LB && LB.width || 7)*s, lbH = v => v / LB.max * LB.height * s;
+    let barsW = 0, barsH = 0, slotW = 0;
+    if(lbs){
+      ctx.font = '700 ' + (T.szSmall*s*0.85) + 'px ' + T.fBody;
+      slotW = Math.max(lbW, ...lbs.map(b => ctx.measureText(fmtShort(b.value)).width)) + 3*s;
+      barsW = lbs.length * slotW;
+      barsH = Math.max(...lbs.map(b => lbH(b.value))) + T.szSmall*s*1.1;
+    }
+    const w = textW + (lbs ? 6*s + barsW : 0), h = Math.max(textH, barsH);
     /* nearest first, then two steps further out: a label pushed a little off
        its dot still reads as belonging to it; a missing label does not */
     const why = [];
@@ -937,14 +1003,29 @@ function draw(ctx, W, H, P){
         ctx.beginPath(); ctx.moveTo(dp[0] + (cx-dp[0])/d*4.5*s, dp[1] + (cy-dp[1])/d*4.5*s);
         ctx.lineTo(cx - (cx-p[0])/d*3*s, cy - (cy-p[1])/d*3*s); ctx.stroke();
       }
+      if(lbs){ al = 'left'; }                 // name on the left, bars to its right
+      const ty = yy + h - textH;              // text sits on the block's baseline
       const tx = al==='right' ? x+w : al==='center' ? x+w/2 : x;
       ctx.textAlign = al;
       ctx.lineJoin = 'round'; ctx.strokeStyle = T.bg; ctx.lineWidth = 4*s;
       ctx.font = '700 ' + (T.szLabel*s) + 'px ' + T.fBody;
-      ctx.strokeText(t1, tx, yy + T.szLabel*s*0.95); ctx.fillStyle = color || T.ink; ctx.fillText(t1, tx, yy + T.szLabel*s*0.95);
+      ctx.strokeText(t1, tx, ty + T.szLabel*s*0.95); ctx.fillStyle = color || T.ink; ctx.fillText(t1, tx, ty + T.szLabel*s*0.95);
       if(t2){
         ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
-        ctx.strokeText(t2, tx, yy + T.szLabel*s*2.1); ctx.fillStyle = T.muted; ctx.fillText(t2, tx, yy + T.szLabel*s*2.1);
+        ctx.strokeText(t2, tx, ty + T.szLabel*s*2.1); ctx.fillStyle = T.muted; ctx.fillText(t2, tx, ty + T.szLabel*s*2.1);
+      }
+      if(lbs){
+        const base = yy + h - T.szLabel*s*0.2;          // bars stand on the name's baseline
+        lbs.forEach((b, i) => {
+          const cx = x + textW + 6*s + slotW*(i + 0.5), bh = lbH(b.value);
+          ctx.fillStyle = b.color || T.ink;
+          ctx.beginPath(); ctx.roundRect(cx - lbW/2, base - bh, lbW, Math.max(bh, 1*s), [1.5*s, 1.5*s, 0, 0]); ctx.fill();
+          ctx.font = '700 ' + (T.szSmall*s*0.85) + 'px ' + T.fBody; ctx.textAlign = 'center';
+          ctx.lineWidth = 3*s; ctx.strokeStyle = T.bg;
+          ctx.strokeText(fmtShort(b.value), cx, base - bh - 3*s);
+          ctx.fillStyle = b.textColor || b.color || T.ink; ctx.fillText(fmtShort(b.value), cx, base - bh - 3*s);
+        });
+        ctx.textAlign = 'left';
       }
     }
   }
@@ -1039,6 +1120,25 @@ function draw(ctx, W, H, P){
       ctx.fillStyle = T.muted; ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
       ctx.fillText(fmtVal(v), kx + 80*s, ky - 8*s + T.szSmall*s*0.35);
     });
+    if(MAP.labelBars && MAP.labelBars.legend){
+      /* MAP.labelBars.legend: height sample; .keys: [{label, color}] one per bar */
+      const L = MAP.labelBars, h = L.legend / L.max * L.height * s, w = (L.width || 7)*s;
+      ky += 16*s;
+      if(L.title){
+        ky += T.szSmall*s*1.3;
+        ctx.fillStyle = T.muted; ctx.font = '600 ' + (T.szSmall*s) + 'px ' + T.fBody;
+        ctx.fillText(L.title, kx, ky);
+        ky += 8*s;
+      }
+      const lines = [L.legendLabel || fmtVal(L.legend)].concat((L.keys || []).map(k => k.label).filter(Boolean));
+      const top = ky, blockH = Math.max(h, T.szSmall*s*1.3*lines.length);
+      (L.keys || []).forEach((kk, i) => {
+        ctx.fillStyle = kk.color; ctx.fillRect(kx + 8*s + i*(w + 5*s), top + blockH - h, w, h);
+      });
+      ctx.fillStyle = T.muted; ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
+      lines.forEach((t, i) => ctx.fillText(t, kx + 80*s, top + T.szSmall*s*(0.9 + 1.3*i)));
+      ky = top + blockH;
+    }
     if(MAP.bars && MAP.bars.legend){
       const h = MAP.bars.legend / MAP.bars.max * MAP.bars.height * s;
       ky += 22*s + h;

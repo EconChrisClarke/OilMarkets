@@ -50,8 +50,8 @@ April-June 2026. Official reported data only; March 2026 is left out.
 
 ### Diesel by US region: refining, domestic shipments, imports and exports, 2024
 
-Each of the five PADD regions, shaded by the states that belong to it, with a
-bar for what it refines, what it uses, the gross
+Each of the five PADD regions, shaded by the states that belong to it, with two
+bars beside its name (refined and consumed), the gross
 region-to-region shipments (pipeline, tanker, barge and rail, each direction
 separately), and foreign imports and exports. The Midwest, Rockies and West
 Coast refine about what they use; the East Coast refines 232k b/d, uses
