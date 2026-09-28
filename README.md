@@ -17,6 +17,8 @@ Charts and data on global crude oil markets.
 | 7 | Diesel is usually refined in the region it is consumed, except the Gulf and East coast | [padd-diesel-2024-bars.html](https://econchrisclarke.github.io/OilMarkets/padd-diesel-2024-bars.html) |
 | 8 | Fuel pipelines crowd the Gulf-to-East Coast corridor; the West has few | [pipelines-us.html](https://econchrisclarke.github.io/OilMarkets/pipelines-us.html) |
 | 9 | The heavier the crude oil, the more sulfur it carries | [crude-oil-sulfur-api.html](https://econchrisclarke.github.io/OilMarkets/crude-oil-sulfur-api.html) |
+| 10 | Colonial, the main fuel line from the Gulf to the East Coast, runs full | [pipeline-utilization.html](https://econchrisclarke.github.io/OilMarkets/pipeline-utilization.html) |
+| 11 | Pipeline shipments from the Gulf to the East Coast peak every winter | [pipeline-east-coast-monthly.html](https://econchrisclarke.github.io/OilMarkets/pipeline-east-coast-monthly.html) |
 
 Drafts and style variants (not published) are in `charts/` and `charts/variants/`,
 with their configs in `maps/configs/` and `maps/configs/variants/`.
@@ -164,6 +166,40 @@ not where it was used. Arrow width is barrels per day.
 
 **Source:** US Census Bureau, International Trade API, imports by customs
 district at the HS10 level (the same distillate codes as the export map).
+
+### How full the main pipelines run, 2024-2025
+
+Barrels each pipeline company delivered, as a share of the line's capacity,
+averaged over 2024 and 2025: Colonial (Houston to Greensboro) 104%, Seaway
+99%, Explorer 92%, Express 86%, Products SE 81%, Dakota Access 76%, UNEV 43%.
+Deliveries include barrels dropped off along the way and on branch lines, so a
+line that runs full can show slightly over 100%. Only pipelines whose FERC
+report is essentially one trunk line are shown.
+
+- **View the chart:** [pipeline-utilization.html](https://econchrisclarke.github.io/OilMarkets/pipeline-utilization.html)
+- **Data:** [`data/pipelines/pipeline_utilization_2024_2025.csv`](data/pipelines/pipeline_utilization_2024_2025.csv)
+- **Chart config:** [`charts/pipeline-utilization.json`](charts/pipeline-utilization.json), built by
+  [`scripts/process_pipeline_utilization.py`](scripts/process_pipeline_utilization.py)
+
+**Source:** FERC Form No. 6, annual reports of oil pipeline companies (page 600,
+barrels delivered), via Catalyst Cooperative's PUDL database; capacity from
+[`data/pipelines/pipeline_capacity.csv`](data/pipelines/pipeline_capacity.csv).
+
+### Gulf Coast to East Coast pipeline shipments by month
+
+Monthly pipeline shipments from the Gulf Coast into the East Coast region, all
+products and diesel, January 2024 to the latest month, with winters shaded.
+Shipments peak each December to February, led by diesel's seasonal rise; the
+highest month was February 2026 (2.65M b/d). These count barrels crossing into
+PADD 1, so they are not a share of capacity.
+
+- **View the chart:** [pipeline-east-coast-monthly.html](https://econchrisclarke.github.io/OilMarkets/pipeline-east-coast-monthly.html)
+- **Data:** [`data/pipelines/gulf_to_east_coast_pipeline_monthly.csv`](data/pipelines/gulf_to_east_coast_pipeline_monthly.csv)
+- **Chart config:** [`charts/pipeline-east-coast-monthly.json`](charts/pipeline-east-coast-monthly.json), built by
+  [`scripts/process_pipeline_utilization.py`](scripts/process_pipeline_utilization.py)
+
+**Source:** EIA, Movements by Pipeline between PAD Districts, East Coast
+receipts from the Gulf Coast (monthly).
 
 ### Crude oil sulfur content vs. API gravity
 

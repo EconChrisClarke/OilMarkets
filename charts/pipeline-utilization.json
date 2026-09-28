@@ -1,0 +1,56 @@
+{
+  "type": "bar",
+  "headline": "Colonial, the main fuel line from the Gulf to the East Coast, runs full",
+  "subhead": "Barrels delivered as a share of capacity, 2024-2025 average, %",
+  "note": "Deliveries are each pipeline company's reported barrels delivered, all products; they include barrels dropped off along the way and on branch lines, so a line that runs full can show slightly over 100%. Capacity: company filings and EIA. Pipelines whose report covers a whole network (e.g. Magellan, Buckeye) are left out.",
+  "source": "FERC Form No. 6, annual reports of oil pipeline companies (via Catalyst Cooperative PUDL); capacity: EIA, company 10-K filings",
+  "sourceUrl": "https://data.catalyst.coop",
+  "xType": "category",
+  "categories": [
+    "Colonial (Houston to Greensboro)",
+    "Seaway (Cushing to Houston)",
+    "Explorer (Gulf to Midwest)",
+    "Express (Alberta to Wyoming)",
+    "Products SE (Gulf to Southeast)",
+    "Dakota Access (Bakken to Illinois)",
+    "UNEV (Salt Lake City to Las Vegas)"
+  ],
+  "format": {
+    "suffix": "%",
+    "decimals": 0
+  },
+  "yZero": true,
+  "valueLabels": true,
+  "rules": [
+    {
+      "axis": "y",
+      "at": 100,
+      "label": "Capacity"
+    }
+  ],
+  "series": [
+    {
+      "name": "Share of capacity used",
+      "color": "#C71E1D",
+      "data": [
+        103.7,
+        99.4,
+        92.2,
+        86.1,
+        80.6,
+        76.4,
+        43.3
+      ]
+    }
+  ],
+  "highlight": "Colonial (Houston to Greensboro)",
+  "categoryShort": {
+    "Colonial (Houston to Greensboro)": "Colonial",
+    "Seaway (Cushing to Houston)": "Seaway",
+    "Explorer (Gulf to Midwest)": "Explorer",
+    "Express (Alberta to Wyoming)": "Express",
+    "Products SE (Gulf to Southeast)": "Products SE",
+    "Dakota Access (Bakken to Illinois)": "Dakota Access",
+    "UNEV (Salt Lake City to Las Vegas)": "UNEV"
+  }
+}
