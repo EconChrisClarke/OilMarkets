@@ -24879,7 +24879,10 @@ function draw(ctx, W, H, P){
   if(LL.length){
     const gps = d3.geoPath(proj);
     const pathOf = l => l._p || (l._p = {});
-    const P2 = l => { const c = pathOf(l); return c[P.name] || (c[P.name] = new Path2D(gps({type:'MultiLineString', coordinates:l.coords}) || '')); };
+    /* cached per projection, not per frame: the map area moves when the
+       headline wraps differently (e.g. once the web font has loaded) */
+    const pk = P.name + ':' + proj.scale().toFixed(3) + ':' + proj.translate().map(v => v.toFixed(2)).join(',');
+    const P2 = l => { const c = pathOf(l); return c[pk] || (c[pk] = new Path2D(gps({type:'MultiLineString', coordinates:l.coords}) || '')); };
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
     LL.forEach(L => {
       ctx.strokeStyle = mix(L.color, T.bg, 0.35); ctx.lineWidth = lThin;
