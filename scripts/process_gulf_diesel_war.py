@@ -118,9 +118,9 @@ icons = json.loads(subprocess.run(["node", str(ROOT / "chartkit" / "scripts" / "
                                   capture_output=True, text=True, check=True).stdout)
 cfg = {
     "type": "column",
-    "headline": "Gulf diesel exports fell after the war began, and Europe and Australia received less",
+    "headline": "Gulf diesel exports to the world fell after the war began",
     "subhead": "Diesel and gas oil, thousand barrels per day, average of Sep 2025–Feb 2026 vs Apr–Jun 2026",
-    "note": ("Official reported data only. Saudi Arabia, Kuwait and Bahrain are the only Gulf states that report "
+    "note": ("Saudi Arabia, Kuwait and Bahrain are the only Gulf states that report "
              "diesel exports. EU27 and Australia count imports from all eight Gulf states "
              "(incl. UAE, Qatar, Oman, Iraq and Iran). March 2026 is left out: the war began on 28 February."),
     "source": ("JODI Oil World Database (gas/diesel oil exports); Eurostat Comext, CN 27101943/44/46/47/48; "

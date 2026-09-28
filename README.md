@@ -13,7 +13,7 @@ Charts and data on global crude oil markets.
 | 3 | The Gulf Coast sends more diesel abroad than to the rest of the US | [gulf-diesel-2024.html](https://econchrisclarke.github.io/OilMarkets/gulf-diesel-2024.html) |
 | 4 | Post-Covid fuel price shocks come from refining limits more than crude, unlike 2008 | [diesel-gasoline-margins.html](https://econchrisclarke.github.io/OilMarkets/diesel-gasoline-margins.html) |
 | 5 | Most regions refine their own diesel; the East Coast relies on the Gulf Coast | [padd-diesel-2024.html](https://econchrisclarke.github.io/OilMarkets/padd-diesel-2024.html) |
-| 6 | Gulf diesel exports fell after the war began, and Europe and Australia received less | [gulf-diesel-war.html](https://econchrisclarke.github.io/OilMarkets/gulf-diesel-war.html) |
+| 6 | Gulf diesel exports to the world fell after the war began | [gulf-diesel-war.html](https://econchrisclarke.github.io/OilMarkets/gulf-diesel-war.html) |
 
 ### US diesel exports by port region and destination, 2024
 
