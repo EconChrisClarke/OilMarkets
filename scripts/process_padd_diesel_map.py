@@ -102,7 +102,7 @@ NAVY, TEAL, RED = "#1B3A5C", "#2E8B7A", "#C71E1D"
 M = lambda v: f"{v/1e6:.1f}M" if v >= 995000 else f"{v/1e3:.0f}k"
 # no dots: each region's name and bars sit on its own area, and the arrows
 # stop around that block ("hub"), aimed at it, instead of meeting at a point
-REGION = {"p1": ("East Coast", [-78.5, 37.8]), "p2": ("Midwest", [-91.0, 41.8]),
+REGION = {"p1": ("East Coast", [-76.0, 40.1]), "p2": ("Midwest", [-91.0, 41.8]),
           "p3": ("Gulf Coast", [-97.0, 31.3]), "p4": ("Rockies", [-109.0, 44.0]),
           "p5": ("West Coast", [-119.8, 38.2])}
 nodes = {k: {"label": n, "lonlat": ll, "hub": True,
@@ -140,7 +140,7 @@ for k in REGION:
         {"value": round(bal[k]["refined"], -3), "color": DARK[k]},
         {"value": round(bal[k]["supplied"], -3), "color": mix(DARK[k], BG, 0.5), "textColor": DARK[k]}]})
 # where each region's foreign trade goes to or comes from, placed off the coast or border
-EXP_AT = {"p1": [-66, 34], "p3": [-89, 23.5], "p5": [-124.5, 30.0]}
+EXP_AT = {"p1": [-66, 34], "p3": [-85.0, 22.3], "p5": [-124.5, 30.0]}
 # where each region's imports come from: the East Coast's off the Atlantic, the
 # other three just across the Canadian border, so their small arrows come in short
 IMP_AT = {"p1": [-64.5, 45.5], "p2": [-91.0, 51.5], "p4": [-110.0, 51.5], "p5": [-123.5, 50.8]}
@@ -151,6 +151,8 @@ for k, at in EXP_AT.items():
     v = bal[k]["exports"]
     if v >= MIN:
         nodes[f"x{k}"] = {"label": "Exports", "sub": M(v), "textColor": RED, "lonlat": at}
+        if k == "p3":   # beside the arrowhead, off Cuba
+            nodes[f"x{k}"]["sides"] = ["right", "above", "below", "left"]
         flows.append({"from": k, "to": f"x{k}", "value": round(v, -3), "color": RED})
 for k, at in IMP_AT.items():
     v = bal[k]["imports"]
@@ -196,7 +198,7 @@ cfg = {
                      # narrower map: East Coast block onto the coast, clear of the
                      # Midwest; West Coast block south, so the Rockies arrow shows
                      # exports pointed further offshore, so the arrows keep some length
-                     "nodes": {"p1": {"lonlat": [-76.8, 36.4]}, "p5": {"lonlat": [-119.5, 36.6]},
+                     "nodes": {"p1": {"lonlat": [-72.6, 41.4]}, "p2": {"lonlat": [-92.6, 41.4]}, "xp3": {"lonlat": [-82.0, 21.8]}, "p5": {"lonlat": [-119.5, 36.6]},
                                "xp1": {"lonlat": [-68.5, 30.5]}, "xp5": {"lonlat": [-123.0, 28.0]}}},
         "square": {"bounds": [[-127, 22], [-63, 52]], "labelBarsHeight": 60,
                    # West Coast exports out to sea, above the key
