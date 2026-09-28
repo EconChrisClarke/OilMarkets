@@ -181,7 +181,8 @@ cfg = {
     "units": "b/d",
     "style": "flows",
     "arrowStyle": "swoosh",
-    "nearMax": 260,        # region blocks may search far for a free spot (leader drawn)
+    "nearMax": 140,        # region blocks search only close to their dot
+    "keyCompact": True,
     "maxArrowWidth": 40,
     "legendTitle": "Arrow width",
     "legend": [100000, 500000],
@@ -189,8 +190,9 @@ cfg = {
     "geoBBox": [-170, -25, -20, 75],
     "regions": {k: {"color": FILL[k], "states": PADD_STATES[k]} for k in PADD_STATES},
     # bars beside each region's name: 3M b/d would stand 60 design units tall
-    "labelBars": {"max": 3000000, "height": 80, "width": 9, "legend": 1000000,
-                  "legendLabel": "Bars: 1M b/d",
+    "labelBars": {"max": 3000000, "height": 80, "width": 10, "gap": 1, "pad": 4, "values": False,
+                  "legend": 1000000,
+                  "legendLabel": "1M b/d",
                   "keys": [{"label": "dark: refined", "color": "#5B6470"},
                            {"label": "light: used", "color": "#B5BAC2"}]},
     "nodes": nodes,
@@ -199,17 +201,7 @@ cfg = {
         "substack": {"bounds": [[-128, 22], [-62, 52]]},
         # shorter bars in the smaller frames, same scale within each frame
         "vertical": {"bounds": [[-127, 22], [-63, 52]], "shortLabels": True, "labelBarsHeight": 55,
-                     "nodes": {"xp5": {"labelAt": [-123.5, 33.0], "sides": ["near"]},
-                               # tall frame: the Gulf block goes into the Gulf of Mexico,
-                               # the West Coast block over the Pacific off California
-                               "p3": {"labelAt": [-86.5, 26.0], "sides": ["near"]},
-                               "p5": {"labelAt": [-124.5, 29.5], "sides": ["near"]},
-                               # the empty space over Canada holds the northern regions'
-                               # blocks, each above its own region
-                               "p4": {"labelAt": [-112.0, 53.0], "sides": ["near"]},
-                               "p2": {"labelAt": [-92.0, 52.5], "sides": ["near"]},
-                               "p1": {"labelAt": [-74.5, 50.5], "sides": ["near"]},
-                               "mp1": {"labelAt": [-62.5, 44.5], "sides": ["near"]}}},
+                     "nodes": {"xp5": {"labelAt": [-123.5, 33.0], "sides": ["near"]}}},
         "square": {"bounds": [[-127, 22], [-63, 52]], "labelBarsHeight": 60},
     },
 }
