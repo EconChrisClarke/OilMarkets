@@ -7,7 +7,7 @@
   "units": "b/d",
   "style": "flows",
   "arrowStyle": "swoosh",
-  "nearMax": 140,
+  "hubPad": 8,
   "keyCompact": true,
   "maxArrowWidth": 40,
   "legendTitle": "Arrow width",
@@ -122,17 +122,11 @@
     "p1": {
       "label": "East Coast",
       "lonlat": [
-        -77.8,
-        38.6
+        -78.5,
+        37.8
       ],
-      "sides": [
-        "near"
-      ],
+      "hub": true,
       "sub": "",
-      "labelAt": [
-        -72.8,
-        34.8
-      ],
       "textColor": "#3F5F86",
       "labelBars": [
         {
@@ -149,17 +143,11 @@
     "p2": {
       "label": "Midwest",
       "lonlat": [
-        -90.5,
-        41.5
+        -91.0,
+        41.8
       ],
-      "sides": [
-        "near"
-      ],
+      "hub": true,
       "sub": "",
-      "labelAt": [
-        -90.5,
-        41.5
-      ],
       "textColor": "#2F7560",
       "labelBars": [
         {
@@ -176,17 +164,11 @@
     "p3": {
       "label": "Gulf Coast",
       "lonlat": [
-        -95.5,
-        31.0
+        -97.0,
+        31.3
       ],
-      "sides": [
-        "near"
-      ],
+      "hub": true,
       "sub": "",
-      "labelAt": [
-        -95.5,
-        31.0
-      ],
       "textColor": "#A8711E",
       "labelBars": [
         {
@@ -203,17 +185,11 @@
     "p4": {
       "label": "Rockies",
       "lonlat": [
-        -109.5,
-        43.5
+        -109.0,
+        44.0
       ],
-      "sides": [
-        "near"
-      ],
+      "hub": true,
       "sub": "",
-      "labelAt": [
-        -109.5,
-        43.5
-      ],
       "textColor": "#6C5A94",
       "labelBars": [
         {
@@ -230,17 +206,11 @@
     "p5": {
       "label": "West Coast",
       "lonlat": [
-        -119.5,
-        38.5
+        -119.8,
+        38.2
       ],
-      "sides": [
-        "near"
-      ],
+      "hub": true,
       "sub": "",
-      "labelAt": [
-        -119.5,
-        38.5
-      ],
       "textColor": "#B0443F",
       "labelBars": [
         {
@@ -277,8 +247,8 @@
       "sub": "123k",
       "textColor": "#C71E1D",
       "lonlat": [
-        -127.5,
-        36
+        -124.5,
+        30.0
       ]
     },
     "mp1": {
@@ -317,7 +287,7 @@
       "textColor": "#2E8B7A",
       "lonlat": [
         -123.5,
-        52.0
+        50.8
       ],
       "dot": false
     }
@@ -431,18 +401,7 @@
           -62,
           52
         ]
-      ],
-      "nodes": {
-        "xp5": {
-          "labelAt": [
-            -126.0,
-            33.6
-          ],
-          "sides": [
-            "near"
-          ]
-        }
-      }
+      ]
     },
     "vertical": {
       "bounds": [
@@ -458,13 +417,28 @@
       "shortLabels": true,
       "labelBarsHeight": 55,
       "nodes": {
+        "p1": {
+          "lonlat": [
+            -76.8,
+            36.4
+          ]
+        },
+        "p5": {
+          "lonlat": [
+            -119.5,
+            36.6
+          ]
+        },
+        "xp1": {
+          "lonlat": [
+            -68.5,
+            30.5
+          ]
+        },
         "xp5": {
-          "labelAt": [
-            -123.5,
-            33.0
-          ],
-          "sides": [
-            "near"
+          "lonlat": [
+            -123.0,
+            28.0
           ]
         }
       }
@@ -480,7 +454,19 @@
           52
         ]
       ],
-      "labelBarsHeight": 60
+      "labelBarsHeight": 60,
+      "nodes": {
+        "xp5": {
+          "lonlat": [
+            -127.0,
+            33.5
+          ],
+          "sides": [
+            "below",
+            "above"
+          ]
+        }
+      }
     }
   }
 }

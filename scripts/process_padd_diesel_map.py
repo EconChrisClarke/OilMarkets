@@ -100,22 +100,14 @@ print("movements (k b/d):", {f"{a}>{b}": round(v / 1000) for (a, b), v in mov.it
 # ---- map config -----------------------------------------------------------
 NAVY, TEAL, RED = "#1B3A5C", "#2E8B7A", "#C71E1D"
 M = lambda v: f"{v/1e6:.1f}M" if v >= 995000 else f"{v/1e3:.0f}k"
-# dot where the arrows meet, and a clear spot for the label (joined by a leader)
-# label blocks (name + bars) sit right beside the dot, on the listed sides in order
-# each block takes the nearest free spot around its own dot ("near" from the dot)
-REGION = {k: (n, ll, ll, ["near"]) for k, (n, ll) in {
-    "p1": ("East Coast", [-77.8, 38.6]), "p2": ("Midwest", [-90.5, 41.5]),
-    "p3": ("Gulf Coast", [-95.5, 31.0]), "p4": ("Rockies", [-109.5, 43.5]),
-    "p5": ("West Coast", [-119.5, 38.5])}.items()}
-# the East Coast's nearest free spot would be over Michigan (Midwest): start its
-# search off the Carolinas instead, so the block stays by its own region
-REGION["p1"] = ("East Coast", [-77.8, 38.6], [-72.8, 34.8], ["near"])
-nodes = {}
-for k, (n, ll, at, sides) in REGION.items():
-    nodes[k] = {"label": n, "lonlat": ll, "sides": sides,
-                "sub": ""}   # refined and consumed are on the bars beside the name
-    if at:
-        nodes[k]["labelAt"] = at
+# no dots: each region's name and bars sit on its own area, and the arrows
+# stop around that block ("hub"), aimed at it, instead of meeting at a point
+REGION = {"p1": ("East Coast", [-78.5, 37.8]), "p2": ("Midwest", [-91.0, 41.8]),
+          "p3": ("Gulf Coast", [-97.0, 31.3]), "p4": ("Rockies", [-109.0, 44.0]),
+          "p5": ("West Coast", [-119.8, 38.2])}
+nodes = {k: {"label": n, "lonlat": ll, "hub": True,
+             "sub": ""}   # refined and consumed are on the bars beside the name
+         for k, (n, ll) in REGION.items()}
 
 
 # PADD membership (EIA definitions); pale fills for the areas, darker shades
@@ -148,10 +140,10 @@ for k in REGION:
         {"value": round(bal[k]["refined"], -3), "color": DARK[k]},
         {"value": round(bal[k]["supplied"], -3), "color": mix(DARK[k], BG, 0.5), "textColor": DARK[k]}]})
 # where each region's foreign trade goes to or comes from, placed off the coast or border
-EXP_AT = {"p1": [-66, 34], "p3": [-89, 23.5], "p5": [-127.5, 36]}
+EXP_AT = {"p1": [-66, 34], "p3": [-89, 23.5], "p5": [-124.5, 30.0]}
 # where each region's imports come from: the East Coast's off the Atlantic, the
 # other three just across the Canadian border, so their small arrows come in short
-IMP_AT = {"p1": [-64.5, 45.5], "p2": [-91.0, 51.5], "p4": [-110.0, 51.5], "p5": [-123.5, 52.0]}
+IMP_AT = {"p1": [-64.5, 45.5], "p2": [-91.0, 51.5], "p4": [-110.0, 51.5], "p5": [-123.5, 50.8]}
 IMP_MIN = 5000
 flows = [{"from": a, "to": b, "value": round(v, -3), "color": NAVY} for (a, b), v in mov.items() if v >= 5000]
 MIN = 5000
@@ -181,7 +173,7 @@ cfg = {
     "units": "b/d",
     "style": "flows",
     "arrowStyle": "swoosh",
-    "nearMax": 140,        # region blocks search only close to their dot
+    "hubPad": 8,           # arrows stop this far from a region's name and bars
     "keyCompact": True,
     "maxArrowWidth": 40,
     "legendTitle": "Arrow width",
@@ -198,13 +190,17 @@ cfg = {
     "nodes": nodes,
     "flows": flows,
     "frames": {
-        "substack": {"bounds": [[-128, 22], [-62, 52]],
-                     # West Coast exports label below its arrow, clear of the region name
-                     "nodes": {"xp5": {"labelAt": [-126.0, 33.6], "sides": ["near"]}}},
+        "substack": {"bounds": [[-128, 22], [-62, 52]]},
         # shorter bars in the smaller frames, same scale within each frame
         "vertical": {"bounds": [[-127, 22], [-63, 52]], "shortLabels": True, "labelBarsHeight": 55,
-                     "nodes": {"xp5": {"labelAt": [-123.5, 33.0], "sides": ["near"]}}},
-        "square": {"bounds": [[-127, 22], [-63, 52]], "labelBarsHeight": 60},
+                     # narrower map: East Coast block onto the coast, clear of the
+                     # Midwest; West Coast block south, so the Rockies arrow shows
+                     # exports pointed further offshore, so the arrows keep some length
+                     "nodes": {"p1": {"lonlat": [-76.8, 36.4]}, "p5": {"lonlat": [-119.5, 36.6]},
+                               "xp1": {"lonlat": [-68.5, 30.5]}, "xp5": {"lonlat": [-123.0, 28.0]}}},
+        "square": {"bounds": [[-127, 22], [-63, 52]], "labelBarsHeight": 60,
+                   # West Coast exports out to sea, above the key
+                   "nodes": {"xp5": {"lonlat": [-127.0, 33.5], "sides": ["below", "above"]}}},
     },
 }
 out = ROOT / "maps" / "configs" / f"padd-diesel-{YEAR}.json"
