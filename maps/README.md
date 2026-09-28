@@ -63,7 +63,7 @@ stay in `charts/`.
   can move a hub's `lonlat` for one frame.
 - `color` on a flow overrides the destination colour (imports, exports and
   domestic flows in different colours).
-- `legend`: reference values drawn as sample arrows. `draft: true` stamps a
+- `legend`: reference values drawn as sample arrows (`[]` for a map with no arrows, e.g. bars only; the key then shows just the bar sample). `draft: true` stamps a
   PLACEHOLDER watermark on the map.
 
 ## Lessons for the skill (maps-datawrapper.md is out of date)

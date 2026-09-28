@@ -11,6 +11,7 @@ Outputs:
   data/eia/distillate_padd_balance_2024.csv
   data/eia/distillate_padd_movements_2024.csv
   maps/configs/padd-diesel-2024.json
+  maps/configs/padd-diesel-2024-bars.json   (the same map with bars only, no arrows)
 
 Region-to-region flows are gross (each direction separately); the balance's
 "net receipts" equal receipts minus shipments. Imports are counted in the
@@ -208,3 +209,25 @@ cfg = {
 out = ROOT / "maps" / "configs" / f"padd-diesel-{YEAR}.json"
 out.write_text(json.dumps(cfg, indent=2) + "\n")
 print(f"wrote {out.relative_to(ROOT)} ({len(flows)} flows; domestic drawn {shown_dom/all_dom:.0%})")
+
+# ---- bars-only version: same regions, positions and bar scale, no arrows,
+# shown first so the arrow map reads as the same picture with flows added
+bars = json.loads(json.dumps(cfg))
+bars.update({
+    "headline": "The Gulf Coast refines the diesel; the East Coast uses it",
+    "subhead": f"Distillate fuel oil by region (PADD), {YEAR}, barrels per day: refined vs used",
+    "note": (f"US totals: refined {us_ref/1e6:.2f}M b/d, consumed {us_use/1e6:.2f}M, exported {us_exp/1e6:.2f}M. "
+             "Refined is refinery and blender production; used is products supplied."),
+    "source": "EIA, Supply and Disposition by PAD District",
+    "sourceUrl": "https://www.eia.gov/dnav/pet/pet_sum_snd_a_epd0_mbblpd_a_cur.htm",
+    "legend": [],
+    "nodes": {k: v for k, v in nodes.items() if k in REGION},
+    "flows": [],
+})
+for fr in bars["frames"].values():
+    fr.get("nodes", {}).pop("xp1", None)
+    for k in [k for k in fr.get("nodes", {}) if k not in REGION]:
+        fr["nodes"].pop(k)
+out = ROOT / "maps" / "configs" / f"padd-diesel-{YEAR}-bars.json"
+out.write_text(json.dumps(bars, indent=2) + "\n")
+print(f"wrote {out.relative_to(ROOT)}")
