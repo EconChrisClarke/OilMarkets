@@ -170,11 +170,12 @@ district at the HS10 level (the same distillate codes as the export map).
 ### How full the main pipelines run, 2024-2025
 
 Barrels each pipeline company delivered, as a share of the line's capacity,
-averaged over 2024 and 2025: Colonial (Houston to Greensboro) 104%, Seaway
+averaged over 2024 and 2025: Colonial (Houston to Greensboro) full, Seaway
 99%, Explorer 92%, Express 86%, Products SE 81%, Dakota Access 76%, UNEV 43%.
 Deliveries include barrels dropped off along the way and on branch lines, so a
-line that runs full can show slightly over 100%. Only pipelines whose FERC
-report is essentially one trunk line are shown.
+line that runs full can deliver more than its rated capacity (Colonial: about
+104%); the chart shows such lines at 100%, labelled "Full". Only pipelines
+whose FERC report is essentially one trunk line are shown.
 
 - **View the chart:** [pipeline-utilization.html](https://econchrisclarke.github.io/OilMarkets/pipeline-utilization.html)
 - **Data:** [`data/pipelines/pipeline_utilization_2024_2025.csv`](data/pipelines/pipeline_utilization_2024_2025.csv)

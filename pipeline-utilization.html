@@ -89,7 +89,7 @@ const CHART = {
   "type": "bar",
   "headline": "Colonial, the main fuel line from the Gulf to the East Coast, runs full",
   "subhead": "Barrels delivered as a share of capacity, 2024-2025 average, %",
-  "note": "Deliveries are each pipeline company's reported barrels delivered, all products; they include barrels dropped off along the way and on branch lines, so a line that runs full can show slightly over 100%. Capacity: company filings and EIA. Pipelines whose report covers a whole network (e.g. Magellan, Buckeye) are left out.",
+  "note": "Barrels each pipeline company delivered, all products, divided by the line's rated capacity. Full: deliveries matched or exceeded rated capacity. Pipelines whose report covers a whole network (e.g. Magellan, Buckeye) are left out.",
   "source": "FERC Form No. 6, annual reports of oil pipeline companies (via Catalyst Cooperative PUDL); capacity: EIA, company 10-K filings",
   "sourceUrl": "https://data.catalyst.coop",
   "xType": "category",
@@ -120,13 +120,22 @@ const CHART = {
       "name": "Share of capacity used",
       "color": "#C71E1D",
       "data": [
-        103.7,
+        100,
         99.4,
         92.2,
         86.1,
         80.6,
         76.4,
         43.3
+      ],
+      "labels": [
+        "Full",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
       ]
     }
   ],
@@ -1484,12 +1493,14 @@ function drawHBars(ctx, P, L, R, innerW, pT, pB){
       ctx.font = '700 ' + (T.szLabel*s) + 'px ' + T.fBody;
       ctx.fillStyle = labelColour(col, hi);
       ctx.textAlign = v < 0 ? 'right' : 'left';
-      ctx.fillText(fmt(v), v < 0 ? x0 - gutter : x0 + w + gutter,
+      /* series.labels: per-bar text in place of the value (e.g. 'Full'); null keeps the value */
+      const txt = (se.labels && se.labels[i] != null) ? String(se.labels[i]) : fmt(v);
+      ctx.fillText(txt, v < 0 ? x0 - gutter : x0 + w + gutter,
                    by + barH*0.43 + T.szLabel*s*0.36);
       ctx.textAlign = 'left';
 
       HIT.push({x:(v<0?x0:x0+w), y:by+barH*0.43, cx:x0+w/2, cy:by+barH*0.43,
-                v:v, cat:c, key:c, color:col});
+                v:v, cat:c, key:c, color:col, txt:txt});
     });
   });
 
@@ -1580,7 +1591,7 @@ function tooltip(e){
   ctx.beginPath(); ctx.arc(best.x,best.y,T.dotR*s*1.15,0,6.284); ctx.stroke();
   let lbl;
   if(CHART.type==='column' || CHART.type==='bar'){
-    lbl = best.cat + '   ' + fmt(best.v);
+    lbl = best.cat + '   ' + (best.txt || fmt(best.v));
   } else if(CHART.type==='scatter'){
     const nx = CHART.xFormat ? xfmt(best.xv) : (Math.round(best.xv*100)/100);
     lbl = (best.pt ? best.pt + '   ' : '') + nx + ', ' + fmt(best.v);
