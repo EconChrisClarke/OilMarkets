@@ -12,6 +12,7 @@ Charts and data on global crude oil markets.
 | 2 | Most US diesel imports are Canadian fuel landing in New England | [diesel-imports-2024.html](https://econchrisclarke.github.io/OilMarkets/diesel-imports-2024.html) |
 | 3 | The Gulf Coast sends more diesel abroad than to the rest of the US | [gulf-diesel-2024.html](https://econchrisclarke.github.io/OilMarkets/gulf-diesel-2024.html) |
 | 4 | Post-Covid fuel price shocks come from refining limits more than crude, unlike 2008 | [diesel-gasoline-margins.html](https://econchrisclarke.github.io/OilMarkets/diesel-gasoline-margins.html) |
+| 5 | Most regions refine their own diesel; the East Coast relies on the Gulf Coast | [padd-diesel-2024.html](https://econchrisclarke.github.io/OilMarkets/padd-diesel-2024.html) |
 
 ### US diesel exports by port region and destination, 2024
 
@@ -30,6 +31,23 @@ Arrow width is barrels per day.
 
 **Source:** US Census Bureau, International Trade API, exports by customs
 district at the HS10 level (Schedule B 2710.19.1106/1109/1112 and 2710.20).
+
+### Diesel by US region: refining, domestic shipments, imports and exports, 2024
+
+Each of the five PADD regions with what it refines and uses, the gross
+region-to-region shipments (pipeline, tanker, barge and rail, each direction
+separately), and foreign imports and exports. The Midwest, Rockies and West
+Coast refine about what they use; the East Coast refines 232k b/d, uses
+1.1M b/d, and gets 868k b/d from the Gulf Coast.
+
+- **View the map:** [padd-diesel-2024.html](https://econchrisclarke.github.io/OilMarkets/padd-diesel-2024.html)
+- **Data:** [`data/eia/distillate_padd_balance_2024.csv`](data/eia/distillate_padd_balance_2024.csv),
+  [`data/eia/distillate_padd_movements_2024.csv`](data/eia/distillate_padd_movements_2024.csv)
+- **Map config:** [`maps/configs/padd-diesel-2024.json`](maps/configs/padd-diesel-2024.json),
+  built by [`scripts/process_padd_diesel_map.py`](scripts/process_padd_diesel_map.py)
+
+**Source:** EIA, Supply and Disposition by PAD District; Movements by Pipeline,
+Tanker, Barge and Rail between PAD Districts (distillate fuel oil, annual).
 
 ### Crude oil vs. diesel and gasoline refining margins, 2006-2026
 

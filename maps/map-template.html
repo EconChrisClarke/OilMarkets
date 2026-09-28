@@ -305,7 +305,8 @@ function draw(ctx, W, H, P){
        split     one trunk per origin that splits into its destinations,
                  Sankey-fashion, so the origin total is visible as a width */
   const AS = MAP.arrowStyle || 'flat';
-  const colorOf = f => (NODES[farOf(f)] && NODES[farOf(f)].color) || T.red;
+  /* flow.color overrides the destination colour, e.g. imports vs exports vs domestic */
+  const colorOf = f => f.color || (NODES[farOf(f)] && NODES[farOf(f)].color) || T.red;
   if(AS === 'split' && flows.length && flows[0].p0){
     const byFrom = {};
     flows.forEach(f => { (byFrom[f.from] = byFrom[f.from] || []).push(f); });
@@ -389,20 +390,43 @@ function draw(ctx, W, H, P){
     /* nearest first, then two steps further out: a label pushed a little off
        its dot still reads as belonging to it; a missing label does not */
     const why = [];
+    /* side "near": centred on the point if free, else the nearest free spot
+       on a spiral around it (up to ~90 design units away) */
+    if(sides.includes('near')){
+      const cands = [[0,0]];
+      for(let r=12; r<=90; r+=12) for(let a=0; a<16; a++)
+        cands.push([Math.cos(a*Math.PI/8)*r*1.6, Math.sin(a*Math.PI/8)*r]);
+      for(const [dx,dy] of cands){
+        const x = p[0]+dx*s-w/2, yy = p[1]+dy*s-h/2, r = {x, y:yy, w, h};
+        const b = blocker(r);
+        if(b){ why.push('near:'+b); continue; }
+        r.src = 'label ' + t1; placed.push(r);
+        drawLabel(r, x, yy, 'center');
+        return true;
+      }
+      sides = sides.filter(v => v !== 'near');
+    }
     for(const g of [9*s, 26*s, 44*s]){
     const at = {
       left:  [p[0]-g-w, p[1]-h/2, 'right'], right: [p[0]+g, p[1]-h/2, 'left'],
       above: [p[0]-w/2, p[1]-g-h, 'center'], below: [p[0]-w/2, p[1]+g, 'center'],
       ne: [p[0]+g*0.7, p[1]-g*0.7-h, 'left'],  nw: [p[0]-g*0.7-w, p[1]-g*0.7-h, 'right'],
-      se: [p[0]+g*0.7, p[1]+g*0.7, 'left'],    sw: [p[0]-g*0.7-w, p[1]+g*0.7, 'right']
+      se: [p[0]+g*0.7, p[1]+g*0.7, 'left'],    sw: [p[0]-g*0.7-w, p[1]+g*0.7, 'right'],
+      center: [p[0]-w/2, p[1]-h/2, 'center']   // exactly on the point: use with labelAt
     };
     for(const side of sides){
       const [x,yy,al] = at[side], r = {x, y:yy, w, h};
       const b = blocker(r);
       if(b){ why.push(side + '@' + Math.round(g/s) + ':' + b); continue; }
       r.src = 'label ' + t1; placed.push(r);
+      drawLabel(r, x, yy, al, g > 10*s);
+      return true;
+    }
+    }
+    dropped.push(t1); if(window.MAP_DEBUG) console.log('DROP', P.name, t1, why.slice(0,24).join(' | ')); return false;
+    function drawLabel(r, x, yy, al, pushed){
       /* pushed off its dot: a hairline leader says which dot it belongs to */
-      if((g > 10*s || dotK) && !k.startsWith('_d_')){
+      if((pushed || dotK) && !k.startsWith('_d_')){
         const cx = Math.min(Math.max(dp[0], r.x), r.x + r.w), cy = Math.min(Math.max(dp[1], r.y + 2*s), r.y + r.h - 2*s);
         const d = Math.hypot(cx - dp[0], cy - dp[1]) || 1;
         ctx.strokeStyle = T.muted; ctx.lineWidth = 1*s;
@@ -418,10 +442,7 @@ function draw(ctx, W, H, P){
         ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
         ctx.strokeText(t2, tx, yy + T.szLabel*s*2.1); ctx.fillStyle = T.muted; ctx.fillText(t2, tx, yy + T.szLabel*s*2.1);
       }
-      return true;
     }
-    }
-    dropped.push(t1); if(window.MAP_DEBUG) console.log('DROP', P.name, t1, why.join(' | ')); return false;
   }
   const totals = {};
   MAP.flows.forEach(f => {
@@ -430,14 +451,30 @@ function draw(ctx, W, H, P){
   });
   /* origins: a dot where the arrow leaves, then the name and its total */
   const origins = [...new Set(MAP.flows.map(anchorOf))].sort((a,b) => totals[b]-totals[a]);
-  origins.forEach(k => {
+  /* node.dot: false leaves a node's dot out, e.g. an "Imports" point that
+     stands for a direction rather than a place */
+  origins.filter(k => NODES[k].dot !== false).forEach(k => {
     ctx.fillStyle = T.ink; ctx.beginPath(); ctx.arc(pos[k][0], pos[k][1], 3.2*s, 0, 6.284); ctx.fill();
   });
   const dests = [...new Set(MAP.flows.map(farOf))].sort((a,b) => totals[b]-totals[a]);
-  if(MAP.style === 'flows' || !MAP.style) dests.forEach(k => label(k, NODES[k].label, fmtVal(totals[k]),
-    NODES[k].sides || ['below','above','left','right']));
+  /* node.sub replaces the second label line (default: the node's flow total),
+     e.g. "Refines 2.9M · uses 0.9M b/d"; node.textColor colours the name.
+     In the flows style a node that both sends and receives is labelled once,
+     as an origin. */
+  const subOf = k => NODES[k].sub !== undefined ? NODES[k].sub : fmtVal(totals[k]);
+  const labelAtOf = k => {
+    const at = NODES[k].labelAt;
+    if(!at) return k;
+    pos['_a_' + k] = proj(at);
+    return '_a_' + k;
+  };
+  if(MAP.style === 'flows' || !MAP.style) dests.filter(k => !origins.includes(k)).forEach(k => {
+    const lk = labelAtOf(k);
+    label(lk, NODES[k].label, subOf(k), NODES[k].sides || ['below','above','left','right'],
+      NODES[k].textColor, lk !== k ? k : undefined);
+  });
   /* every origin dot is off limits to every label */
-  origins.forEach(k => placed.push({x:pos[k][0]-6*s, y:pos[k][1]-6*s, w:12*s, h:12*s, src:'dot ' + k}));
+  origins.filter(k => NODES[k].dot !== false).forEach(k => placed.push({x:pos[k][0]-6*s, y:pos[k][1]-6*s, w:12*s, h:12*s, src:'dot ' + k}));
   /* Labels go down in order of volume, origins and destinations mixed, so
      when space runs out it is the smallest flow that loses its label. */
   /* frames.X.labelMin: the phone frame skips small origins on purpose (as the
@@ -448,10 +485,9 @@ function draw(ctx, W, H, P){
   /* node.labelAt on a dot's node (fan and departure styles) moves its label
      off the dot, to a clear spot joined to it by a leader */
   const jobs = origins.filter(k => totals[k] >= labelMin).map(k => ({v:totals[k], run:() => {
-    const at = MAP.style !== 'flows' && MAP.style && NODES[k].labelAt;
-    if(at) pos['_a_' + k] = proj(at);
-    label(at ? '_a_' + k : k, nameOf(NODES[k]), fmtVal(totals[k]),
-      NODES[k].sides || ['left','right','above','below'], null, at ? k : undefined);
+    const lk = labelAtOf(k);
+    label(lk, nameOf(NODES[k]), subOf(k),
+      NODES[k].sides || ['left','right','above','below'], NODES[k].textColor || null, lk !== k ? k : undefined);
   }}));
   /* fan: one label per destination, at the value-weighted centre of its
      arrowheads (inbound: per origin, at the centre of its arrow tails) */

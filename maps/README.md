@@ -37,6 +37,13 @@ stay in `charts/`.
 - `length` on a flow overrides its fan arrow's length (a node's `length` sets
   all of that origin's arrows). A very wide arrow needs a longer one to read
   as an arrow rather than a wedge.
+- Node label options: `sub` replaces the second label line (default: the
+  node's flow total); `textColor` colours the name; `dot: false` leaves the
+  dot out (an "Imports" point that is a direction, not a place); `labelAt` now
+  works in every style; and the side `"near"` centres the label on its point,
+  or on the nearest free spot around it.
+- `color` on a flow overrides the destination colour (imports, exports and
+  domestic flows in different colours).
 - `legend`: reference values drawn as sample arrows. `draft: true` stamps a
   PLACEHOLDER watermark on the map.
 

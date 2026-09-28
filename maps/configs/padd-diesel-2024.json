@@ -1,0 +1,322 @@
+{
+  "headline": "Most regions refine their own diesel; the East Coast relies on the Gulf Coast",
+  "subhead": "Distillate fuel oil by region (PADD), 2024, barrels per day: domestic shipments, imports and exports",
+  "note": "Imports are counted where they enter the country. Region-to-region arrows are gross shipments by pipeline, tanker, barge and rail; flows under 5k b/d are not drawn.",
+  "source": "EIA, Supply and Disposition by PAD District; Movements by Pipeline, Tanker, Barge and Rail between PAD Districts",
+  "sourceUrl": "https://www.eia.gov/dnav/pet/pet_move_ptb_a_EPD0_TNR_mbbl_a.htm",
+  "units": "b/d",
+  "style": "flows",
+  "arrowStyle": "swoosh",
+  "maxArrowWidth": 40,
+  "legendTitle": "Arrow width",
+  "legend": [
+    100000,
+    500000
+  ],
+  "colorKey": false,
+  "geoBBox": [
+    -170,
+    -25,
+    -20,
+    75
+  ],
+  "nodes": {
+    "p1": {
+      "label": "East Coast",
+      "lonlat": [
+        -77.8,
+        38.6
+      ],
+      "sides": [
+        "near"
+      ],
+      "sub": "Refines 232k \u00b7 uses 1.1M",
+      "labelAt": [
+        -67.5,
+        40.6
+      ]
+    },
+    "p2": {
+      "label": "Midwest",
+      "lonlat": [
+        -90.5,
+        41.5
+      ],
+      "sides": [
+        "near"
+      ],
+      "sub": "Refines 1.2M \u00b7 uses 1.2M",
+      "labelAt": [
+        -98.0,
+        47.2
+      ]
+    },
+    "p3": {
+      "label": "Gulf Coast",
+      "lonlat": [
+        -95.5,
+        31.0
+      ],
+      "sides": [
+        "below",
+        "left",
+        "right"
+      ],
+      "sub": "Refines 2.9M \u00b7 uses 851k"
+    },
+    "p4": {
+      "label": "Rockies",
+      "lonlat": [
+        -109.5,
+        43.5
+      ],
+      "sides": [
+        "near"
+      ],
+      "sub": "Refines 202k \u00b7 uses 211k",
+      "labelAt": [
+        -114.5,
+        45.0
+      ]
+    },
+    "p5": {
+      "label": "West Coast",
+      "lonlat": [
+        -119.5,
+        38.5
+      ],
+      "sides": [
+        "near"
+      ],
+      "sub": "Refines 428k \u00b7 uses 366k",
+      "labelAt": [
+        -122.5,
+        31.5
+      ]
+    },
+    "xp1": {
+      "label": "Exports",
+      "sub": "36k",
+      "textColor": "#C71E1D",
+      "lonlat": [
+        -66,
+        34
+      ]
+    },
+    "xp3": {
+      "label": "Exports",
+      "sub": "1.1M",
+      "textColor": "#C71E1D",
+      "lonlat": [
+        -89,
+        23.5
+      ]
+    },
+    "xp5": {
+      "label": "Exports",
+      "sub": "123k",
+      "textColor": "#C71E1D",
+      "lonlat": [
+        -127.5,
+        36
+      ]
+    },
+    "mp1": {
+      "label": "Imports",
+      "sub": "112k",
+      "textColor": "#2E8B7A",
+      "lonlat": [
+        -64.5,
+        45.5
+      ],
+      "dot": false
+    },
+    "mp2": {
+      "label": "Imports",
+      "sub": "11k",
+      "textColor": "#2E8B7A",
+      "lonlat": [
+        -88,
+        50.5
+      ],
+      "dot": false
+    },
+    "mp4": {
+      "label": "Imports",
+      "sub": "11k",
+      "textColor": "#2E8B7A",
+      "lonlat": [
+        -110,
+        50.5
+      ],
+      "dot": false
+    },
+    "mp5": {
+      "label": "Imports",
+      "sub": "13k",
+      "textColor": "#2E8B7A",
+      "lonlat": [
+        -127.5,
+        45.5
+      ],
+      "dot": false
+    }
+  },
+  "flows": [
+    {
+      "from": "p1",
+      "to": "p2",
+      "value": 84000.0,
+      "color": "#1B3A5C"
+    },
+    {
+      "from": "p2",
+      "to": "p1",
+      "value": 45000.0,
+      "color": "#1B3A5C"
+    },
+    {
+      "from": "p2",
+      "to": "p3",
+      "value": 35000.0,
+      "color": "#1B3A5C"
+    },
+    {
+      "from": "p2",
+      "to": "p4",
+      "value": 21000.0,
+      "color": "#1B3A5C"
+    },
+    {
+      "from": "p3",
+      "to": "p1",
+      "value": 868000.0,
+      "color": "#1B3A5C"
+    },
+    {
+      "from": "p3",
+      "to": "p2",
+      "value": 62000.0,
+      "color": "#1B3A5C"
+    },
+    {
+      "from": "p3",
+      "to": "p5",
+      "value": 34000.0,
+      "color": "#1B3A5C"
+    },
+    {
+      "from": "p4",
+      "to": "p2",
+      "value": 14000.0,
+      "color": "#1B3A5C"
+    },
+    {
+      "from": "p4",
+      "to": "p5",
+      "value": 11000.0,
+      "color": "#1B3A5C"
+    },
+    {
+      "from": "p1",
+      "to": "xp1",
+      "value": 36000.0,
+      "color": "#C71E1D"
+    },
+    {
+      "from": "p3",
+      "to": "xp3",
+      "value": 1131000.0,
+      "color": "#C71E1D"
+    },
+    {
+      "from": "p5",
+      "to": "xp5",
+      "value": 123000.0,
+      "color": "#C71E1D"
+    },
+    {
+      "from": "mp1",
+      "to": "p1",
+      "value": 112000.0,
+      "color": "#2E8B7A"
+    },
+    {
+      "from": "mp2",
+      "to": "p2",
+      "value": 11000.0,
+      "color": "#2E8B7A"
+    },
+    {
+      "from": "mp4",
+      "to": "p4",
+      "value": 11000.0,
+      "color": "#2E8B7A"
+    },
+    {
+      "from": "mp5",
+      "to": "p5",
+      "value": 13000.0,
+      "color": "#2E8B7A"
+    }
+  ],
+  "frames": {
+    "substack": {
+      "bounds": [
+        [
+          -128,
+          22
+        ],
+        [
+          -62,
+          52
+        ]
+      ]
+    },
+    "vertical": {
+      "bounds": [
+        [
+          -127,
+          22
+        ],
+        [
+          -63,
+          52
+        ]
+      ],
+      "shortLabels": true,
+      "nodes": {
+        "xp5": {
+          "labelAt": [
+            -123.5,
+            33.0
+          ],
+          "sides": [
+            "near"
+          ]
+        },
+        "mp4": {
+          "labelAt": [
+            -112.5,
+            53.5
+          ],
+          "sides": [
+            "near"
+          ]
+        }
+      }
+    },
+    "square": {
+      "bounds": [
+        [
+          -127,
+          22
+        ],
+        [
+          -63,
+          52
+        ]
+      ]
+    }
+  }
+}
