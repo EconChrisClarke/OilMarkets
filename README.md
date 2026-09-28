@@ -16,7 +16,7 @@ Charts and data on global crude oil markets.
 | 6 | Gulf diesel exports to the world fell after the war began | [gulf-diesel-war.html](https://econchrisclarke.github.io/OilMarkets/gulf-diesel-war.html) |
 | 7 | Diesel is usually refined in the region it is consumed, except the Gulf and East coast | [padd-diesel-2024-bars.html](https://econchrisclarke.github.io/OilMarkets/padd-diesel-2024-bars.html) |
 | 8 | Fuel pipelines crowd the Gulf-to-East Coast corridor; the West has few | [pipelines-us.html](https://econchrisclarke.github.io/OilMarkets/pipelines-us.html) |
-| 9 | The heavier the crude oil, the more sulfur it carries | [crude-oil-sulfur-api.html](https://htmlpreview.github.io/?https://raw.githubusercontent.com/EconChrisClarke/OilMarkets/main/charts/crude-oil-sulfur-api.html) (preview link; not on GitHub Pages) |
+| 9 | The heavier the crude oil, the more sulfur it carries | [crude-oil-sulfur-api.html](https://econchrisclarke.github.io/OilMarkets/crude-oil-sulfur-api.html) |
 
 Drafts and style variants (not published) are in `charts/` and `charts/variants/`,
 with their configs in `maps/configs/` and `maps/configs/variants/`.
@@ -171,10 +171,10 @@ The heavier a crude oil, the more sulfur it tends to carry. This chart plots
 API gravity (a measure of density — higher is lighter) against sulfur
 content for major crude oil benchmarks traded worldwide.
 
-- **View the chart:** [Open interactive chart](https://htmlpreview.github.io/?https://raw.githubusercontent.com/EconChrisClarke/OilMarkets/main/charts/crude-oil-sulfur-api.html)
-  (renders in-browser; includes a PNG export button)
+- **View the chart:** [crude-oil-sulfur-api.html](https://econchrisclarke.github.io/OilMarkets/crude-oil-sulfur-api.html)
+  (Substack, vertical and square frames; PNG export button)
 - **Data:** [`data/crude_oil_sulfur_api.csv`](data/crude_oil_sulfur_api.csv)
-- **Chart source config:** [`charts/crude-oil-sulfur-api.json`](charts/crude-oil-sulfur-api.json)
+- **Chart config:** [`charts/crude-oil-sulfur-api.json`](charts/crude-oil-sulfur-api.json), built with [`chartkit/scripts/build_chart.py`](chartkit/scripts/build_chart.py)
 - **Static image:** [`images/crude-oil-sulfur-api.png`](images/crude-oil-sulfur-api.png)
 
 ![Crude oil sulfur content vs. API gravity](images/crude-oil-sulfur-api.png)
