@@ -70,6 +70,8 @@ for name in ("2025", "secondaryyear2026"):
 
 # ---- Eurostat: EU27 imports of gas oil from the Gulf, b/d ------------------
 eu = defaultdict(float)
+for m in BEFORE + AFTER:                      # every downloaded month counts, even at zero
+    eu[m] += 0.0
 eu_by = defaultdict(lambda: defaultdict(float))
 for r in csv.DictReader((ROOT / "data" / "trade" / "eu_gasoil_imports_by_partner_monthly.csv").open()):
     if r["partner"] in GULF_ISO2:
@@ -104,8 +106,11 @@ with out.open("w", newline="") as f:
 print(f"wrote {out.relative_to(ROOT)}")
 for n, g, b, a in summary:
     print(f"  {n:13s} {b/1000:7.1f} -> {a/1000:7.1f} k b/d  ({(a/b-1)*100 if b else 0:+.0f}%)")
-print("  EU27 by Gulf supplier:", {p: (round(mean(d, BEFORE) / 1000, 1), round(mean(d, AFTER) / 1000, 1))
-                                  for p, d in eu_by.items()})
+# every month in both windows was downloaded, so a supplier with no row in a
+# month shipped nothing that month: a measured zero
+zmean = lambda d, ms: sum(d.get(m, 0.0) for m in ms) / len(ms)
+print("  EU27 by Gulf supplier (k b/d before -> after):",
+      {p: (round(zmean(d, BEFORE) / 1000, 1), round(zmean(d, AFTER) / 1000, 1)) for p, d in eu_by.items()})
 
 # ---- chart config --------------------------------------------------------
 names = [n for n, _, _, _ in summary]
@@ -126,14 +131,16 @@ cfg = {
     "format": {"decimals": 0},
     "series": [
         {"name": "Before the war (Sep 2025–Feb 2026)", "color": "#C4B5B8",
-         "data": [round(b / 1000) for _, _, b, _ in summary]},
+         "data": [round(b / 1000, 1) for _, _, b, _ in summary]},
         {"name": "After (Apr–Jun 2026)", "color": "#C71E1D",
-         "data": [round(a / 1000) for _, _, _, a in summary]},
+         "data": [round(a / 1000, 1) for _, _, _, a in summary]},
     ],
     "categoryIcons": icons,
     "categoryGroups": [{"label": "Gulf exporters report", "from": 0, "to": 2},
                        {"label": "Importers report", "from": 3, "to": 4}],
     "changeLabels": True,
+    "valueLabels": True,
+    "categoryShort": {"Saudi Arabia": "S. Arabia", "Australia": "Australia"},
 }
 out = ROOT / "charts" / "gulf-diesel-war.json"
 out.write_text(json.dumps(cfg, indent=2) + "\n")

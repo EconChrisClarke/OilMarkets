@@ -13,6 +13,7 @@ Charts and data on global crude oil markets.
 | 3 | The Gulf Coast sends more diesel abroad than to the rest of the US | [gulf-diesel-2024.html](https://econchrisclarke.github.io/OilMarkets/gulf-diesel-2024.html) |
 | 4 | Post-Covid fuel price shocks come from refining limits more than crude, unlike 2008 | [diesel-gasoline-margins.html](https://econchrisclarke.github.io/OilMarkets/diesel-gasoline-margins.html) |
 | 5 | Most regions refine their own diesel; the East Coast relies on the Gulf Coast | [padd-diesel-2024.html](https://econchrisclarke.github.io/OilMarkets/padd-diesel-2024.html) |
+| 6 | Gulf diesel exports fell after the war began, and Europe and Australia received less | [gulf-diesel-war.html](https://econchrisclarke.github.io/OilMarkets/gulf-diesel-war.html) |
 
 ### US diesel exports by port region and destination, 2024
 
@@ -31,6 +32,21 @@ Arrow width is barrels per day.
 
 **Source:** US Census Bureau, International Trade API, exports by customs
 district at the HS10 level (Schedule B 2710.19.1106/1109/1112 and 2710.20).
+
+### Gulf diesel before and after the Iran war
+
+Diesel and gas oil exports reported by the Gulf states that report them
+(Saudi Arabia, Kuwait, Bahrain; JODI), and imports from all eight Gulf states
+recorded by EU27 customs (Eurostat Comext, CN8) and by Australia (Australian
+Petroleum Statistics), averaged over September 2025-February 2026 and
+April-June 2026. Official reported data only; March 2026 is left out.
+
+- **View the chart:** [gulf-diesel-war.html](https://econchrisclarke.github.io/OilMarkets/gulf-diesel-war.html)
+- **Data:** [`data/trade/gulf_diesel_war_summary.csv`](data/trade/gulf_diesel_war_summary.csv),
+  [`data/trade/eu_gasoil_imports_by_partner_monthly.csv`](data/trade/eu_gasoil_imports_by_partner_monthly.csv)
+- **Chart config:** [`charts/gulf-diesel-war.json`](charts/gulf-diesel-war.json), built by
+  [`scripts/process_gulf_diesel_war.py`](scripts/process_gulf_diesel_war.py) (EU data:
+  [`scripts/fetch_eu_diesel_imports.py`](scripts/fetch_eu_diesel_imports.py))
 
 ### Diesel by US region: refining, domestic shipments, imports and exports, 2024
 
