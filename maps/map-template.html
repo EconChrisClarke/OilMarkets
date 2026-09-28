@@ -226,8 +226,16 @@ function draw(ctx, W, H, P){
     ctx.beginPath(); gp(f);
     ctx.fillStyle = f.properties.name === GEO.home ? T.home : T.land; ctx.fill();
   });
+  /* regions (MAP.regions, merged by the builder): a pale fill per region,
+     under the state lines, and a heavier white outline between regions */
+  (GEO.regions || []).forEach(r => {
+    ctx.beginPath(); gp(r.geometry); ctx.fillStyle = r.color; ctx.fill();
+  });
   ctx.beginPath(); gp(GEO.stateLines);
   ctx.strokeStyle = T.stateLine; ctx.lineWidth = 0.9*s; ctx.stroke();
+  (GEO.regions || []).forEach(r => {
+    ctx.beginPath(); gp(r.geometry); ctx.strokeStyle = T.bg; ctx.lineWidth = 2.6*s; ctx.stroke();
+  });
   ctx.beginPath(); GEO.countries.forEach(f => gp(f));
   ctx.strokeStyle = T.border; ctx.lineWidth = 0.7*s; ctx.stroke();
 
@@ -354,14 +362,39 @@ function draw(ctx, W, H, P){
     });
   });
 
+  /* bars: node.bar = value, drawn as a vertical bar standing on node.barAt
+     (default: the node itself), all on one scale (MAP.bars.max -> MAP.bars.height
+     design units), coloured node.barColor. Labels keep off them. */
+  const barRects = [];
+  const BW = (MAP.bars && MAP.bars.width || 16)*s;
+  const barH = v => v / MAP.bars.max * MAP.bars.height * s;
+  if(MAP.bars) for(const [k, n] of Object.entries(NODES)){
+    if(!n.bar) continue;
+    const p = proj(n.barAt || n.lonlat), h = barH(n.bar);
+    ctx.fillStyle = n.barColor || T.ink;
+    ctx.beginPath(); ctx.roundRect(p[0]-BW/2, p[1]-h, BW, h, [2*s, 2*s, 0, 0]); ctx.fill();
+    ctx.strokeStyle = T.bg; ctx.lineWidth = 1.2*s; ctx.stroke();
+    let top = p[1]-h;
+    if(MAP.bars.values){                     // MAP.bars.values: the value on top of each bar
+      ctx.font = '700 ' + (T.szSmall*s) + 'px ' + T.fBody; ctx.textAlign = 'center';
+      ctx.lineJoin = 'round'; ctx.strokeStyle = T.bg; ctx.lineWidth = 4*s;
+      const t = fmtVal(n.bar).replace(' ' + (MAP.units || ''), '');
+      ctx.strokeText(t, p[0], top - 5*s); ctx.fillStyle = n.barColor || T.ink; ctx.fillText(t, p[0], top - 5*s);
+      const tw = ctx.measureText(t).width;
+      barRects.push({x:p[0]-tw/2-3*s, y:top-5*s-T.szSmall*s-2*s, w:tw+6*s, h:T.szSmall*s+4*s, src:'bar value ' + k});
+      ctx.textAlign = 'left';
+    }
+    barRects.push({x:p[0]-BW/2-3*s, y:top-3*s, w:BW+6*s, h:h+6*s, src:'bar ' + k});
+  }
   /* labels, placed greedily; a label that would collide is dropped, never shrunk */
-  const placed = arrowRects.slice();
+  const placed = arrowRects.concat(barRects);
   /* the key sits bottom-left; keep labels off it */
   /* The destination labels are printed in their arrow colours, so a swatch key
      repeats them; MAP.colorKey turns it on where labels alone are not enough. */
   const nKeyDest = MAP.legend && MAP.colorKey ? Object.values(NODES).filter(n => n.color).length : 0;
   const keyH = !MAP.legend ? 0 :
-    (nKeyDest ? T.szSmall*s*1.6 + nKeyDest*20*s + 8*s : 0) + T.szSmall*s*0.6 + MAP.legend.length*30*s;
+    (nKeyDest ? T.szSmall*s*1.6 + nKeyDest*20*s + 8*s : 0) + T.szSmall*s*0.6 + MAP.legend.length*30*s
+    + (MAP.bars && MAP.bars.legend ? MAP.bars.legend / MAP.bars.max * MAP.bars.height * s + 24*s : 0);
   const keyTR = (fr.keyPos || MAP.keyPos) === 'tr';
   /* reserve only the key's real footprint: sample arrow + widest value label */
   ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
@@ -535,6 +568,14 @@ function draw(ctx, W, H, P){
       ctx.fillStyle = T.muted; ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
       ctx.fillText(fmtVal(v), kx + 80*s, ky - 8*s + T.szSmall*s*0.35);
     });
+    if(MAP.bars && MAP.bars.legend){
+      const h = MAP.bars.legend / MAP.bars.max * MAP.bars.height * s;
+      ky += 22*s + h;
+      ctx.fillStyle = T.muted;
+      ctx.fillRect(kx + 35*s - BW/2, ky - h, BW, h);
+      ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
+      ctx.fillText(MAP.bars.legendLabel || fmtVal(MAP.bars.legend), kx + 80*s, ky - h/2 + T.szSmall*s*0.35);
+    }
   }
 
   if(MAP.draft){

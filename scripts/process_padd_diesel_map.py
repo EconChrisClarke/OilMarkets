@@ -104,16 +104,37 @@ M = lambda v: f"{v/1e6:.1f}M" if v >= 995000 else f"{v/1e3:.0f}k"
 REGION = {
     "p1": ("East Coast", [-77.8, 38.6], [-67.5, 40.6], ["near"]),
     "p2": ("Midwest", [-90.5, 41.5], [-98.0, 47.2], ["near"]),
-    "p3": ("Gulf Coast", [-95.5, 31.0], None, ["below", "left", "right"]),
+    "p3": ("Gulf Coast", [-95.5, 31.0], [-97.0, 27.6], ["near"]),
     "p4": ("Rockies", [-106.0, 39.0], None, ["near"]),
     "p5": ("West Coast", [-119.5, 38.5], [-122.5, 31.5], ["near"])}
 nodes = {}
 for k, (n, ll, at, sides) in REGION.items():
     nodes[k] = {"label": n, "lonlat": ll, "sides": sides,
-                "sub": f"Refines {M(bal[k]['refined'])} · uses {M(bal[k]['supplied'])}"}
+                "sub": f"uses {M(bal[k]['supplied'])}"}   # refining is on the bar
     if at:
         nodes[k]["labelAt"] = at
 nodes["p4"].update({"lonlat": [-109.5, 43.5], "labelAt": [-114.5, 45.0]})
+
+# PADD membership (EIA definitions); pale fills for the areas, darker shades
+# of the same hues for each region's label and refining bar
+PADD_STATES = {
+    "p1": ["Connecticut", "Maine", "Massachusetts", "New Hampshire", "Rhode Island", "Vermont",
+           "Delaware", "District of Columbia", "Maryland", "New Jersey", "New York", "Pennsylvania",
+           "Florida", "Georgia", "North Carolina", "South Carolina", "Virginia", "West Virginia"],
+    "p2": ["Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Michigan", "Minnesota", "Missouri",
+           "Nebraska", "North Dakota", "South Dakota", "Ohio", "Oklahoma", "Tennessee", "Wisconsin"],
+    "p3": ["Alabama", "Arkansas", "Louisiana", "Mississippi", "New Mexico", "Texas"],
+    "p4": ["Colorado", "Idaho", "Montana", "Utah", "Wyoming"],
+    "p5": ["Arizona", "California", "Nevada", "Oregon", "Washington"],   # + Alaska, Hawaii (off map)
+}
+FILL = {"p1": "#D9E2EE", "p2": "#D5E8E0", "p3": "#F2E0C4", "p4": "#E3DBEC", "p5": "#F3D5D3"}
+DARK = {"p1": "#3F5F86", "p2": "#2F7560", "p3": "#A8711E", "p4": "#6C5A94", "p5": "#B0443F"}
+# where each region's refining bar stands: open ground inside the region, off the arrows
+BAR_AT = {"p1": [-81.6, 27.6], "p2": [-99.5, 37.6], "p3": [-102.8, 29.4],
+          "p4": [-111.8, 38.4], "p5": [-118.6, 42.4]}
+for k in REGION:
+    nodes[k].update({"bar": round(bal[k]["refined"], -3), "barAt": BAR_AT[k],
+                     "barColor": DARK[k], "textColor": DARK[k]})
 # where each region's foreign trade goes to or comes from, placed off the coast or border
 EXP_AT = {"p1": [-66, 34], "p3": [-89, 23.5], "p5": [-127.5, 36]}
 IMP_AT = {"p1": [-64.5, 45.5], "p2": [-88, 50.5], "p4": [-110, 50.5], "p5": [-127.5, 45.5]}
@@ -146,6 +167,10 @@ cfg = {
     "legend": [100000, 500000],
     "colorKey": False,
     "geoBBox": [-170, -25, -20, 75],
+    "regions": {k: {"color": FILL[k], "states": PADD_STATES[k]} for k in PADD_STATES},
+    # refining bars: 3M b/d would stand 100 design units tall
+    "bars": {"max": 3000000, "height": 100, "width": 22, "legend": 1000000, "values": True,
+             "legendLabel": "1M b/d refined"},
     "nodes": nodes,
     "flows": flows,
     "frames": {
@@ -154,7 +179,10 @@ cfg = {
                      # the tall frame is tight: West Coast exports go under their arrow,
                      # Rockies imports into the open space above Montana
                      "nodes": {"xp5": {"labelAt": [-123.5, 33.0], "sides": ["near"]},
-                               "mp4": {"labelAt": [-112.5, 53.5], "sides": ["near"]}}},
+                               "mp4": {"labelAt": [-112.5, 53.5], "sides": ["near"]},
+                               "p3": {"labelAt": [-100.5, 26.2], "sides": ["near"]},
+                               "p5": {"labelAt": [-114.5, 33.0], "sides": ["near"]},
+                               "p2": {"barAt": [-95.5, 38.2]}}},
         "square": {"bounds": [[-127, 22], [-63, 52]]},
     },
 }

@@ -63,7 +63,18 @@ const countries = topojson.feature(world, world.objects.countries).features
 const us = JSON.parse(fs.readFileSync(mod('us-atlas/states-10m.json')));
 const stateLines = topojson.mesh(us, us.objects.states, (a, b) => a !== b);
 stateLines.coordinates = round(stateLines.coordinates);
-const GEO = { countries, stateLines, home: cfg.homeCountry || 'United States of America' };
+/* cfg.regions: groups of US states filled as one shape each, e.g. PADDs.
+   {id: {color, states: ["Texas", ...]}}; the states are merged into a single
+   outline so the region reads as one area, with state lines drawn on top. */
+const regions = [];
+for (const [id, r] of Object.entries(cfg.regions || {})) {
+  const geoms = us.objects.states.geometries.filter(g => r.states.includes(g.properties.name));
+  const missing = r.states.filter(n => !geoms.some(g => g.properties.name === n));
+  if (missing.length) { console.error(`region ${id}: unknown states ${missing.join(', ')}`); process.exit(1); }
+  const m = topojson.merge(us, geoms);
+  regions.push({ id, color: r.color, geometry: { type: m.type, coordinates: round(m.coordinates) } });
+}
+const GEO = { countries, stateLines, regions, home: cfg.homeCountry || 'United States of America' };
 
 /* ---- stamp ------------------------------------------------------------ */
 const lib = fs.readFileSync(mod('d3-array/dist/d3-array.min.js'), 'utf8') + '\n' +

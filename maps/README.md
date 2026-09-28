@@ -42,6 +42,11 @@ stay in `charts/`.
   dot out (an "Imports" point that is a direction, not a place); `labelAt` now
   works in every style; and the side `"near"` centres the label on its point,
   or on the nearest free spot around it.
+- `regions`: `{id: {color, states: [state names]}}` fills groups of US states
+  as one pale area each (merged by the builder, outlined in white), e.g. PADDs.
+- `bars`: `{max, height, width, values, legend, legendLabel}` with `bar`,
+  `barAt` and `barColor` on nodes draws a vertical bar per node on one scale,
+  with its value on top and a sample in the key.
 - `color` on a flow overrides the destination colour (imports, exports and
   domestic flows in different colours).
 - `legend`: reference values drawn as sample arrows. `draft: true` stamps a

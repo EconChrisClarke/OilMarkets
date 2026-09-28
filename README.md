@@ -34,7 +34,8 @@ district at the HS10 level (Schedule B 2710.19.1106/1109/1112 and 2710.20).
 
 ### Diesel by US region: refining, domestic shipments, imports and exports, 2024
 
-Each of the five PADD regions with what it refines and uses, the gross
+Each of the five PADD regions, shaded by the states that belong to it, with a
+bar for what it refines, what it uses, the gross
 region-to-region shipments (pipeline, tanker, barge and rail, each direction
 separately), and foreign imports and exports. The Midwest, Rockies and West
 Coast refine about what they use; the East Coast refines 232k b/d, uses

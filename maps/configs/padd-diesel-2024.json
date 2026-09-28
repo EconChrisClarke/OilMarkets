@@ -20,6 +20,90 @@
     -20,
     75
   ],
+  "regions": {
+    "p1": {
+      "color": "#D9E2EE",
+      "states": [
+        "Connecticut",
+        "Maine",
+        "Massachusetts",
+        "New Hampshire",
+        "Rhode Island",
+        "Vermont",
+        "Delaware",
+        "District of Columbia",
+        "Maryland",
+        "New Jersey",
+        "New York",
+        "Pennsylvania",
+        "Florida",
+        "Georgia",
+        "North Carolina",
+        "South Carolina",
+        "Virginia",
+        "West Virginia"
+      ]
+    },
+    "p2": {
+      "color": "#D5E8E0",
+      "states": [
+        "Illinois",
+        "Indiana",
+        "Iowa",
+        "Kansas",
+        "Kentucky",
+        "Michigan",
+        "Minnesota",
+        "Missouri",
+        "Nebraska",
+        "North Dakota",
+        "South Dakota",
+        "Ohio",
+        "Oklahoma",
+        "Tennessee",
+        "Wisconsin"
+      ]
+    },
+    "p3": {
+      "color": "#F2E0C4",
+      "states": [
+        "Alabama",
+        "Arkansas",
+        "Louisiana",
+        "Mississippi",
+        "New Mexico",
+        "Texas"
+      ]
+    },
+    "p4": {
+      "color": "#E3DBEC",
+      "states": [
+        "Colorado",
+        "Idaho",
+        "Montana",
+        "Utah",
+        "Wyoming"
+      ]
+    },
+    "p5": {
+      "color": "#F3D5D3",
+      "states": [
+        "Arizona",
+        "California",
+        "Nevada",
+        "Oregon",
+        "Washington"
+      ]
+    }
+  },
+  "bars": {
+    "max": 3000000,
+    "height": 100,
+    "width": 22,
+    "legend": 1000000,
+    "values": true,
+    "legendLabel": "1M b/d refined"
+  },
   "nodes": {
     "p1": {
       "label": "East Coast",
@@ -30,11 +114,18 @@
       "sides": [
         "near"
       ],
-      "sub": "Refines 232k \u00b7 uses 1.1M",
+      "sub": "uses 1.1M",
       "labelAt": [
         -67.5,
         40.6
-      ]
+      ],
+      "bar": 232000.0,
+      "barAt": [
+        -81.6,
+        27.6
+      ],
+      "barColor": "#3F5F86",
+      "textColor": "#3F5F86"
     },
     "p2": {
       "label": "Midwest",
@@ -45,11 +136,18 @@
       "sides": [
         "near"
       ],
-      "sub": "Refines 1.2M \u00b7 uses 1.2M",
+      "sub": "uses 1.2M",
       "labelAt": [
         -98.0,
         47.2
-      ]
+      ],
+      "bar": 1164000.0,
+      "barAt": [
+        -99.5,
+        37.6
+      ],
+      "barColor": "#2F7560",
+      "textColor": "#2F7560"
     },
     "p3": {
       "label": "Gulf Coast",
@@ -58,11 +156,20 @@
         31.0
       ],
       "sides": [
-        "below",
-        "left",
-        "right"
+        "near"
       ],
-      "sub": "Refines 2.9M \u00b7 uses 851k"
+      "sub": "uses 851k",
+      "labelAt": [
+        -97.0,
+        27.6
+      ],
+      "bar": 2910000.0,
+      "barAt": [
+        -102.8,
+        29.4
+      ],
+      "barColor": "#A8711E",
+      "textColor": "#A8711E"
     },
     "p4": {
       "label": "Rockies",
@@ -73,11 +180,18 @@
       "sides": [
         "near"
       ],
-      "sub": "Refines 202k \u00b7 uses 211k",
+      "sub": "uses 211k",
       "labelAt": [
         -114.5,
         45.0
-      ]
+      ],
+      "bar": 202000.0,
+      "barAt": [
+        -111.8,
+        38.4
+      ],
+      "barColor": "#6C5A94",
+      "textColor": "#6C5A94"
     },
     "p5": {
       "label": "West Coast",
@@ -88,11 +202,18 @@
       "sides": [
         "near"
       ],
-      "sub": "Refines 428k \u00b7 uses 366k",
+      "sub": "uses 366k",
       "labelAt": [
         -122.5,
         31.5
-      ]
+      ],
+      "bar": 428000.0,
+      "barAt": [
+        -118.6,
+        42.4
+      ],
+      "barColor": "#B0443F",
+      "textColor": "#B0443F"
     },
     "xp1": {
       "label": "Exports",
@@ -302,6 +423,30 @@
           ],
           "sides": [
             "near"
+          ]
+        },
+        "p3": {
+          "labelAt": [
+            -100.5,
+            26.2
+          ],
+          "sides": [
+            "near"
+          ]
+        },
+        "p5": {
+          "labelAt": [
+            -114.5,
+            33.0
+          ],
+          "sides": [
+            "near"
+          ]
+        },
+        "p2": {
+          "barAt": [
+            -95.5,
+            38.2
           ]
         }
       }
