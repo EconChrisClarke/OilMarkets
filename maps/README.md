@@ -69,6 +69,8 @@ stay in `charts/`.
   `lineLegendTitle` and `lineThinLabel` set the key, which sits bottom left on a pale
   panel (`frames.X.lineKeyAt: [lon, lat]` moves it); `lineLabels: [{text, lonlat,
   layer, align}]` places names by hand. A map with only lines has `flows: []`.
+- `places: [{name, lonlat, side}]` draws small city dots with names (a name that
+  would run off the map flips sides; `frames.X.hidePlaces` drops names in one frame).
 - `color` on a flow overrides the destination colour (imports, exports and
   domestic flows in different colours).
 - `legend`: reference values drawn as sample arrows (`[]` for a map with no arrows, e.g. bars only; the key then shows just the bar sample). `draft: true` stamps a
