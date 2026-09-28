@@ -200,7 +200,9 @@ const PRESETS = {
    every reader defaults rather than assuming. */
 function fscale(P){ return (P && P.fs) ? P.fs : 1; }
 function hscale(P){ return (P && P.hs) ? P.hs : 1; }
-function showPointLabels(P){ return !P || P.pl !== false; }
+/* CHART.pointLabelsPhone: keep point labels in the 9:16 frame too (a sparse
+   scatter has room for them there) */
+function showPointLabels(P){ return !P || P.pl !== false || !!CHART.pointLabelsPhone; }
 
 /* Footer TEXT — the note and the source — is drawn into the canvas for every
    EXPORT, because a PNG travels without the page around it and those lines are
@@ -901,11 +903,14 @@ function draw(ctx, W, H, P, opts){
         ctx.restore();
       });
     }
-  } else if(xLog || xSqrt){
+  } else if(xLog || xSqrt || CHART.xNiceTicks){
     /* Decades, not data values. Picking from the observed x values — which is
        right for a time series, where they are years — would put 9,492 and
        176,000,000 on a population axis. */
-    const picks = scaleTicks(xSc, xMin, xMax, 5);
+    /* CHART.xNiceTicks: evenly spaced round values on a plain numeric axis
+       (e.g. API gravity), where data values as ticks would bunch together */
+    const picks = (xLog || xSqrt) ? scaleTicks(xSc, xMin, xMax, 5)
+                                  : ticks(xMin, xMax, 5).filter(v => v >= xMin - 1e-9 && v <= xMax + 1e-9);
     picks.forEach((v,i)=>{
       const px = Xn(v);
       ctx.strokeStyle = T.grid;
