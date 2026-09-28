@@ -53,6 +53,8 @@ stay in `charts/`.
 - `nearMax` (design units, default 90) lets `"near"` labels search further for
   a free spot; `frames.X.labelBarsHeight` sets label-bar height per frame. A
   leader is drawn only when a label sits away from its dot.
+- `labelBars` also takes `values: false` (no numbers on top), `gap` (between
+  bars) and `pad` (name to bars); `keyCompact: true` tightens the key.
 - `color` on a flow overrides the destination colour (imports, exports and
   domestic flows in different colours).
 - `legend`: reference values drawn as sample arrows. `draft: true` stamps a

@@ -61,7 +61,8 @@ const MAP = {
  "units": "b/d",
  "style": "flows",
  "arrowStyle": "swoosh",
- "nearMax": 260,
+ "nearMax": 140,
+ "keyCompact": true,
  "maxArrowWidth": 40,
  "legendTitle": "Arrow width",
  "legend": [
@@ -154,9 +155,12 @@ const MAP = {
  "labelBars": {
   "max": 3000000,
   "height": 80,
-  "width": 9,
+  "width": 10,
+  "gap": 1,
+  "pad": 4,
+  "values": false,
   "legend": 1000000,
-  "legendLabel": "Bars: 1M b/d",
+  "legendLabel": "1M b/d",
   "keys": [
    {
     "label": "dark: refined",
@@ -453,60 +457,6 @@ const MAP = {
      "labelAt": [
       -123.5,
       33
-     ],
-     "sides": [
-      "near"
-     ]
-    },
-    "p3": {
-     "labelAt": [
-      -86.5,
-      26
-     ],
-     "sides": [
-      "near"
-     ]
-    },
-    "p5": {
-     "labelAt": [
-      -124.5,
-      29.5
-     ],
-     "sides": [
-      "near"
-     ]
-    },
-    "p4": {
-     "labelAt": [
-      -112,
-      53
-     ],
-     "sides": [
-      "near"
-     ]
-    },
-    "p2": {
-     "labelAt": [
-      -92,
-      52.5
-     ],
-     "sides": [
-      "near"
-     ]
-    },
-    "p1": {
-     "labelAt": [
-      -74.5,
-      50.5
-     ],
-     "sides": [
-      "near"
-     ]
-    },
-    "mp1": {
-     "labelAt": [
-      -62.5,
-      44.5
      ],
      "sides": [
       "near"
@@ -872,13 +822,19 @@ function draw(ctx, W, H, P){
   /* the key sits bottom-left; keep labels off it */
   /* The destination labels are printed in their arrow colours, so a swatch key
      repeats them; MAP.colorKey turns it on where labels alone are not enough. */
+  /* MAP.keyCompact: tighter key rows, shorter sample arrows, text closer in */
+  const KC = !!MAP.keyCompact, kRow = (KC ? 21 : 30)*s, kLen = (KC ? 46 : 70)*s, kTx = (KC ? 54 : 80)*s,
+        kGap = (KC ? 8 : 16)*s, kLine = KC ? 1.2 : 1.3;
+  /* compact rows are as tall as their sample arrow needs, plus a little air */
+  const kStep = v => KC ? Math.max(kRow, width(v)*1.25 + 7*s) : kRow;
+  const kTitleGap = KC ? 5*s : 0;
   const nKeyDest = MAP.legend && MAP.colorKey ? Object.values(NODES).filter(n => n.color).length : 0;
   const keyH = !MAP.legend ? 0 :
-    (nKeyDest ? T.szSmall*s*1.6 + nKeyDest*20*s + 8*s : 0) + T.szSmall*s*0.6 + MAP.legend.length*30*s
+    (nKeyDest ? T.szSmall*s*1.6 + nKeyDest*20*s + 8*s : 0) + T.szSmall*s*0.6 + kTitleGap + MAP.legend.reduce((a, v) => a + kStep(v), 0)
     + (MAP.bars && MAP.bars.legend ? MAP.bars.legend / MAP.bars.max * MAP.bars.height * s + 24*s : 0)
-    + (MAP.labelBars && MAP.labelBars.legend ? 16*s + (MAP.labelBars.title ? T.szSmall*s*1.3 + 8*s : 0)
+    + (MAP.labelBars && MAP.labelBars.legend ? kGap + (MAP.labelBars.title ? T.szSmall*s*1.3 + 8*s : 0)
        + Math.max(MAP.labelBars.legend / MAP.labelBars.max * (fr.labelBarsHeight || MAP.labelBars.height) * s,
-                  T.szSmall*s*1.3*(1 + (MAP.labelBars.keys || []).filter(k => k.label).length)) : 0);
+                  T.szSmall*s*kLine*(1 + (MAP.labelBars.keys || []).filter(k => k.label).length)) : 0);
   const keyTR = (fr.keyPos || MAP.keyPos) === 'tr';
   /* reserve only the key's real footprint: sample arrow + widest value label */
   ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
@@ -886,8 +842,8 @@ function draw(ctx, W, H, P){
     ? [MAP.labelBars.legendLabel || ''].concat((MAP.labelBars.keys || []).map(k => k.label || '')) : [];
   const keyTextW = Math.max(...(MAP.legend || [0]).map(v => ctx.measureText(fmtVal(v)).width),
     ...lbKeyLines.map(t => ctx.measureText(t).width),
-    (ctx.font = '600 ' + (T.szSmall*s) + 'px ' + T.fBody, ctx.measureText(MAP.legendTitle || 'Arrow width').width - 80*s));
-  const keyW = pad*0.8 + 80*s + keyTextW + 8*s;
+    (ctx.font = '600 ' + (T.szSmall*s) + 'px ' + T.fBody, ctx.measureText(MAP.legendTitle || 'Arrow width').width - kTx));
+  const keyW = pad*0.8 + kTx + keyTextW + 8*s;
   const keyX = keyTR ? mR - keyW : mL, keyY = keyTR ? mapTop + pad*0.6 : mapBot - pad*0.6 - keyH - 6*s;
   if(MAP.legend) placed.push({x:keyX, y:keyY, w:keyW, h:keyH + pad*0.6 + 6*s, src:'key'});
   /* why a candidate spot fails: off the map, or the first thing it hits */
@@ -915,13 +871,16 @@ function draw(ctx, W, H, P){
     const LB = MAP.labelBars, lbs = LB && (NODES[dotK || k] || {}).labelBars || null;
     const lbW = (LB && LB.width || 7)*s, lbH = v => v / LB.max * (fr.labelBarsHeight || LB.height) * s;   // frames.X.labelBarsHeight
     let barsW = 0, barsH = 0, slotW = 0;
+    /* LB.values: false drops the numbers on top; LB.gap: space between bars */
+    const lbVals = LB && LB.values !== false, lbGap = (LB && LB.gap !== undefined ? LB.gap : 3)*s;
+    const lbPad = (LB && LB.pad !== undefined ? LB.pad : 6)*s;          // name-to-bars gap
     if(lbs){
       ctx.font = '700 ' + (T.szSmall*s*0.85) + 'px ' + T.fBody;
-      slotW = Math.max(lbW, ...lbs.map(b => ctx.measureText(fmtShort(b.value)).width)) + 3*s;
-      barsW = lbs.length * slotW;
-      barsH = Math.max(...lbs.map(b => lbH(b.value))) + T.szSmall*s*1.1;
+      slotW = (lbVals ? Math.max(lbW, ...lbs.map(b => ctx.measureText(fmtShort(b.value)).width)) : lbW) + lbGap;
+      barsW = lbs.length * slotW - lbGap;
+      barsH = Math.max(...lbs.map(b => lbH(b.value))) + (lbVals ? T.szSmall*s*1.1 : 0);
     }
-    const w = textW + (lbs ? 6*s + barsW : 0), h = Math.max(textH, barsH);
+    const w = textW + (lbs ? lbPad + barsW : 0), h = Math.max(textH, barsH);
     /* nearest first, then two steps further out: a label pushed a little off
        its dot still reads as belonging to it; a missing label does not */
     const why = [];
@@ -985,13 +944,15 @@ function draw(ctx, W, H, P){
       if(lbs){
         const base = yy + h - T.szLabel*s*0.2;          // bars stand on the name's baseline
         lbs.forEach((b, i) => {
-          const cx = x + textW + 6*s + slotW*(i + 0.5), bh = lbH(b.value);
+          const cx = x + textW + lbPad + slotW*i + (slotW - lbGap)/2, bh = lbH(b.value);
           ctx.fillStyle = b.color || T.ink;
           ctx.beginPath(); ctx.roundRect(cx - lbW/2, base - bh, lbW, Math.max(bh, 1*s), [1.5*s, 1.5*s, 0, 0]); ctx.fill();
-          ctx.font = '700 ' + (T.szSmall*s*0.85) + 'px ' + T.fBody; ctx.textAlign = 'center';
-          ctx.lineWidth = 3*s; ctx.strokeStyle = T.bg;
-          ctx.strokeText(fmtShort(b.value), cx, base - bh - 3*s);
-          ctx.fillStyle = b.textColor || b.color || T.ink; ctx.fillText(fmtShort(b.value), cx, base - bh - 3*s);
+          if(lbVals){
+            ctx.font = '700 ' + (T.szSmall*s*0.85) + 'px ' + T.fBody; ctx.textAlign = 'center';
+            ctx.lineWidth = 3*s; ctx.strokeStyle = T.bg;
+            ctx.strokeText(fmtShort(b.value), cx, base - bh - 3*s);
+            ctx.fillStyle = b.textColor || b.color || T.ink; ctx.fillText(fmtShort(b.value), cx, base - bh - 3*s);
+          }
         });
         ctx.textAlign = 'left';
       }
@@ -1080,18 +1041,18 @@ function draw(ctx, W, H, P){
     }
     ctx.fillStyle = T.muted; ctx.font = '600 ' + (T.szSmall*s) + 'px ' + T.fBody;
     ctx.fillText(MAP.legendTitle || 'Arrow width', kx, ky + T.szSmall*s);
-    ky += T.szSmall*s*0.6;
+    ky += T.szSmall*s*0.6 + kTitleGap;
     MAP.legend.forEach(v => {
-      ky += 30*s;
-      const a = arrowPath([kx, ky-8*s], [kx+70*s, ky-8*s], 0, width(v), s);
+      ky += kStep(v);
+      const a = arrowPath([kx, ky-8*s], [kx+kLen, ky-8*s], 0, width(v), s);
       ctx.fillStyle = T.muted; ctx.fill(a.path);
       ctx.fillStyle = T.muted; ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
-      ctx.fillText(fmtVal(v), kx + 80*s, ky - 8*s + T.szSmall*s*0.35);
+      ctx.fillText(fmtVal(v), kx + kTx, ky - 8*s + T.szSmall*s*0.35);
     });
     if(MAP.labelBars && MAP.labelBars.legend){
       /* MAP.labelBars.legend: height sample; .keys: [{label, color}] one per bar */
       const L = MAP.labelBars, h = L.legend / L.max * (fr.labelBarsHeight || L.height) * s, w = (L.width || 7)*s;
-      ky += 16*s;
+      ky += kGap;
       if(L.title){
         ky += T.szSmall*s*1.3;
         ctx.fillStyle = T.muted; ctx.font = '600 ' + (T.szSmall*s) + 'px ' + T.fBody;
@@ -1099,12 +1060,13 @@ function draw(ctx, W, H, P){
         ky += 8*s;
       }
       const lines = [L.legendLabel || fmtVal(L.legend)].concat((L.keys || []).map(k => k.label).filter(Boolean));
-      const top = ky, blockH = Math.max(h, T.szSmall*s*1.3*lines.length);
+      const top = ky, blockH = Math.max(h, T.szSmall*s*kLine*lines.length);
+      const bGap = (L.gap === undefined ? 5 : L.gap)*s;
       (L.keys || []).forEach((kk, i) => {
-        ctx.fillStyle = kk.color; ctx.fillRect(kx + 8*s + i*(w + 5*s), top + blockH - h, w, h);
+        ctx.fillStyle = kk.color; ctx.fillRect(kx + 8*s + i*(w + bGap), top + blockH - h, w, h);
       });
       ctx.fillStyle = T.muted; ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
-      lines.forEach((t, i) => ctx.fillText(t, kx + 80*s, top + T.szSmall*s*(0.9 + 1.3*i)));
+      lines.forEach((t, i) => ctx.fillText(t, kx + kTx, top + T.szSmall*s*(0.9 + kLine*i)));
       ky = top + blockH;
     }
     if(MAP.bars && MAP.bars.legend){
