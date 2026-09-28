@@ -40,8 +40,9 @@ EXCLUDE = {("ENBRIDGE", "Southern Lights")}
 
 rows = list(csv.DictReader(CAP.open()))
 # features that change capacity part way along: split at the vertex nearest
-# this point (Colonial's mainline at the Greensboro, NC hub)
-SPLIT = {40: (-79.85, 36.07)}
+# this point; "s" is the part from the feature's start to the split, "n" the rest
+SPLIT = {40: (-79.85, 36.07),     # Colonial at Greensboro, NC
+         181: (-112.1, 33.4)}      # Kinder Morgan SFPP at Phoenix: East Line / West Line
 
 
 def split_at(ls, pt, part):
@@ -69,7 +70,8 @@ for key, (label, color, fname) in LAYERS.items():
         # "40:s" / "40:n": the part of feature 40 before / after its SPLIT point
         fids = {int(x.split(":")[0]): (x.split(":") + [""])[1] for x in r["fids"].split(";")} if r["fids"] else None
         hit = [f for f in feats
-               if f["properties"]["Opername"] == r["operator"] and f["properties"]["Pipename"] in names
+               if f["properties"]["Opername"] == r["operator"]
+               and (names == ["*"] or f["properties"]["Pipename"] in names)
                and (fids is None or f["properties"]["FID"] in fids)]
         if not hit:
             unmatched.append(r["name"])
@@ -101,11 +103,10 @@ cfg = {
     "headline": "Fuel pipelines crowd the Gulf-to-East Coast corridor; the West has few",
     "subhead": "US refined-product and crude oil pipelines; line width shows capacity, barrels per day",
     "note": ("Capacity covers everything a line carries (gasoline, diesel, jet fuel), not diesel alone; "
-             "a few lines show stated throughput where capacity is not published. Thin lines: no published "
-             "capacity for that line (e.g. the Magellan, NuStar and Buckeye networks). Each figure's source is "
-             "in the accompanying spreadsheet."),
-    "source": ("Routes: EIA (via HIFLD). Capacity: EIA liquids pipeline projects database; company 10-K filings "
-               "(Enbridge, Phillips 66, Plains, Enterprise, Kinder Morgan, Holly Energy); company websites"),
+             "some lines show their volume where capacity is not published. Thin lines: no figure published for "
+             "that line. Each figure's source is in the accompanying spreadsheet."),
+    "source": ("Routes: EIA (via HIFLD). Capacity: EIA regional transportation fuels studies and liquids pipeline "
+               "projects database; company 10-K filings; company websites"),
     "sourceUrl": "https://github.com/EconChrisClarke/OilMarkets/blob/main/data/pipelines/pipeline_capacity_sources.xlsx",
     "units": "b/d",
     "style": "flows",
@@ -130,7 +131,7 @@ cfg = {
         "substack": {"bounds": [[-124.5, 25], [-67, 50]]},
         "vertical": {"bounds": [[-124.5, 25], [-67, 50]]},
         # a little more sea at the bottom, so the key sits below the Southwest's lines
-        "square": {"bounds": [[-124.5, 22.5], [-67, 50]]},
+        "square": {"bounds": [[-124.5, 21.2], [-67, 50]], "lineKeyAt": [-126.0, 24.6]},
     },
 }
 out = ROOT / "maps" / "configs" / "pipelines-us.json"
@@ -191,11 +192,14 @@ lines = [
     ("How to read it", True),
     ("Capacity (b/d): barrels per day. For refined-product lines it covers every product the line carries "
      "(gasoline, diesel, jet fuel), not diesel alone.", False),
-    ("Measure: 'Capacity' unless stated. Two lines show throughput (actual volume) because the operator "
-     "publishes no capacity; one is derived from two published figures, and the arithmetic is in its notes.", False),
-    ("Source type: Official (EIA), Company SEC filing (10-K), Company website, Derived, Industry reference, or "
-     "Press. Press and industry-reference figures could not be confirmed from an operator or official document; "
-     "they are the best figures available and are drawn at the reported value.", False),
+    ("Measure: 'Capacity' unless stated. Where no capacity is published, a line is drawn at its throughput "
+     "(actual volume, with the year); one figure is derived from two published figures, with the arithmetic "
+     "in its notes.", False),
+    ("Source type: Official (EIA) or Official (EIA study), Company SEC filing (10-K), Company website, Derived, or "
+     "Press. EIA studies are its regional Transportation Fuels Markets reports (West Coast 2015, East and Gulf "
+     "Coasts 2016, Midwest and Rocky Mountains 2017), which list capacity by pipeline segment. Press figures "
+     "could not be confirmed from an operator or official document; they are the best available and are drawn "
+     "at the reported value.", False),
     ("Width on map: 'No (thin)' lines have no capacity figure from any source and appear at a fixed thin width.", False),
     ("", False),
     ("Summary", True),
