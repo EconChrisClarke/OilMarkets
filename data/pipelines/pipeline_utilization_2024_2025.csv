@@ -1,0 +1,8 @@
+pipeline,layer,capacity_bpd,delivered_2024_bpd,delivered_2025_bpd,average_bpd,utilization_pct
+Colonial (Houston to Greensboro),Refined products,2500000,2574660,2608002,2591331,103.7
+Seaway (Cushing to Houston),Crude oil,950000,925497,963743,944620,99.4
+Explorer (Gulf to Midwest),Refined products,660000,638469,578057,608263,92.2
+Express (Alberta to Wyoming),Crude oil,310000,265883,267895,266889,86.1
+Products SE (Gulf to Southeast),Refined products,720000,583661,577696,580678,80.6
+Dakota Access (Bakken to Illinois),Crude oil,750000,610263,536443,573353,76.4
+UNEV (Salt Lake City to Las Vegas),Refined products,62000,26088,27647,26868,43.3

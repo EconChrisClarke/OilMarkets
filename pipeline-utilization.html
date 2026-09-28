@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CHART_TITLE</title>
+<title>Colonial, the main fuel line from the Gulf to the East Coast, runs full</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@144,700&family=Inter:wght@400;500;600;700&family=Jost:wght@600;700&display=swap" rel="stylesheet">
@@ -86,72 +86,60 @@
    ========================================================================= */
 /* CHART_CONFIG_START */
 const CHART = {
-  type: 'line',                 // 'line' | 'area' | 'column' | 'bar' | 'scatter'
-  headline: 'Cancer deaths keep falling, and almost nobody noticed',
-  subhead: 'Age-adjusted US cancer death rate, per 100,000 people',
-  source: 'NCI SEER',           // include the table title/number where there is one
-  sourceUrl: '',                // direct link to the table the numbers came from
-  note: '',                     // wraps onto as many lines as it needs; never truncated
-  handle: '@EconChrisClarke',
-  logo: true,                   // true = drawn house mark, false = none,
-                                // or a data:image/... URI to override it
-  background: null,             // null = house rose (#FFF1F2). Set '#FFFFFF'
-                                // for a white canvas, or any other hex.
-
-  xLabel: '',                   // axis titles. Essential on scatter, where
-  yLabel: '',                   // neither axis is self-evident.
-
-  xType: 'year',                // 'year' | 'date' | 'category' | 'number'
-  categories: [],               // required for column/bar
-  format: { prefix:'', suffix:'', decimals:0, compact:false },   // y values
-  xFormat: null,                // same shape, for a numeric x axis. null = plain
-  yZero: false,
-  yMin: null, yMax: null,
-  xMin: null, xMax: null,       // pin the x domain (numeric axes only)
-  stacked: false,
-  valueLabels: 'auto',          // 'auto' | true | false
-  xRange: null,                 // ['2016','2024'] pins the visible window
-  highlight: null,              // category name/index (bars) or series name (lines)
-
-  /* Log axes. Only for quantities spanning more than about two orders of
-     magnitude — population, GDP, firm size — where a linear axis crushes the
-     bottom 90% of the data into the edge. Ticks become decades (1k, 10k, 100k)
-     and the axis is snapped outward to whole decades, because a log axis whose
-     ends fall mid-decade is very hard to read. Values must be > 0. */
-  xScale: 'linear',             // 'linear' | 'log'
-  yScale: 'linear',
-
-  series: [
-    { name:'Cancer deaths', color:null,
-      data:[[2016,158],[2017,155],[2018,152],[2019,149],[2020,146],[2021,144],[2022,141],[2023,139]] }
+  "type": "bar",
+  "headline": "Colonial, the main fuel line from the Gulf to the East Coast, runs full",
+  "subhead": "Barrels delivered as a share of capacity, 2024-2025 average, %",
+  "note": "Deliveries are each pipeline company's reported barrels delivered, all products; they include barrels dropped off along the way and on branch lines, so a line that runs full can show slightly over 100%. Capacity: company filings and EIA. Pipelines whose report covers a whole network (e.g. Magellan, Buckeye) are left out.",
+  "source": "FERC Form No. 6, annual reports of oil pipeline companies (via Catalyst Cooperative PUDL); capacity: EIA, company 10-K filings",
+  "sourceUrl": "https://data.catalyst.coop",
+  "xType": "category",
+  "categories": [
+    "Colonial (Houston to Greensboro)",
+    "Seaway (Cushing to Houston)",
+    "Explorer (Gulf to Midwest)",
+    "Express (Alberta to Wyoming)",
+    "Products SE (Gulf to Southeast)",
+    "Dakota Access (Bakken to Illinois)",
+    "UNEV (Salt Lake City to Las Vegas)"
   ],
-
-  hidden: [],                   // series names switched off at load (Series checkboxes)
-  /* column charts only: a silhouette above each category, {category: SVG path
-     in a 100x100 box} (chartkit/scripts/country_icons.js makes country ones);
-     section headers over runs of categories, [{label, from, to}]; and the
-     change from the first series to the last under each category label */
-  categoryIcons: null, categoryGroups: null, changeLabels: false, categoryShort: null,
-  annotations: [],              // [{x, y, text, dx, dy, series?}] — commentary, with a
-                                // leader line. One or two, never five.
-
-  /* Point labels — the country's name and nothing else. Different job from an
-     annotation: an annotation argues, a point label orients. A dozen or more is
-     fine, because a name the reader already knows costs almost no attention.
-     Scatter only, matched against each point's third element.
-     Suppressed automatically on the vertical export — at 9:16 the plot is small
-     and a phone reader is not hunting for Estonia. */
-  pointLabels: [],              // ['Bangladesh','Iceland',...] or 'all'
-  bands:       [],              // [{x0, x1}] shaded x ranges (recessions etc.)
-
-  /* A reference line across the plot: a threshold, a target, a median. Give it
-     a short label or leave it bare. */
-  rules:   [],                  // [{axis:'x'|'y', at: 45288, label:'…'}]
-
-  /* A shaded rectangle. Unlike `bands`, which is full-height, this bounds both
-     axes — for calling out a quadrant or a region that is conspicuously empty.
-     Any bound left null runs to the edge of the plot. */
-  regions: []                   // [{x0, x1, y0, y1, label}]
+  "format": {
+    "suffix": "%",
+    "decimals": 0
+  },
+  "yZero": true,
+  "valueLabels": true,
+  "rules": [
+    {
+      "axis": "y",
+      "at": 100,
+      "label": "Capacity"
+    }
+  ],
+  "series": [
+    {
+      "name": "Share of capacity used",
+      "color": "#C71E1D",
+      "data": [
+        103.7,
+        99.4,
+        92.2,
+        86.1,
+        80.6,
+        76.4,
+        43.3
+      ]
+    }
+  ],
+  "highlight": "Colonial (Houston to Greensboro)",
+  "categoryShort": {
+    "Colonial (Houston to Greensboro)": "Colonial",
+    "Seaway (Cushing to Houston)": "Seaway",
+    "Explorer (Gulf to Midwest)": "Explorer",
+    "Express (Alberta to Wyoming)": "Express",
+    "Products SE (Gulf to Southeast)": "Products SE",
+    "Dakota Access (Bakken to Illinois)": "Dakota Access",
+    "UNEV (Salt Lake City to Las Vegas)": "UNEV"
+  }
 };
 /* CHART_CONFIG_END */
 
