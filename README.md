@@ -181,6 +181,9 @@ whose FERC report is essentially one trunk line are shown.
 - **Data:** [`data/pipelines/pipeline_utilization_2024_2025.csv`](data/pipelines/pipeline_utilization_2024_2025.csv)
 - **Chart config:** [`charts/pipeline-utilization.json`](charts/pipeline-utilization.json), built by
   [`scripts/process_pipeline_utilization.py`](scripts/process_pipeline_utilization.py)
+- **Static image:** [`images/pipeline-utilization.png`](images/pipeline-utilization.png)
+
+![How full the main pipelines run, 2024-2025](images/pipeline-utilization.png)
 
 **Source:** FERC Form No. 6, annual reports of oil pipeline companies (page 600,
 barrels delivered), via Catalyst Cooperative's PUDL database; capacity from
@@ -198,6 +201,9 @@ PADD 1, so they are not a share of capacity.
 - **Data:** [`data/pipelines/gulf_to_east_coast_pipeline_monthly.csv`](data/pipelines/gulf_to_east_coast_pipeline_monthly.csv)
 - **Chart config:** [`charts/pipeline-east-coast-monthly.json`](charts/pipeline-east-coast-monthly.json), built by
   [`scripts/process_pipeline_utilization.py`](scripts/process_pipeline_utilization.py)
+- **Static image:** [`images/pipeline-east-coast-monthly.png`](images/pipeline-east-coast-monthly.png)
+
+![Gulf Coast to East Coast pipeline shipments by month](images/pipeline-east-coast-monthly.png)
 
 **Source:** EIA, Movements by Pipeline between PAD Districts, East Coast
 receipts from the Gulf Coast (monthly).
