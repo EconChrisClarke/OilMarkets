@@ -55,7 +55,7 @@ const GEO = {"countries":[{"type":"Feature","id":"862","properties":{"name":"Ven
 const MAP = {
  "headline": "Most regions refine their own diesel; the East Coast relies on the Gulf Coast",
  "subhead": "Distillate fuel oil by region (PADD), 2024, barrels per day: domestic shipments, imports and exports",
- "note": "US totals: refined 4.94M b/d, consumed 3.79M, exported 1.29M. Imports are counted where they enter the country. Region-to-region arrows are gross shipments by pipeline, tanker, barge and rail; flows under 5k b/d are not drawn. Imports into the Midwest (11k), Rockies (11k) and West Coast (13k) are too small to draw.",
+ "note": "US totals: refined 4.94M b/d, consumed 3.79M, exported 1.29M. Imports are counted where they enter the country. Region-to-region arrows are gross shipments by pipeline, tanker, barge and rail; flows under 5k b/d are not drawn.",
  "source": "EIA, Supply and Disposition by PAD District; Movements by Pipeline, Tanker, Barge and Rail between PAD Districts",
  "sourceUrl": "https://www.eia.gov/dnav/pet/pet_move_ptb_a_EPD0_TNR_mbbl_a.htm",
  "units": "b/d",
@@ -344,6 +344,36 @@ const MAP = {
     45.5
    ],
    "dot": false
+  },
+  "mp2": {
+   "label": "Imports",
+   "sub": "11k",
+   "textColor": "#2E8B7A",
+   "lonlat": [
+    -91,
+    51.5
+   ],
+   "dot": false
+  },
+  "mp4": {
+   "label": "Imports",
+   "sub": "11k",
+   "textColor": "#2E8B7A",
+   "lonlat": [
+    -110,
+    51.5
+   ],
+   "dot": false
+  },
+  "mp5": {
+   "label": "Imports",
+   "sub": "13k",
+   "textColor": "#2E8B7A",
+   "lonlat": [
+    -123.5,
+    52
+   ],
+   "dot": false
   }
  },
  "flows": [
@@ -424,6 +454,24 @@ const MAP = {
    "to": "p1",
    "value": 112000,
    "color": "#2E8B7A"
+  },
+  {
+   "from": "mp2",
+   "to": "p2",
+   "value": 11000,
+   "color": "#2E8B7A"
+  },
+  {
+   "from": "mp4",
+   "to": "p4",
+   "value": 11000,
+   "color": "#2E8B7A"
+  },
+  {
+   "from": "mp5",
+   "to": "p5",
+   "value": 13000,
+   "color": "#2E8B7A"
   }
  ],
  "frames": {
@@ -437,7 +485,18 @@ const MAP = {
      -62,
      52
     ]
-   ]
+   ],
+   "nodes": {
+    "xp5": {
+     "labelAt": [
+      -126,
+      33.6
+     ],
+     "sides": [
+      "near"
+     ]
+    }
+   }
   },
   "vertical": {
    "bounds": [

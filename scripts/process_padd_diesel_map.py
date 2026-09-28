@@ -149,8 +149,10 @@ for k in REGION:
         {"value": round(bal[k]["supplied"], -3), "color": mix(DARK[k], BG, 0.5), "textColor": DARK[k]}]})
 # where each region's foreign trade goes to or comes from, placed off the coast or border
 EXP_AT = {"p1": [-66, 34], "p3": [-89, 23.5], "p5": [-127.5, 36]}
-IMP_AT = {"p1": [-64.5, 45.5], "p2": [-88, 50.5], "p4": [-110, 50.5], "p5": [-127.5, 45.5]}
-IMP_MIN = 20000   # smaller import flows (Midwest, Rockies, West Coast) are named in the note
+# where each region's imports come from: the East Coast's off the Atlantic, the
+# other three just across the Canadian border, so their small arrows come in short
+IMP_AT = {"p1": [-64.5, 45.5], "p2": [-91.0, 51.5], "p4": [-110.0, 51.5], "p5": [-123.5, 52.0]}
+IMP_MIN = 5000
 flows = [{"from": a, "to": b, "value": round(v, -3), "color": NAVY} for (a, b), v in mov.items() if v >= 5000]
 MIN = 5000
 for k, at in EXP_AT.items():
@@ -173,9 +175,7 @@ cfg = {
     "subhead": f"Distillate fuel oil by region (PADD), {YEAR}, barrels per day: domestic shipments, imports and exports",
     "note": (f"US totals: refined {us_ref/1e6:.2f}M b/d, consumed {us_use/1e6:.2f}M, exported {us_exp/1e6:.2f}M. "
              "Imports are counted where they enter the country. Region-to-region arrows are gross shipments "
-             f"by pipeline, tanker, barge and rail; flows under {MIN//1000}k b/d are not drawn. Imports into the "
-             f"Midwest ({bal['p2']['imports']/1e3:.0f}k), Rockies ({bal['p4']['imports']/1e3:.0f}k) and West Coast "
-             f"({bal['p5']['imports']/1e3:.0f}k) are too small to draw."),
+             f"by pipeline, tanker, barge and rail; flows under {MIN//1000}k b/d are not drawn."),
     "source": "EIA, Supply and Disposition by PAD District; Movements by Pipeline, Tanker, Barge and Rail between PAD Districts",
     "sourceUrl": "https://www.eia.gov/dnav/pet/pet_move_ptb_a_EPD0_TNR_mbbl_a.htm",
     "units": "b/d",
@@ -198,7 +198,9 @@ cfg = {
     "nodes": nodes,
     "flows": flows,
     "frames": {
-        "substack": {"bounds": [[-128, 22], [-62, 52]]},
+        "substack": {"bounds": [[-128, 22], [-62, 52]],
+                     # West Coast exports label below its arrow, clear of the region name
+                     "nodes": {"xp5": {"labelAt": [-126.0, 33.6], "sides": ["near"]}}},
         # shorter bars in the smaller frames, same scale within each frame
         "vertical": {"bounds": [[-127, 22], [-63, 52]], "shortLabels": True, "labelBarsHeight": 55,
                      "nodes": {"xp5": {"labelAt": [-123.5, 33.0], "sides": ["near"]}}},
