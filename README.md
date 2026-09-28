@@ -14,6 +14,12 @@ Charts and data on global crude oil markets.
 | 4 | Post-Covid fuel price shocks come from refining limits more than crude, unlike 2008 | [diesel-gasoline-margins.html](https://econchrisclarke.github.io/OilMarkets/diesel-gasoline-margins.html) |
 | 5 | Most regions refine their own diesel; the East Coast relies on the Gulf Coast | [padd-diesel-2024.html](https://econchrisclarke.github.io/OilMarkets/padd-diesel-2024.html) |
 | 6 | Gulf diesel exports to the world fell after the war began | [gulf-diesel-war.html](https://econchrisclarke.github.io/OilMarkets/gulf-diesel-war.html) |
+| 7 | Diesel is usually refined in the region it is consumed, except the Gulf and East coast | [padd-diesel-2024-bars.html](https://econchrisclarke.github.io/OilMarkets/padd-diesel-2024-bars.html) |
+| 8 | Fuel pipelines crowd the Gulf-to-East Coast corridor; the West has few | [pipelines-us.html](https://econchrisclarke.github.io/OilMarkets/pipelines-us.html) |
+| 9 | The heavier the crude oil, the more sulfur it carries | [crude-oil-sulfur-api.html](https://htmlpreview.github.io/?https://raw.githubusercontent.com/EconChrisClarke/OilMarkets/main/charts/crude-oil-sulfur-api.html) (preview link; not on GitHub Pages) |
+
+Drafts and style variants (not published) are in `charts/` and `charts/variants/`,
+with their configs in `maps/configs/` and `maps/configs/variants/`.
 
 ### US diesel exports by port region and destination, 2024
 
@@ -65,6 +71,43 @@ Coast refine about what they use; the East Coast refines 232k b/d, uses
 
 **Source:** EIA, Supply and Disposition by PAD District; Movements by Pipeline,
 Tanker, Barge and Rail between PAD Districts (distillate fuel oil, annual).
+
+### Diesel by US region: refining and use only, 2024
+
+The same map as above with the arrows removed: each region's name and its two
+bars (refined, used), at the same positions and bar scale, so it can be shown
+first and the arrow map read as the same picture with flows added.
+
+- **View the map:** [padd-diesel-2024-bars.html](https://econchrisclarke.github.io/OilMarkets/padd-diesel-2024-bars.html)
+- **Data:** [`data/eia/distillate_padd_balance_2024.csv`](data/eia/distillate_padd_balance_2024.csv)
+- **Map config:** [`maps/configs/padd-diesel-2024-bars.json`](maps/configs/padd-diesel-2024-bars.json),
+  built by [`scripts/process_padd_diesel_map.py`](scripts/process_padd_diesel_map.py) (it writes both regional maps)
+
+**Source:** EIA, Supply and Disposition by PAD District (distillate fuel oil, annual).
+
+### US refined-product and crude oil pipelines, width by capacity
+
+EIA's routes for US refined-product and crude oil trunk pipelines, with each
+line drawn at its stated capacity: 109 lines with a published figure (Colonial,
+the Products SE Pipeline, Explorer, Enbridge, Keystone, Dakota Access, the
+Permian lines and many smaller segments) and every other route thin.
+Checkboxes show the refined-product network, the crude network, or both;
+hovering a line names it with its capacity. Capacity covers everything a line
+carries, not diesel alone.
+
+- **View the map:** [pipelines-us.html](https://econchrisclarke.github.io/OilMarkets/pipelines-us.html)
+- **Sources for every line:** [`data/pipelines/pipeline_capacity_sources.xlsx`](data/pipelines/pipeline_capacity_sources.xlsx)
+  (capacity, source, link and quote for each line with a figure, and an
+  "All routes on map" sheet listing every route drawn); the same capacity
+  data as CSV: [`data/pipelines/pipeline_capacity.csv`](data/pipelines/pipeline_capacity.csv)
+- **Routes:** [`data/geo/`](data/geo/), fetched by [`scripts/fetch_pipelines.py`](scripts/fetch_pipelines.py)
+- **Map config:** [`maps/configs/pipelines-us.json`](maps/configs/pipelines-us.json),
+  built by [`scripts/process_pipeline_map.py`](scripts/process_pipeline_map.py)
+
+**Source:** Routes: EIA pipeline layers (via the federal HIFLD open-data
+service). Capacity: EIA regional Transportation Fuels Markets studies
+(2015-2017) and liquids pipeline projects database; company 10-K filings;
+company websites; Canada Energy Regulator.
 
 ### Crude oil vs. diesel and gasoline refining margins, 2006-2026
 
