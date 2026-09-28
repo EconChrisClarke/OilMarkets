@@ -55,6 +55,12 @@ stay in `charts/`.
   leader is drawn only when a label sits away from its dot.
 - `labelBars` also takes `values: false` (no numbers on top), `gap` (between
   bars) and `pad` (name to bars); `keyCompact: true` tightens the key.
+- `hub: true` on a node (flows style) drops its dot: the name (and its
+  `labelBars`) sits centred on the node's point, and arrows stop at an
+  invisible rounded outline around that block, aimed at its centre, so they
+  converge on the name rather than a pin. `hubPad` (design units, default 8)
+  is the gap between the block and where the arrows stop. `frames.X.nodes`
+  can move a hub's `lonlat` for one frame.
 - `color` on a flow overrides the destination colour (imports, exports and
   domestic flows in different colours).
 - `legend`: reference values drawn as sample arrows. `draft: true` stamps a

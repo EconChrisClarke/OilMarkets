@@ -256,6 +256,50 @@ function draw(ctx, W, H, P){
   const width = v => Math.max(minW, v/maxV*maxW);
   HIT = [];
   const arrowRects = [];
+  /* A label block: the name (and optional second line) and, with
+     node.labelBars ([{value, color}]), skinny bars beside the name on one
+     scale for the whole map (MAP.labelBars: {max, height, width}), each with
+     its value on top unless LB.values is false. */
+  function measureBlock(t1, t2, bars){
+    ctx.font = '700 ' + (T.szLabel*s) + 'px ' + T.fBody;
+    const w1 = ctx.measureText(t1).width;
+    ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
+    const w2 = t2 ? ctx.measureText(t2).width : 0;
+    const textW = Math.max(w1,w2), textH = T.szLabel*s*(t2 ? 2.35 : 1.25);
+    const LB = MAP.labelBars, lbs = LB && bars || null;
+    const lbW = (LB && LB.width || 7)*s, lbH = v => v / LB.max * (fr.labelBarsHeight || LB.height) * s;   // frames.X.labelBarsHeight
+    let barsW = 0, barsH = 0, slotW = 0;
+    /* LB.values: false drops the numbers on top; LB.gap: space between bars */
+    const lbVals = LB && LB.values !== false, lbGap = (LB && LB.gap !== undefined ? LB.gap : 3)*s;
+    const lbPad = (LB && LB.pad !== undefined ? LB.pad : 6)*s;          // name-to-bars gap
+    if(lbs){
+      ctx.font = '700 ' + (T.szSmall*s*0.85) + 'px ' + T.fBody;
+      slotW = (lbVals ? Math.max(lbW, ...lbs.map(b => ctx.measureText(fmtVal(b.value).replace(' ' + (MAP.units || ''), '')).width)) : lbW) + lbGap;
+      barsW = lbs.length * slotW - lbGap;
+      barsH = Math.max(...lbs.map(b => lbH(b.value))) + (lbVals ? T.szSmall*s*1.1 : 0);
+    }
+    return {w: textW + (lbs ? lbPad + barsW : 0), h: Math.max(textH, barsH),
+            textW, textH, lbs, lbW, lbH, lbVals, lbGap, lbPad, slotW};
+  }
+  /* node.hub (flows style): no dot. The node's label block sits centred on its
+     point and the arrows stop at an invisible rounded outline around the
+     block, MAP.hubPad design units clear of it (default 8), each aimed at
+     the centre, so they converge on the name rather than on a pin. */
+  const hubBox = {};
+  const hubPad = (MAP.hubPad ?? 8)*s;
+  for(const [k, n] of Object.entries(NODES)){
+    if(!n.hub) continue;
+    const t1 = (fr.shortLabels && n.short) || n.label;
+    const tot = MAP.flows.reduce((v, f) => v + (f.from === k || f.to === k ? f.value : 0), 0);
+    const m = measureBlock(t1, n.sub !== undefined ? n.sub : fmtVal(tot), n.labelBars);
+    const c = pos[k];
+    hubBox[k] = {a: m.w/2 + hubPad, b: m.h/2 + hubPad,
+                 rect: {x: c[0]-m.w/2, y: c[1]-m.h/2, w: m.w, h: m.h, src: 'hub ' + k}};
+  }
+  /* distance from a hub's centre to its outline along the unit vector (ux, uy):
+     a superellipse (exponent 4), a box with softened corners */
+  const hubReach = (k, ux, uy) => { const H = hubBox[k];
+    return 1 / Math.pow(Math.pow(Math.abs(ux)/H.a, 4) + Math.pow(Math.abs(uy)/H.b, 4), 0.25); };
   /* Two styles. "flows": one curved arrow per origin-destination pair.
      "departure": one straight arrow per origin, width = its total, pointing
      toward its value-weighted destination (or node.heading, compass degrees).
@@ -337,8 +381,18 @@ function draw(ctx, W, H, P){
     });
   }
   flows.sort((a,b) => b.value - a.value);
+  /* ends at a hub move out to its outline, along the curve's own tangent */
+  if(!flows.length || !flows[0].p0) flows = flows.map(f => {
+    if(!hubBox[f.from] && !hubBox[f.to]) return f;
+    const bend = AS === 'swoosh' ? (MAP.swooshBend ?? 0.12) : (f.bend ?? 0.18);
+    const P0 = pos[f.from], P2 = pos[f.to], c = bendCtl(P0, P2, bend);
+    const out = (k, P) => { if(!hubBox[k]) return P;
+      const dx = c[0]-P[0], dy = c[1]-P[1], d = Math.hypot(dx, dy) || 1, r = hubReach(k, dx/d, dy/d);
+      return [P[0] + dx/d*r, P[1] + dy/d*r]; };
+    return Object.assign({}, f, {h0: out(f.from, P0), h2: out(f.to, P2)});
+  });
   flows.forEach(f => {
-    const p0 = f.p0 || pos[f.from], p2 = f.p2 || pos[f.to], w = width(f.value), col = colorOf(f);
+    const p0 = f.p0 || f.h0 || pos[f.from], p2 = f.p2 || f.h2 || pos[f.to], w = width(f.value), col = colorOf(f);
     let a;
     if(AS === 'swoosh') a = ribbon(p0, bendCtl(p0, p2, MAP.swooshBend ?? 0.12), p2, Math.max(1.5*s, w*0.12), w, s);
     else if(AS === 'split' && f.ctl) a = ribbon(p0, f.ctl, p2, w, w, s);
@@ -388,6 +442,8 @@ function draw(ctx, W, H, P){
   }
   /* labels, placed greedily; a label that would collide is dropped, never shrunk */
   const placed = arrowRects.concat(barRects);
+  /* hub blocks were sized before the arrows: reserve them first */
+  Object.values(hubBox).forEach(b => placed.push(b.rect));
   /* the key sits bottom-left; keep labels off it */
   /* The destination labels are printed in their arrow colours, so a swatch key
      repeats them; MAP.colorKey turns it on where labels alone are not enough. */
@@ -428,28 +484,7 @@ function draw(ctx, W, H, P){
   const fmtShort = v => fmtVal(v).replace(' ' + (MAP.units || ''), '');
   function label(k, t1, t2, sides, color, dotK){
     const p = pos[k], dp = pos[dotK || k];
-    ctx.font = '700 ' + (T.szLabel*s) + 'px ' + T.fBody;
-    const w1 = ctx.measureText(t1).width;
-    ctx.font = '500 ' + (T.szSmall*s) + 'px ' + T.fBody;
-    const w2 = t2 ? ctx.measureText(t2).width : 0;
-    const textW = Math.max(w1,w2), textH = T.szLabel*s*(t2 ? 2.35 : 1.25);
-    /* node.labelBars: [{value, color}] drawn as skinny bars beside the name,
-       on one scale for the whole map (MAP.labelBars: {max, height, width}),
-       each with its value on top; the name, bars and values are placed and
-       kept clear of everything else as one block */
-    const LB = MAP.labelBars, lbs = LB && (NODES[dotK || k] || {}).labelBars || null;
-    const lbW = (LB && LB.width || 7)*s, lbH = v => v / LB.max * (fr.labelBarsHeight || LB.height) * s;   // frames.X.labelBarsHeight
-    let barsW = 0, barsH = 0, slotW = 0;
-    /* LB.values: false drops the numbers on top; LB.gap: space between bars */
-    const lbVals = LB && LB.values !== false, lbGap = (LB && LB.gap !== undefined ? LB.gap : 3)*s;
-    const lbPad = (LB && LB.pad !== undefined ? LB.pad : 6)*s;          // name-to-bars gap
-    if(lbs){
-      ctx.font = '700 ' + (T.szSmall*s*0.85) + 'px ' + T.fBody;
-      slotW = (lbVals ? Math.max(lbW, ...lbs.map(b => ctx.measureText(fmtShort(b.value)).width)) : lbW) + lbGap;
-      barsW = lbs.length * slotW - lbGap;
-      barsH = Math.max(...lbs.map(b => lbH(b.value))) + (lbVals ? T.szSmall*s*1.1 : 0);
-    }
-    const w = textW + (lbs ? lbPad + barsW : 0), h = Math.max(textH, barsH);
+    const {w, h, textW, textH, lbs, lbW, lbH, lbVals, lbGap, lbPad, slotW} = measureBlock(t1, t2, (NODES[dotK || k] || {}).labelBars);
     /* nearest first, then two steps further out: a label pushed a little off
        its dot still reads as belonging to it; a missing label does not */
     const why = [];
@@ -470,6 +505,12 @@ function draw(ctx, W, H, P){
         return true;
       }
       sides = sides.filter(v => v !== 'near');
+    }
+    /* side "hub": the block was reserved before the arrows; draw it there */
+    if(sides.includes('hub') && hubBox[k]){
+      const r = hubBox[k].rect;
+      drawLabel(r, r.x, r.y, 'center');
+      return true;
     }
     for(const g of [9*s, 26*s, 44*s]){
     const at = {
@@ -536,7 +577,7 @@ function draw(ctx, W, H, P){
   const origins = [...new Set(MAP.flows.map(anchorOf))].sort((a,b) => totals[b]-totals[a]);
   /* node.dot: false leaves a node's dot out, e.g. an "Imports" point that
      stands for a direction rather than a place */
-  origins.filter(k => NODES[k].dot !== false).forEach(k => {
+  origins.filter(k => NODES[k].dot !== false && !NODES[k].hub).forEach(k => {
     ctx.fillStyle = T.ink; ctx.beginPath(); ctx.arc(pos[k][0], pos[k][1], 3.2*s, 0, 6.284); ctx.fill();
   });
   const dests = [...new Set(MAP.flows.map(farOf))].sort((a,b) => totals[b]-totals[a]);
@@ -551,13 +592,13 @@ function draw(ctx, W, H, P){
     pos['_a_' + k] = proj(at);
     return '_a_' + k;
   };
-  if(MAP.style === 'flows' || !MAP.style) dests.filter(k => !origins.includes(k)).forEach(k => {
+  if(MAP.style === 'flows' || !MAP.style) dests.filter(k => !origins.includes(k) && !hubBox[k]).forEach(k => {
     const lk = labelAtOf(k);
     label(lk, NODES[k].label, subOf(k), NODES[k].sides || ['below','above','left','right'],
       NODES[k].textColor, lk !== k ? k : undefined);
   });
   /* every origin dot is off limits to every label */
-  origins.filter(k => NODES[k].dot !== false).forEach(k => placed.push({x:pos[k][0]-6*s, y:pos[k][1]-6*s, w:12*s, h:12*s, src:'dot ' + k}));
+  origins.filter(k => NODES[k].dot !== false && !NODES[k].hub).forEach(k => placed.push({x:pos[k][0]-6*s, y:pos[k][1]-6*s, w:12*s, h:12*s, src:'dot ' + k}));
   /* Labels go down in order of volume, origins and destinations mixed, so
      when space runs out it is the smallest flow that loses its label. */
   /* frames.X.labelMin: the phone frame skips small origins on purpose (as the
@@ -567,7 +608,9 @@ function draw(ctx, W, H, P){
   const nameOf = n => (fr.shortLabels && n.short) || n.label;
   /* node.labelAt on a dot's node (fan and departure styles) moves its label
      off the dot, to a clear spot joined to it by a leader */
-  const jobs = origins.filter(k => totals[k] >= labelMin).map(k => ({v:totals[k], run:() => {
+  /* hubs first: their blocks are already reserved and never move */
+  Object.keys(hubBox).forEach(k => label(k, nameOf(NODES[k]), subOf(k), ['hub'], NODES[k].textColor || null));
+  const jobs = origins.filter(k => totals[k] >= labelMin && !hubBox[k]).map(k => ({v:totals[k], run:() => {
     const lk = labelAtOf(k);
     label(lk, nameOf(NODES[k]), subOf(k),
       NODES[k].sides || ['left','right','above','below'], NODES[k].textColor || null, lk !== k ? k : undefined);
