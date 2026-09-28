@@ -119,7 +119,7 @@ cfg = {
     "lineThinLabel": "Not published",
     "lineLabels": [
         {"text": "Colonial", "lonlat": [-83.6, 34.9], "layer": "refined", "align": "right"},
-        {"text": "Plantation", "lonlat": [-86.4, 32.2], "layer": "refined", "align": "left"},
+        {"text": "Products SE", "lonlat": [-86.4, 32.2], "layer": "refined", "align": "left"},
         {"text": "Explorer", "lonlat": [-95.2, 37.0], "layer": "refined", "align": "right"},
         {"text": "Enbridge Mainline", "lonlat": [-104.0, 49.9], "layer": "crude", "align": "left"},
         {"text": "Keystone", "lonlat": [-98.4, 44.5], "layer": "crude", "align": "right"},
@@ -194,10 +194,9 @@ lines = [
     ("Measure: 'Capacity' unless stated. Two lines show throughput (actual volume) because the operator "
      "publishes no capacity; one is derived from two published figures, and the arithmetic is in its notes.", False),
     ("Source type: Official (EIA), Company SEC filing (10-K), Company website, Derived, Industry reference, or "
-     "Press. Press figures could not be confirmed from an operator or official document, so those lines are drawn "
-     "thin. The one Industry reference (Colonial north of Greensboro, NC) is drawn, because EIA publishes no "
-     "figure for that stretch and a thin line would show Colonial ending in North Carolina.", False),
-    ("Width on map: 'No (thin)' lines appear on the map at a fixed thin width.", False),
+     "Press. Press and industry-reference figures could not be confirmed from an operator or official document; "
+     "they are the best figures available and are drawn at the reported value.", False),
+    ("Width on map: 'No (thin)' lines have no capacity figure from any source and appear at a fixed thin width.", False),
     ("", False),
     ("Summary", True),
     ("Lines listed", False), ("Drawn with width", False), ("Refined-product capacity drawn (b/d)", False),
