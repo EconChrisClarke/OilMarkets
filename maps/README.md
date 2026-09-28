@@ -61,6 +61,14 @@ stay in `charts/`.
   converge on the name rather than a pin. `hubPad` (design units, default 8)
   is the gap between the block and where the arrows stop. `frames.X.nodes`
   can move a hub's `lonlat` for one frame.
+- `lineLayers`: `[{id, label, color, lines: [{name, value, measure, route, coords}]}]` draws
+  routes (e.g. pipelines) with width set by `value` (`lineWidthMax` design units at
+  `lineMaxValue`, default the largest value); a line with no value is drawn thin in a
+  paler tint. The page gets one checkbox per layer (`?hide=id` starts one off), and
+  hovering a line names it with its value. `lineLegend` (reference values),
+  `lineLegendTitle` and `lineThinLabel` set the key, which sits bottom left on a pale
+  panel (`frames.X.lineKeyAt: [lon, lat]` moves it); `lineLabels: [{text, lonlat,
+  layer, align}]` places names by hand. A map with only lines has `flows: []`.
 - `color` on a flow overrides the destination colour (imports, exports and
   domestic flows in different colours).
 - `legend`: reference values drawn as sample arrows (`[]` for a map with no arrows, e.g. bars only; the key then shows just the bar sample). `draft: true` stamps a
