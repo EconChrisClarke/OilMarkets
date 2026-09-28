@@ -214,7 +214,7 @@ print(f"wrote {out.relative_to(ROOT)} ({len(flows)} flows; domestic drawn {shown
 # shown first so the arrow map reads as the same picture with flows added
 bars = json.loads(json.dumps(cfg))
 bars.update({
-    "headline": "The Gulf Coast refines the diesel; the East Coast uses it",
+    "headline": "Diesel is usually refined in the region it is consumed, except the Gulf and East coast",
     "subhead": f"Distillate fuel oil by region (PADD), {YEAR}, barrels per day: refined vs used",
     "note": (f"US totals: refined {us_ref/1e6:.2f}M b/d, consumed {us_use/1e6:.2f}M, exported {us_exp/1e6:.2f}M. "
              "Refined is refinery and blender production; used is products supplied."),
